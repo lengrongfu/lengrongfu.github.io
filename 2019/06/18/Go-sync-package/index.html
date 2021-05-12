@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Monda:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"lengrongfu.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Go sync package sync包提供了基本的同步原语，比如同步锁，还有其他的Once和WaitGroup，大多数都用于低级别的库，高级别的同步控制最好用channels。  Cond Cond实现了一个条件变量,等待或宣布事件发生的goroutines的集合点。  任何一个Cond都有任意一个相关的锁对象L，可以是同步锁或者读写锁。不论选择哪一个必须在条件改变和等待调用方法前不被改变。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go sync package">
+<meta property="og:url" content="http://lengrongfu.github.io/2019/06/18/Go-sync-package/index.html">
+<meta property="og:site_name" content="LRF成长记">
+<meta property="og:description" content="Go sync package sync包提供了基本的同步原语，比如同步锁，还有其他的Once和WaitGroup，大多数都用于低级别的库，高级别的同步控制最好用channels。  Cond Cond实现了一个条件变量,等待或宣布事件发生的goroutines的集合点。  任何一个Cond都有任意一个相关的锁对象L，可以是同步锁或者读写锁。不论选择哪一个必须在条件改变和等待调用方法前不被改变。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2019-06-18T12:07:55.000Z">
+<meta property="article:modified_time" content="2021-05-12T01:56:12.736Z">
+<meta property="article:author" content="lengrongfu">
+<meta property="article:tag" content="并发学习">
+<meta property="article:tag" content="golang 源码">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://lengrongfu.github.io/2019/06/18/Go-sync-package/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>Go sync package | LRF成长记</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H5BLLGCN5H"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-H5BLLGCN5H');
+      }
+    </script>
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?1d997d88f37f7096db1c4c9d9f8eeccc";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">LRF成长记</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://lengrongfu.github.io/2019/06/18/Go-sync-package/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lengrongfu">
+      <meta itemprop="description" content="通过持续的学习，记录了成为软件工程师的成长轨迹">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LRF成长记">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Go sync package
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-06-18 20:07:55" itemprop="dateCreated datePublished" datetime="2019-06-18T20:07:55+08:00">2019-06-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-05-12 09:56:12" itemprop="dateModified" datetime="2021-05-12T09:56:12+08:00">2021-05-12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/golang/" itemprop="url" rel="index"><span itemprop="name">golang</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Go-sync-package"><a href="#Go-sync-package" class="headerlink" title="Go sync package"></a>Go sync package</h1><p><code>sync</code>包提供了基本的同步原语，比如同步锁，还有其他的<code>Once</code>和<code>WaitGroup</code>，大多数都用于低级别的库，高级别的同步控制最好用<code>channels</code>。</p>
+<h2 id="Cond"><a href="#Cond" class="headerlink" title="Cond"></a>Cond</h2><p><code>Cond</code>实现了一个条件变量,等待或宣布事件发生的<code>goroutines</code>的集合点。</p>
+<p>任何一个<code>Cond</code>都有任意一个相关的锁对象<code>L</code>，可以是同步锁或者读写锁。不论选择哪一个必须在条件改变和等待调用方法前不被改变。</p>
+<p><code>Cond</code>使用之后不能被复制。</p>
+<p><code>Cond</code>主要用于<code>go</code>之间的消息通知。</p>
+<h3 id="func-c-Cond-Wait"><a href="#func-c-Cond-Wait" class="headerlink" title="func (c *Cond) Wait()"></a>func (c *Cond) Wait()</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Cond)</span> <span class="title">Wait</span><span class="params">()</span></span></span><br></pre></td></tr></table></figure>
+<p>等待<code>c.L</code>原子解锁以及暂停执行调用<code>goroutine</code>，之后再恢复执行，在返回前加锁<code>c.L</code>,除非被广播或信号唤醒，否则等待无法返回。</p>
+<p>使用例子:<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">c.L.Lock()</span><br><span class="line"><span class="keyword">for</span> !condition() &#123;</span><br><span class="line">    c.Wait()</span><br><span class="line">&#125;</span><br><span class="line">... <span class="built_in">make</span> use of condition ...</span><br><span class="line">c.L.Unlock()</span><br></pre></td></tr></table></figure></p>
+<h3 id="func-Cond-Signal"><a href="#func-Cond-Signal" class="headerlink" title="func (*Cond) Signal"></a>func (*Cond) Signal</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(*Cond)</span> <span class="title">Signal</span></span></span><br></pre></td></tr></table></figure>
+<p><code>Signal</code>函数是发送一个信号，用于唤醒一个等待的<code>go</code>,如果有多个<code>go</code>处于等待状态，则不能控制唤醒那个<code>go</code>。</p>
+<h3 id="func-Cond-Broadcast"><a href="#func-Cond-Broadcast" class="headerlink" title="func (*Cond) Broadcast"></a>func (*Cond) Broadcast</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(*Cond)</span> <span class="title">Broadcast</span></span></span><br></pre></td></tr></table></figure>
+<p><code>Broadcast</code>广播函数用于唤醒所有等待的<code>go</code>。</p>
+<h2 id="Mutex"><a href="#Mutex" class="headerlink" title="Mutex"></a>Mutex</h2><p><code>Mutex</code>就是一个互斥锁的。保证任何资源只能被任何一个<code>go</code>使用。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Mutex <span class="keyword">struct</span> &#123;</span><br><span class="line">	state <span class="keyword">int32</span> # 状态</span><br><span class="line">	sema  <span class="keyword">uint32</span> # 信号量字段semaphore</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="func-Mutex-Lock"><a href="#func-Mutex-Lock" class="headerlink" title="func (*Mutex) Lock"></a>func (*Mutex) Lock</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(m *Mutex)</span> <span class="title">Lock</span><span class="params">()</span></span></span><br></pre></td></tr></table></figure>
+<p>锁<code>m</code>,如果锁已被使用，则调用<code>goroutine</code>将阻塞，直到互斥锁可用。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"># Lock 函数,使用CAS算法，如果锁状态是<span class="number">0</span>，期望值也是<span class="number">0</span>，就修改为<span class="number">1</span>，如果再次加锁时，内存值是<span class="number">1</span>，期望值是<span class="number">0</span>，操作就是失败，得到的就是<span class="literal">false</span>;第一次加锁时m.state是<span class="number">0</span></span><br><span class="line"><span class="keyword">if</span> atomic.CompareAndSwapInt32(&amp;m.state, <span class="number">0</span>, mutexLocked) &#123;</span><br><span class="line">		<span class="keyword">if</span> race.Enabled &#123;</span><br><span class="line">			race.Acquire(unsafe.Pointer(m))</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	.....</span><br><span class="line"># 如果再次加锁就会进入<span class="keyword">go</span>等待队列中。如果lifo为<span class="literal">true</span>,队列等待在等待队列的头部。	</span><br><span class="line"># m.sema 是信号量,这个方法可Semacquire方法一样，是为了Mutexes实现的，如果lifo为<span class="literal">true</span>，则在等待队列的头部排队服务员</span><br><span class="line">runtime_SemacquireMutex(&amp;m.sema, queueLifo)</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># Semacquire等待直到* s&gt; <span class="number">0</span>然后以原子方式递减它。</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">runtime_Semacquire</span><span class="params">(s *<span class="keyword">uint32</span>)</span></span></span><br></pre></td></tr></table></figure>
+<h3 id="func-Mutex-Unlock"><a href="#func-Mutex-Unlock" class="headerlink" title="func (*Mutex) Unlock"></a>func (*Mutex) Unlock</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(m *Mutex)</span> <span class="title">Unlock</span><span class="params">()</span></span></span><br><span class="line"># 解锁的时候就进行m.state原子加<span class="number">-1</span>，如果多次解锁就会运行时异常。</span><br><span class="line"><span class="built_in">new</span> := atomic.AddInt32(&amp;m.state, -mutexLocked)</span><br><span class="line"><span class="keyword">if</span> (<span class="built_in">new</span>+mutexLocked)&amp;mutexLocked == <span class="number">0</span> &#123;</span><br><span class="line">		throw(<span class="string">&quot;sync: unlock of unlocked mutex&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">....</span><br><span class="line"># 这个方法主要是执行原子的递增m.sema,并通知一个阻塞在Semacquire的等待goroutines</span><br><span class="line">runtime_Semrelease(&amp;m.sema, <span class="literal">false</span>)</span><br></pre></td></tr></table></figure>
+<p>互斥锁与<code>go</code>不绑定，可以<code>go1</code>进行加锁,<code>go2</code>进行解锁。只要解锁在加锁后操作就行。</p>
+<p><code>go</code>中的互斥锁是通过信号量和</p>
+<h2 id="Once"><a href="#Once" class="headerlink" title="Once"></a>Once</h2><p><code>Once</code>是一个只执行一次动作的对象。一般可以用于连接关闭，保证只执行一次;或者用于执行初始化，保证只初始化一次。</p>
+<h3 id="func-Once-Do"><a href="#func-Once-Do" class="headerlink" title="func (*Once) Do"></a>func (*Once) Do</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(o *Once)</span> <span class="title">Do</span><span class="params">(f <span class="keyword">func</span>()</span>)</span> &#123;</span><br><span class="line">	<span class="keyword">if</span> atomic.LoadUint32(&amp;o.done) == <span class="number">1</span> &#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// Slow-path.</span></span><br><span class="line">	o.m.Lock()</span><br><span class="line">	<span class="keyword">defer</span> o.m.Unlock()</span><br><span class="line">	<span class="keyword">if</span> o.done == <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">defer</span> atomic.StoreUint32(&amp;o.done, <span class="number">1</span>)</span><br><span class="line">		f()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果<code>once.Do(f)</code>被调用多次，也只会执行一次，即时参数<code>f</code>不一致也只会执行一次。每个需要执行一次的函数都需要创建一个<code>Once</code>对象。执行<code>f</code>函数时如果出现<code>panics</code>也会认为执行过了，不会再次调用这个函数。</p>
+<p>如果出现循环调用就会出现死锁；这个点看源码就知道了。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">once.Do(<span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		once.Do(<span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">			f(<span class="string">&quot;test&quot;</span>)</span><br><span class="line">		&#125;)</span><br><span class="line">	&#125;)</span><br></pre></td></tr></table></figure></p>
+<h2 id="Pool"><a href="#Pool" class="headerlink" title="Pool"></a>Pool</h2><p>池是一组可以单独保存和检索的临时对象,池中的对象可能会被自动删除，池使用时时安全的；池主要时缓存已经创建但是未使用到对象，这样可以减轻GC的压力；<code>fmt</code>包中使用的池时比较好的，在大负载下进行扩展，在负载降低时进行收缩。</p>
+<h2 id="RWMutex"><a href="#RWMutex" class="headerlink" title="RWMutex"></a>RWMutex</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> RWMutex <span class="keyword">struct</span> &#123;</span><br><span class="line">	w           Mutex  <span class="comment">// 写互斥锁</span></span><br><span class="line">	writerSem   <span class="keyword">uint32</span> <span class="comment">// 写信号量</span></span><br><span class="line">	readerSem   <span class="keyword">uint32</span> <span class="comment">// 读信号量</span></span><br><span class="line">	readerCount <span class="keyword">int32</span>  <span class="comment">// 读阻塞的数量</span></span><br><span class="line">	readerWait  <span class="keyword">int32</span>  <span class="comment">// 读放弃的数量</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">const</span> rwmutexMaxReaders = <span class="number">1</span> &lt;&lt; <span class="number">30</span></span><br></pre></td></tr></table></figure>
+<p>加读锁最大次数是<code>2^30</code>次。</p>
+<p><code>RWMutex</code>是一个读写互斥锁，可以拥有多个读锁或者一个写锁，<code>RWMutex</code>的零值状态时是互斥锁,写锁的优先级高于读写锁。</p>
+<p>解释一下写锁的优先级高于读锁：比如有<code>10</code>个<code>goroutines</code>获取了读锁，此时再有一个<code>go</code>来获取写锁，这个<code>go</code>就会进入阻塞状态,然后又有一组<code>go</code>来获取读锁，此时就获取不到读锁了，需要等前面的读锁全部释放完，并且写锁释放过后才能再次获取读锁，所以就是说写锁优先级高于读锁。不这样处理的话写锁会处于永久饥饿中。</p>
+<h3 id="func-RWMutex-Lock"><a href="#func-RWMutex-Lock" class="headerlink" title="func (*RWMutex) Lock"></a>func (*RWMutex) Lock</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(rw *RWMutex)</span> <span class="title">Lock</span></span> </span><br></pre></td></tr></table></figure>
+<p>用于<code>rw</code>的写锁，如果锁是已经被读或写使用，那锁将阻塞知道可用。</p>
+<h3 id="func-RWMutex-RLock"><a href="#func-RWMutex-RLock" class="headerlink" title="func (*RWMutex) RLock"></a>func (*RWMutex) RLock</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(rw *RWMutex)</span> <span class="title">RLock</span></span> </span><br></pre></td></tr></table></figure>
+<p>用于<code>rw</code>的读锁，次锁不能被递归调用。</p>
+<h3 id="func-RWMutex-RLocker"><a href="#func-RWMutex-RLocker" class="headerlink" title="func (*RWMutex) RLocker"></a>func (*RWMutex) RLocker</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(rw *RWMutex)</span> <span class="title">RLocker</span></span></span><br></pre></td></tr></table></figure>
+<p><code>RLocker</code>返回一个<code>Locker</code>接口，通过调用<code>Lock</code>和<code>Unlock</code>来实现<code>rw.RLock</code>和<code>rw.RUnlock</code>方法。</p>
+<h3 id="func-RWMutex-RUnlock"><a href="#func-RWMutex-RUnlock" class="headerlink" title="func (*RWMutex) RUnlock"></a>func (*RWMutex) RUnlock</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(rw *RWMutex)</span> <span class="title">RUnlock</span></span> </span><br></pre></td></tr></table></figure>
+<p><code>RUnlock</code>用于解锁其中一个读锁，如果没有加的读锁就会出现异常。</p>
+<h3 id="func-RWMutex-Unlock"><a href="#func-RWMutex-Unlock" class="headerlink" title="func (*RWMutex) Unlock"></a>func (*RWMutex) Unlock</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(rw *RWMutex)</span> <span class="title">Unlock</span></span></span><br></pre></td></tr></table></figure>
+<p>解除<code>rw</code>的写锁，如果<code>rw</code>是没有加写锁就会出现运行时异常。和互斥锁一样<code>Mutex</code>,锁对象和<code>goroutines</code>没有关联，可以任意<code>go</code>加锁，任意<code>go</code>解锁。</p>
+<h2 id="Context"><a href="#Context" class="headerlink" title="Context"></a>Context</h2><p><code>Context</code>主要用于在一个<code>http request</code>中，启动了多个<code>go</code>去访问其他资源，<code>context</code>主要用于可以统一控制其他的<code>go</code>一起退出。<br><code>Context</code>方法可以由多个<code>go</code>同时使用。</p>
+<p><code>Context</code>定义的接口如下，主要实现如下的几个功能。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Context <span class="keyword">interface</span> &#123;</span><br><span class="line">    <span class="comment">//子go用于监听父go是否发起结束当前go的消息</span></span><br><span class="line">    Done() &lt;-<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line">    <span class="comment">// 返回关闭的原因</span></span><br><span class="line">    Err() error</span><br><span class="line">    <span class="comment">//返回到期时间，比如设置了5s取消，那返回的值就是5s后的时间，ok is true if your setting deadling</span></span><br><span class="line">    Deadline() (deadline time.Time, ok <span class="keyword">bool</span>)</span><br><span class="line">    <span class="comment">//从context中取出key的值</span></span><br><span class="line">    Value(key <span class="keyword">interface</span>&#123;&#125;) <span class="keyword">interface</span>&#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>使用方法主要由如下：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 设置超时返回，并返回一个新的context</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">WithTimeout</span><span class="params">(parent Context, timeout time.Duration)</span> <span class="params">(Context, CancelFunc)</span></span></span><br><span class="line"># 没有超时时间，只是用于通知子<span class="keyword">go</span>执行关闭</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">WithCancel</span><span class="params">(parent Context)</span> <span class="params">(ctx Context, cancel CancelFunc)</span></span></span><br><span class="line"># 设置一个值到context中，并返回一个新的ctx</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">WithValue</span><span class="params">(parent Context, key, val <span class="keyword">interface</span>&#123;&#125;)</span> <span class="title">Context</span></span></span><br></pre></td></tr></table></figure></p>
+<p>主要使用的一个<code>Http</code>请求中，用来控制子<code>go</code>。如下的代码是模拟在一个<code>demo</code>的<code>controller</code>中，去并发的请求其他资源，比如数据库资源，还有<code>gRpc</code>调用等，这些操作都是用子<code>go</code>去调用的。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line"></span><br><span class="line">	http.HandleFunc(<span class="string">&quot;/demo&quot;</span>,demo)</span><br><span class="line">	http.ListenAndServe(<span class="string">&quot;:8888&quot;</span>,<span class="literal">nil</span>)</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">demo</span><span class="params">(w http.ResponseWriter,r *http.Request)</span></span>  &#123;</span><br><span class="line">	timeout, err := time.ParseDuration(r.FormValue(<span class="string">&quot;timeout&quot;</span>))</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		http.Error(w, err.Error(), http.StatusInternalServerError)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">var</span> (</span><br><span class="line">		ctx context.Context</span><br><span class="line">		cancel context.CancelFunc</span><br><span class="line">	)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		ctx, cancel = context.WithTimeout(r.Context(), timeout)</span><br><span class="line">	&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">		ctx,cancel = context.WithCancel(r.Context())</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">defer</span> cancel()</span><br><span class="line">	database := getDatabaseData(ctx)</span><br><span class="line">	age,ct := gRpcServer(ctx)</span><br><span class="line">	<span class="keyword">if</span> deadline, ok := ctx.Deadline() ; ok &#123;</span><br><span class="line">		fmt.Println(deadline.String())</span><br><span class="line">		fmt.Println(time.Now().String())</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> err := ctx.Err(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(err)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> value := ct.Value(ageKey); value != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;value:&quot;</span>,value)</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Fprint(w,fmt.Sprintf(<span class="string">&quot;Database:%s\nAge:%d&quot;</span>,database,age))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">getDatabaseData</span><span class="params">(ctx context.Context)</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	c := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">string</span>)</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		time.Sleep(time.Second*<span class="number">2</span>)</span><br><span class="line">		c &lt;- <span class="string">&quot;database&quot;</span></span><br><span class="line">	&#125;()</span><br><span class="line">	<span class="keyword">select</span> &#123;</span><br><span class="line">	<span class="keyword">case</span> &lt;- ctx.Done():</span><br><span class="line">		<span class="keyword">return</span> <span class="string">&quot;&quot;</span></span><br><span class="line">	<span class="keyword">case</span> r := &lt;- c:</span><br><span class="line">		<span class="keyword">return</span> r</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">gRpcServer</span><span class="params">(ctx context.Context)</span> <span class="params">(<span class="keyword">int</span>,context.Context)</span></span> &#123;</span><br><span class="line">	c := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>)</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		time.Sleep(<span class="number">2</span>*time.Second)</span><br><span class="line">		c &lt;- <span class="number">24</span></span><br><span class="line">	&#125;()</span><br><span class="line">	ct := context.WithValue(ctx, ageKey, ageKey)</span><br><span class="line">	<span class="keyword">select</span> &#123;</span><br><span class="line">	<span class="keyword">case</span> &lt;- ctx.Done():</span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span>,ct</span><br><span class="line">	<span class="keyword">case</span> v := &lt;- c:</span><br><span class="line">		<span class="keyword">return</span> v,ct</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>上面这两个方法有点问题，会出现<code>go</code>不能会回收，泄漏的情况，在这种情况下会出现：函数中启动的<code>go</code>还在休眠，还没有写入到<code>c</code>中，此时收到<code>ctx.Done()</code>的信号，就返回了，此时就会出现写入不了<code>c</code>这个<code>chan</code>中，于是这个<code>go</code>就永远不能被释放了。</p>
+<p><strong>解决办法有两种:</strong></p>
+<ul>
+<li>接收到关闭信号之后等待<code>c</code>返回</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">getDatabaseData</span><span class="params">(ctx context.Context)</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	c := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">string</span>)</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		time.Sleep(time.Second*<span class="number">2</span>)</span><br><span class="line">		c &lt;- <span class="string">&quot;database&quot;</span></span><br><span class="line">	&#125;()</span><br><span class="line">	<span class="keyword">select</span> &#123;</span><br><span class="line">	<span class="keyword">case</span> &lt;- ctx.Done():</span><br><span class="line">	    &lt;- c <span class="comment">//在此等待c返回，但是这样就会阻塞http请求，就会出现变成同步操作。</span></span><br><span class="line">		<span class="keyword">return</span> <span class="string">&quot;&quot;</span></span><br><span class="line">	<span class="keyword">case</span> r := &lt;- c:</span><br><span class="line">		<span class="keyword">return</span> r</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"># 下一个方法同上</span><br></pre></td></tr></table></figure>
+<ul>
+<li>还有一种就是关闭这个<code>chan</code>，这种既可以快速返回，也不会出现<code>go</code>不能释放<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">getDatabaseData</span><span class="params">(ctx context.Context)</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	c := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">string</span>)</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">	    <span class="comment">// 如果加入关闭通道的操作，那就一定要加捕获panic的操作，不然会导致程序推出。因为发送到一个关闭的chan中会出现panic</span></span><br><span class="line">	    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">			<span class="keyword">if</span> err := <span class="built_in">recover</span>() ; err != <span class="literal">nil</span> &#123;</span><br><span class="line"></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;()</span><br><span class="line">		time.Sleep(time.Second*<span class="number">2</span>)</span><br><span class="line">		c &lt;- <span class="string">&quot;database&quot;</span></span><br><span class="line">	&#125;()</span><br><span class="line">	<span class="keyword">select</span> &#123;</span><br><span class="line">	<span class="keyword">case</span> &lt;- ctx.Done():</span><br><span class="line">	    <span class="built_in">close</span>(c)</span><br><span class="line">		<span class="keyword">return</span> <span class="string">&quot;&quot;</span></span><br><span class="line">	<span class="keyword">case</span> r := &lt;- c:</span><br><span class="line">		<span class="keyword">return</span> r</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="涉及到的算法"><a href="#涉及到的算法" class="headerlink" title="涉及到的算法"></a>涉及到的算法</h2><h3 id="CAS-算法"><a href="#CAS-算法" class="headerlink" title="CAS 算法"></a>CAS 算法</h3><p><code>CAS</code>算法又叫无锁算法，全称是<code>(Compare-and-swap)</code>比较交换算法。<code>CAS</code>算法是原子操作，是并发安全的。</p>
+<p><code>CAS</code>算法有三个操作数,第一个是内存值V，第二个是旧预期值A，第三个是新值B；当且仅当预期值A和内存值V相同时，将内存值V修改为B，否则什么都不做。</p>
+<h3 id="信号量算法"><a href="#信号量算法" class="headerlink" title="信号量算法"></a>信号量算法</h3><p>信号量是<code>Unix</code>系统提供的一种保护共享资源的机制，用于防止多个线程同时访问某个资源。</p>
+<p>可简单理解为信号量为一个数值：</p>
+<ul>
+<li>当信号量&gt;0时，表示资源可用，获取信号量时系统自动将信号量减1；</li>
+<li>当信号量==0时，表示资源暂不可用，获取信号量时，当前线程会进入睡眠，当信号量为正时被唤醒；</li>
+<li><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2></li>
+<li><p><a target="_blank" rel="noopener" href="https://golang.org/pkg/sync/">https://golang.org/pkg/sync/</a></p>
+</li>
+<li><a target="_blank" rel="noopener" href="https://colobu.com/2019/04/28/gopher-2019-concurrent-in-action/#Cond">https://colobu.com/2019/04/28/gopher-2019-concurrent-in-action/#Cond</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.golang.org/context">Go Concurrency Patterns: Context</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/images/wechat_channel.jpg">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%B9%B6%E5%8F%91%E5%AD%A6%E4%B9%A0/" rel="tag"># 并发学习</a>
+              <a href="/tags/golang-%E6%BA%90%E7%A0%81/" rel="tag"># golang 源码</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/06/14/Go%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E6%B5%8B%E8%AF%95%E5%88%86%E8%A7%A3/" rel="prev" title="Go 并发编程测试分析">
+      <i class="fa fa-chevron-left"></i> Go 并发编程测试分析
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/06/19/linux-sed/" rel="next" title="linux sed">
+      linux sed <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Go-sync-package"><span class="nav-number">1.</span> <span class="nav-text">Go sync package</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Cond"><span class="nav-number">1.1.</span> <span class="nav-text">Cond</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#func-c-Cond-Wait"><span class="nav-number">1.1.1.</span> <span class="nav-text">func (c *Cond) Wait()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#func-Cond-Signal"><span class="nav-number">1.1.2.</span> <span class="nav-text">func (*Cond) Signal</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#func-Cond-Broadcast"><span class="nav-number">1.1.3.</span> <span class="nav-text">func (*Cond) Broadcast</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Mutex"><span class="nav-number">1.2.</span> <span class="nav-text">Mutex</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#func-Mutex-Lock"><span class="nav-number">1.2.1.</span> <span class="nav-text">func (*Mutex) Lock</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#func-Mutex-Unlock"><span class="nav-number">1.2.2.</span> <span class="nav-text">func (*Mutex) Unlock</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Once"><span class="nav-number">1.3.</span> <span class="nav-text">Once</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#func-Once-Do"><span class="nav-number">1.3.1.</span> <span class="nav-text">func (*Once) Do</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Pool"><span class="nav-number">1.4.</span> <span class="nav-text">Pool</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RWMutex"><span class="nav-number">1.5.</span> <span class="nav-text">RWMutex</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#func-RWMutex-Lock"><span class="nav-number">1.5.1.</span> <span class="nav-text">func (*RWMutex) Lock</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#func-RWMutex-RLock"><span class="nav-number">1.5.2.</span> <span class="nav-text">func (*RWMutex) RLock</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#func-RWMutex-RLocker"><span class="nav-number">1.5.3.</span> <span class="nav-text">func (*RWMutex) RLocker</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#func-RWMutex-RUnlock"><span class="nav-number">1.5.4.</span> <span class="nav-text">func (*RWMutex) RUnlock</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#func-RWMutex-Unlock"><span class="nav-number">1.5.5.</span> <span class="nav-text">func (*RWMutex) Unlock</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Context"><span class="nav-number">1.6.</span> <span class="nav-text">Context</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%89%E5%8F%8A%E5%88%B0%E7%9A%84%E7%AE%97%E6%B3%95"><span class="nav-number">1.7.</span> <span class="nav-text">涉及到的算法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CAS-%E7%AE%97%E6%B3%95"><span class="nav-number">1.7.1.</span> <span class="nav-text">CAS 算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%A1%E5%8F%B7%E9%87%8F%E7%AE%97%E6%B3%95"><span class="nav-number">1.7.2.</span> <span class="nav-text">信号量算法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">1.8.</span> <span class="nav-text">参考</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">lengrongfu</p>
+  <div class="site-description" itemprop="description">通过持续的学习，记录了成为软件工程师的成长轨迹</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">74</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/lengrongfu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;lengrongfu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lenronfu@gmail.com" title="E-Mail → mailto:lenronfu@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/lengrongfu" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;lengrongfu" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/lengrongf" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;lengrongf" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.douban.com/people/156753267/" title="豆瓣 → https:&#x2F;&#x2F;www.douban.com&#x2F;people&#x2F;156753267&#x2F;" rel="noopener" target="_blank"><i class="fab fa-douban fa-fw"></i>豆瓣</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lengrongfu</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Monda:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"lengrongfu.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="倒排索引(Inverted index) 文章写的有点粗糙，都是只描述了思想，没有去抠具体的细节部分，对这些项目的作者刚到敬仰，把一个理论上的技术用在工程上会遇到很多问题。如果文章中有不妥之处，欢迎去我的github提交 issues.  倒排索引这个数据结构最先是用于搜索引擎的，搜索引擎就通过分析爬虫回来的页面，提取出关键字，记录下关键字对应网页的链接地址，做成一个哈希表，通过搜索关键字即可得到">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Inverted-index">
+<meta property="og:url" content="http://lengrongfu.github.io/2019/03/24/Inverted-index/index.html">
+<meta property="og:site_name" content="LRF成长记">
+<meta property="og:description" content="倒排索引(Inverted index) 文章写的有点粗糙，都是只描述了思想，没有去抠具体的细节部分，对这些项目的作者刚到敬仰，把一个理论上的技术用在工程上会遇到很多问题。如果文章中有不妥之处，欢迎去我的github提交 issues.  倒排索引这个数据结构最先是用于搜索引擎的，搜索引擎就通过分析爬虫回来的页面，提取出关键字，记录下关键字对应网页的链接地址，做成一个哈希表，通过搜索关键字即可得到">
+<meta property="og:locale">
+<meta property="og:image" content="http://lengrongfu.github.io/2019/03/24/Inverted-index/1.jpg">
+<meta property="og:image" content="http://lengrongfu.github.io/2019/03/24/Inverted-index/var/folders/rh/szl5pw3171d5x6ntky_249g80000gn/T/abnerworks.Typora/image-20190319140311238.png">
+<meta property="og:image" content="http://lengrongfu.github.io/2019/03/24/Inverted-index/var/folders/rh/szl5pw3171d5x6ntky_249g80000gn/T/abnerworks.Typora/image-20190319134843287.png">
+<meta property="og:image" content="http://lengrongfu.github.io/2019/03/24/Inverted-index/var/folders/rh/szl5pw3171d5x6ntky_249g80000gn/T/abnerworks.Typora/image-20190319134808582.png">
+<meta property="og:image" content="http://lengrongfu.github.io/2019/03/24/Inverted-index/var/folders/rh/szl5pw3171d5x6ntky_249g80000gn/T/abnerworks.Typora/image-20190319141910280.png">
+<meta property="article:published_time" content="2019-03-24T11:01:19.000Z">
+<meta property="article:modified_time" content="2021-05-12T01:56:12.725Z">
+<meta property="article:author" content="lengrongfu">
+<meta property="article:tag" content="倒排索引">
+<meta property="article:tag" content="mysql全文索引">
+<meta property="article:tag" content="Lucene索引">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://lengrongfu.github.io/2019/03/24/Inverted-index/1.jpg">
+
+<link rel="canonical" href="http://lengrongfu.github.io/2019/03/24/Inverted-index/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>Inverted-index | LRF成长记</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H5BLLGCN5H"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-H5BLLGCN5H');
+      }
+    </script>
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?1d997d88f37f7096db1c4c9d9f8eeccc";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">LRF成长记</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://lengrongfu.github.io/2019/03/24/Inverted-index/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lengrongfu">
+      <meta itemprop="description" content="通过持续的学习，记录了成为软件工程师的成长轨迹">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LRF成长记">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Inverted-index
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-03-24 19:01:19" itemprop="dateCreated datePublished" datetime="2019-03-24T19:01:19+08:00">2019-03-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-05-12 09:56:12" itemprop="dateModified" datetime="2021-05-12T09:56:12+08:00">2021-05-12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Algorithms-and-Datastructure/" itemprop="url" rel="index"><span itemprop="name">Algorithms and Datastructure</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="倒排索引-Inverted-index"><a href="#倒排索引-Inverted-index" class="headerlink" title="倒排索引(Inverted index)"></a>倒排索引(Inverted index)</h1><p>文章写的有点粗糙，都是只描述了思想，没有去抠具体的细节部分，对这些项目的作者刚到敬仰，把一个理论上的技术用在工程上会遇到很多问题。如果文章中有不妥之处，欢迎去我的<code>github</code>提交 <a target="_blank" rel="noopener" href="https://github.com/lengrongfu/lengrongfu.github.io/issues">issues</a>.</p>
+<blockquote>
+<p>倒排索引这个数据结构最先是用于搜索引擎的，搜索引擎就通过分析爬虫回来的页面，提取出关键字，记录下关键字对应网页的链接地址，做成一个哈希表，通过搜索关键字即可得到结果。这是理论定义上的倒排索引，工程上实现起来需要考虑很多问题，每个场景下实现的倒排索引都不太一样。</p>
+</blockquote>
+<p>整个倒排索引分两部分，左边是Term Dictionary(索引表，可简称为Dictionary)，是由一系列的Terms组成的；右边为Postings List(倒排表)，由所有的Term对应的Postings组成。</p>
+<h2 id="理论上的倒排索引"><a href="#理论上的倒排索引" class="headerlink" title="理论上的倒排索引"></a>理论上的倒排索引</h2><blockquote>
+<p>实现一个简单的倒排索引，通过读取一个文件内容，构造好索引内容，此处用一个<code>map</code>来存储这个对应关系，通过关键字搜索时打印出对应的行数据。</p>
+</blockquote>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;strings&quot;</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">    <span class="comment">// 这段内容复制自es的网站</span></span><br><span class="line">	Content =  <span class="string">&quot;The QUICK brown foxes jumped over the lazy dog!\n&quot;</span> +</span><br><span class="line">		       <span class="string">&quot;An analyzer specified in the query itself.\n&quot;</span>+</span><br><span class="line">			   <span class="string">&quot;The search_analyzer mapping parameter.\n&quot;</span>+</span><br><span class="line">		       <span class="string">&quot;The analyzer mapping parameter.\n&quot;</span>+</span><br><span class="line">			   <span class="string">&quot;An analyzer in the index settings called default_search.\n&quot;</span>+</span><br><span class="line">			   <span class="string">&quot;An analyzer in the index settings called default.\n&quot;</span>+</span><br><span class="line">			   <span class="string">&quot;The standard analyzer&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> invertedIndex <span class="keyword">map</span>[<span class="keyword">string</span>][]<span class="keyword">string</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>  &#123;</span><br><span class="line">	invertedIndex = <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">string</span>][]<span class="keyword">string</span>)</span><br><span class="line">	contents := strings.Split(Content, <span class="string">&quot;\n&quot;</span>)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="keyword">range</span> contents &#123;</span><br><span class="line">		s := contents[i]</span><br><span class="line">		s = strings.Trim(s,<span class="string">&quot;.!&quot;</span>)</span><br><span class="line">		fields := strings.Fields(s)</span><br><span class="line">		<span class="keyword">for</span> j := <span class="keyword">range</span> fields &#123;</span><br><span class="line">			field := strings.ToLower(fields[j])</span><br><span class="line">			<span class="keyword">if</span> _,ok := invertedIndex[field] ; ok &#123;</span><br><span class="line">				invertedIndex[field] = <span class="built_in">append</span>(invertedIndex[field],s)</span><br><span class="line">			&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">				ss  := <span class="built_in">make</span>([]<span class="keyword">string</span>,<span class="number">1</span>,<span class="number">2</span>)</span><br><span class="line">				ss[<span class="number">0</span>] = s</span><br><span class="line">				invertedIndex[field] = ss</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">var</span> word <span class="keyword">string</span></span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		fmt.Print(<span class="string">&quot;search word: &quot;</span>)</span><br><span class="line">		n, err := fmt.Scanln(&amp;word)</span><br><span class="line">		<span class="keyword">if</span> n == <span class="number">0</span> || err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">		doc,ok := invertedIndex[word]</span><br><span class="line">		<span class="keyword">if</span> !ok &#123;</span><br><span class="line">			fmt.Println(<span class="string">&quot;no match&quot;</span>)</span><br><span class="line">			<span class="keyword">continue</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">for</span> i := <span class="keyword">range</span> doc &#123;</span><br><span class="line">			fmt.Println(doc[i])</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如上就实现了一个简单的倒排索引，通过解析文本内容进行全文搜索，上面只是一个简单版本的搜索，工程中的需要考虑的就比较多了，首先分词器，不同的语言分词规则都不一样，中文、英文都不一样，还有是索引结构，有的用哈希表实现有的用树结构实现，文档内容存储和索引也是一个工程中难处理的问题。</p>
+<h2 id="Lucene-中的倒排索引"><a href="#Lucene-中的倒排索引" class="headerlink" title="Lucene 中的倒排索引"></a>Lucene 中的倒排索引</h2><p><code>Lucene</code>把用于存储<code>Term</code>的索引文件叫<code>Terms Index</code>，它的后缀是<code>.tip</code>；把Postings信息分别存储在<code>.doc</code>、<code>.pay</code>、<code>.pox</code>，分别记录Postings的DocId信息和Term的词频、Payload信息、pox是记录位置信息。Terms Dictionary的文件后缀称为<code>.tim</code>，它是Term与Postings的关系纽带，存储了Term和其对应的Postings文件指针。</p>
+<p>总体来说，通过<code>Terms Index(.tip)</code>能够快速地在Terms Dictionary(.tim)中找到你的想要的Term，以及它对应的Postings文件指针与Term在Segment作用域上的统计信息。</p>
+<p>在<code>Lucene</code>中索引和搜索是不一样的，索引是指把<code>Document</code>进行分析，存入索引文件中，搜索是从索引文件中进行读取。</p>
+<p><img src="/2019/03/24/Inverted-index/1.jpg" alt="img"></p>
+<p><code>Lucene</code>中的索引操作比较复杂，因为操作的数据量非常大，所以进行了多部索引处理，文件索引到文件就是一个小型的文件系统，倒排索引再映射到文件索引上。为了查找快速。</p>
+<p>文件索引应该是记录了整个文档的开始位置和结束为止，比如下：</p>
+<ul>
+<li><p>数据文件：test.data</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1:the man is like dog2:this is a man3:this is a dog</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>文件索引文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1:[2-19]</span><br><span class="line">2:[22-32]</span><br><span class="line">3:[35-48] # 记录的就是数据文件中的具体偏移量</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>倒排索引记录</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[the](1,1)</span><br><span class="line">[man](1,2)(2,4)</span><br><span class="line">[is](1,3),(2,2),(3,2) # stopwords</span><br><span class="line">[like](1,4)</span><br><span class="line">[dog](1,5),(3,4)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>上面大概的描述了<code>Lucene</code>的存储结构，真实的有很多改进，比如数据文件有压缩，文件索引也有压缩。</p>
+<p><img src="/2019/03/24/Inverted-index/var/folders/rh/szl5pw3171d5x6ntky_249g80000gn/T/abnerworks.Typora/image-20190319140311238.png" alt="image-20190319140311238"></p>
+<p><code>Lucene</code>对于删除操作，不直接删除索引，而是通过标记为一删除操作。</p>
+<p><code>Lucene</code>中还有一个正向索引，用于存储<code>DocId</code>和文档全部的内容。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ul>
+<li><a target="_blank" rel="noopener" href="http://www.nosqlnotes.com/technotes/searchengine/lucene-invertedindex-3/">Lucene倒排索引实现原理探秘</a></li>
+<li><a target="_blank" rel="noopener" href="https://sease.io/2015/07/exploring-solr-internals-lucene.html">solr 倒排索引</a></li>
+</ul>
+<h2 id="Mysql-Full-index-全文索引中的倒排索引"><a href="#Mysql-Full-index-全文索引中的倒排索引" class="headerlink" title="Mysql Full index 全文索引中的倒排索引"></a>Mysql Full index 全文索引中的倒排索引</h2><p><code>InnoDB</code>全文索引是基于倒排索引设计的，倒排索引存储了一个单词对应的列表(倒排列表)，还存储了每个字在文档中的位置信息，作为偏移量。这就是一个用空间换时间的办法。 </p>
+<h3 id="InnoDB-全文索引表"><a href="#InnoDB-全文索引表" class="headerlink" title="InnoDB 全文索引表"></a>InnoDB 全文索引表</h3><p>创建<code>InnoDB FullText</code>索引时，会创建一组索引表：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; CREATE TABLE opening_lines (</span><br><span class="line">       id INT UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,</span><br><span class="line">       opening_line TEXT(500),</span><br><span class="line">       author VARCHAR(200),</span><br><span class="line">       title VARCHAR(200),</span><br><span class="line">       FULLTEXT idx (opening_line)</span><br><span class="line">       ) ENGINE=InnoDB;</span><br><span class="line"># 查看本地的辅助索引文件       </span><br><span class="line">mysql&gt; SELECT table_id, name, space from INFORMATION_SCHEMA.INNODB_SYS_TABLES</span><br><span class="line">       WHERE name LIKE &#x27;test/%&#x27;;       </span><br><span class="line">4128	test/FTS_000000000000101a_0000000000002049_INDEX_1	4112</span><br><span class="line">4129	test/FTS_000000000000101a_0000000000002049_INDEX_2	4113</span><br><span class="line">4130	test/FTS_000000000000101a_0000000000002049_INDEX_3	4114</span><br><span class="line">4131	test/FTS_000000000000101a_0000000000002049_INDEX_4	4115</span><br><span class="line">4132	test/FTS_000000000000101a_0000000000002049_INDEX_5	4116</span><br><span class="line">4133	test/FTS_000000000000101a_0000000000002049_INDEX_6	4117</span><br></pre></td></tr></table></figure>
+<p><code>InnoDB</code>使用实现的是<code>Full inverted index</code>，存储了单词对应的位置信息和<code>DocId</code>。这就是<code>Mysql</code>实现倒排索引的数据结构。</p>
+<p><img src="/2019/03/24/Inverted-index/var/folders/rh/szl5pw3171d5x6ntky_249g80000gn/T/abnerworks.Typora/image-20190319134843287.png" alt="image-20190319134843287"></p>
+<p>把上图进行索引之后存储的结构就是如下图，比如单词<code>days</code>，值为<code>(3:2),(6:2)</code>意思是<code>DocId</code>为<code>3</code>中的第二个单词和<code>DocId</code>为<code>6</code>中的第二个单词。</p>
+<p><img src="/2019/03/24/Inverted-index/var/folders/rh/szl5pw3171d5x6ntky_249g80000gn/T/abnerworks.Typora/image-20190319134808582.png" alt="image-20190319134808582"></p>
+<p><code>InnoDB</code>在内存中维护了一个<code>FTS Index Cache</code>全文检索缓存系统，在提交事务或者时超过<code>32m</code>时就进行合并到<code>Auxiliary Table</code>辅助索引表中；</p>
+<p>在插入或者删除时都是对缓存系统进行操作，删除也是知识记录，不直接进行删除操作。</p>
+<p><img src="/2019/03/24/Inverted-index/var/folders/rh/szl5pw3171d5x6ntky_249g80000gn/T/abnerworks.Typora/image-20190319141910280.png" alt="image-20190319141910280"></p>
+<h3 id="参考-1"><a href="#参考-1" class="headerlink" title="参考"></a>参考</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/5.6/en/innodb-fulltext-index.html">Mysql 全文索引设计</a></li>
+</ul>
+<h2 id="Prometheus-中的倒排索引"><a href="#Prometheus-中的倒排索引" class="headerlink" title="Prometheus 中的倒排索引"></a>Prometheus 中的倒排索引</h2><p><code>Prometheus</code>2.0 版本中也使用了倒排索引来做搜索，架构和<code>Lucene</code>很相似，都是按时间分割，然后再合并，都是小文件合并为大文件，小索引合并为大索引，索引使用的不是<code>hashmap</code>结构，而是使用<code>LSM</code>数据结构。未完全看完，后面看完了之后再补上。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>基于<code>B+tree</code>实现的倒排索引会有性能问题，在写入时非常消耗<code>IO</code>,因为要进行排序并移动其他节点，<code>Lucene</code>的这种方式可以实现更高的并发性。</p>
+<ul>
+<li>Mysql 的倒排是基于红黑树实现的</li>
+<li>Lucene 是通过不断的创建小的索引文件，然后定期的把小的索引文件合并为一个大的索引文件。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/images/wechat_channel.jpg">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%80%92%E6%8E%92%E7%B4%A2%E5%BC%95/" rel="tag"># 倒排索引</a>
+              <a href="/tags/mysql%E5%85%A8%E6%96%87%E7%B4%A2%E5%BC%95/" rel="tag"># mysql全文索引</a>
+              <a href="/tags/Lucene%E7%B4%A2%E5%BC%95/" rel="tag"># Lucene索引</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/03/17/PromQL-%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/" rel="prev" title="PromQL 常用命令">
+      <i class="fa fa-chevron-left"></i> PromQL 常用命令
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/03/30/Introduction-to-Algorithms-lecture-1/" rel="next" title="算法分析、插入排序、归并排序">
+      算法分析、插入排序、归并排序 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%80%92%E6%8E%92%E7%B4%A2%E5%BC%95-Inverted-index"><span class="nav-number">1.</span> <span class="nav-text">倒排索引(Inverted index)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%90%86%E8%AE%BA%E4%B8%8A%E7%9A%84%E5%80%92%E6%8E%92%E7%B4%A2%E5%BC%95"><span class="nav-number">1.1.</span> <span class="nav-text">理论上的倒排索引</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Lucene-%E4%B8%AD%E7%9A%84%E5%80%92%E6%8E%92%E7%B4%A2%E5%BC%95"><span class="nav-number">1.2.</span> <span class="nav-text">Lucene 中的倒排索引</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">1.2.1.</span> <span class="nav-text">参考</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Mysql-Full-index-%E5%85%A8%E6%96%87%E7%B4%A2%E5%BC%95%E4%B8%AD%E7%9A%84%E5%80%92%E6%8E%92%E7%B4%A2%E5%BC%95"><span class="nav-number">1.3.</span> <span class="nav-text">Mysql Full index 全文索引中的倒排索引</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#InnoDB-%E5%85%A8%E6%96%87%E7%B4%A2%E5%BC%95%E8%A1%A8"><span class="nav-number">1.3.1.</span> <span class="nav-text">InnoDB 全文索引表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83-1"><span class="nav-number">1.3.2.</span> <span class="nav-text">参考</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Prometheus-%E4%B8%AD%E7%9A%84%E5%80%92%E6%8E%92%E7%B4%A2%E5%BC%95"><span class="nav-number">1.4.</span> <span class="nav-text">Prometheus 中的倒排索引</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.5.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">lengrongfu</p>
+  <div class="site-description" itemprop="description">通过持续的学习，记录了成为软件工程师的成长轨迹</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">74</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/lengrongfu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;lengrongfu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lenronfu@gmail.com" title="E-Mail → mailto:lenronfu@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/lengrongfu" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;lengrongfu" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/lengrongf" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;lengrongf" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.douban.com/people/156753267/" title="豆瓣 → https:&#x2F;&#x2F;www.douban.com&#x2F;people&#x2F;156753267&#x2F;" rel="noopener" target="_blank"><i class="fab fa-douban fa-fw"></i>豆瓣</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lengrongfu</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+    </div>
+</body>
+</html>

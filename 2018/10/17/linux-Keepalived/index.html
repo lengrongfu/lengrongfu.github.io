@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Monda:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"lengrongfu.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Keepalived 构建一个高可用的集群 参考文档：   * 文档地址          * github 地址        ​          一、安装  * centos上安装：yum install keepalived          * 源码安装：        1    2    3    4    5            wget http:&#x2F;&#x2F;www.keepalived">
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux-Keepalived 使用">
+<meta property="og:url" content="http://lengrongfu.github.io/2018/10/17/linux-Keepalived/index.html">
+<meta property="og:site_name" content="LRF成长记">
+<meta property="og:description" content="Keepalived 构建一个高可用的集群 参考文档：   * 文档地址          * github 地址        ​          一、安装  * centos上安装：yum install keepalived          * 源码安装：        1    2    3    4    5            wget http:&#x2F;&#x2F;www.keepalived">
+<meta property="og:locale">
+<meta property="article:published_time" content="2018-10-17T15:12:55.000Z">
+<meta property="article:modified_time" content="2021-05-12T01:56:12.713Z">
+<meta property="article:author" content="lengrongfu">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="Keepalived">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://lengrongfu.github.io/2018/10/17/linux-Keepalived/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>linux-Keepalived 使用 | LRF成长记</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H5BLLGCN5H"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-H5BLLGCN5H');
+      }
+    </script>
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?1d997d88f37f7096db1c4c9d9f8eeccc";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">LRF成长记</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://lengrongfu.github.io/2018/10/17/linux-Keepalived/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lengrongfu">
+      <meta itemprop="description" content="通过持续的学习，记录了成为软件工程师的成长轨迹">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LRF成长记">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          linux-Keepalived 使用
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-10-17 23:12:55" itemprop="dateCreated datePublished" datetime="2018-10-17T23:12:55+08:00">2018-10-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-05-12 09:56:12" itemprop="dateModified" datetime="2021-05-12T09:56:12+08:00">2021-05-12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Keepalived-构建一个高可用的集群"><a href="#Keepalived-构建一个高可用的集群" class="headerlink" title="Keepalived 构建一个高可用的集群"></a>Keepalived 构建一个高可用的集群</h1><p>参考文档：</p>
+<ul>
+<li><p><a target="_blank" rel="noopener" href="http://www.keepalived.org/doc/case_study_healthcheck.html">文档地址</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://github.com/acassen/keepalived">github 地址</a></p>
+<p>​</p>
+</li>
+</ul>
+<h3 id="一、安装"><a href="#一、安装" class="headerlink" title="一、安装"></a>一、安装</h3><ul>
+<li><p><code>centos</code>上安装：<code>yum install keepalived</code></p>
+</li>
+<li><p>源码安装：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget http://www.keepalived.org/software/keepalived-1.2.24.tar.gz</span><br><span class="line">tar -zxvf keepalived-1.2.24.tar.gz</span><br><span class="line">cd keepalived-1.2.24</span><br><span class="line">./configure --prefix=/usr/local/keepalived</span><br><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>keepalived</code>启动时会从<code>/etc/keepalived</code>目录下查找<code>keepalived.conf</code>配置文件，如果没有找到则使用默认的配置文件，使用源码安装时是没有<code>/etc/keepalived</code>这个文件夹的。</p>
+</li>
+<li><p>需要将配置文件拷贝到系统对应的目录下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">shell&gt;</span><span class="bash"> mkdir /etc/keepalived</span></span><br><span class="line"><span class="meta">shell&gt;</span><span class="bash"> cp /usr/<span class="built_in">local</span>/keepalived/etc/keepalived.conf /etc/keepalived/keepalived.conf</span></span><br><span class="line"><span class="meta">shell&gt;</span><span class="bash"> cp /usr/<span class="built_in">local</span>/keepalived/etc/rc.d/init.d/keepalived /etc/rc.d/init.d/keepalived</span></span><br><span class="line"><span class="meta">shell&gt;</span><span class="bash"> cp /usr/<span class="built_in">local</span>/keepalived/etc/sysconfig/keepalived /etc/sysconfig/keepalived</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用命令介绍</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@dev_file keepalived]# service keepalived</span><br><span class="line">用法：/etc/init.d/keepalived &#123;start|stop|status|restart|condrestart|try-restart|reload|force-reload&#125;</span><br><span class="line">start:启用</span><br><span class="line">stop:停止</span><br><span class="line">status:状态</span><br><span class="line">restart:重启</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>另外需要注意的一点是，<code>keepalived</code>启动时不会检查配置文件的语法是否正确，所以我们在编写配置文件时要特别小心，别写错了，否则会出现一些意想不到的现象</strong></p>
+</li>
+<li><p><code>service keepalived start</code> 执行后服务会加载<code>/etc/keepalived/keepalived.conf</code>下的配置文件，可使用<code>-f</code> 参数指定配置文件的位置。</p>
+</li>
+</ul>
+<h3 id="二、使用Keepalived实现一个故障转移的高可用服务"><a href="#二、使用Keepalived实现一个故障转移的高可用服务" class="headerlink" title="二、使用Keepalived实现一个故障转移的高可用服务"></a>二、使用<code>Keepalived</code>实现一个故障转移的高可用服务</h3><h4 id="１、需求"><a href="#１、需求" class="headerlink" title="１、需求"></a>１、需求</h4><ul>
+<li>一个<code>golang</code>的服务部署多个节点，之前只有一个节点，现在为了高可用需要部署两个节点</li>
+<li>不打算使用<code>nginx</code></li>
+</ul>
+<h4 id="２、准备工作"><a href="#２、准备工作" class="headerlink" title="２、准备工作"></a>２、准备工作</h4><ul>
+<li>三个节点最少两台服务器</li>
+<li>三台安装了<code>keepalived</code>的机器</li>
+</ul>
+<h4 id="３、使用-Keepalived的所有功能都是由配置文件配置的"><a href="#３、使用-Keepalived的所有功能都是由配置文件配置的" class="headerlink" title="３、使用,Keepalived的所有功能都是由配置文件配置的"></a>３、使用,<code>Keepalived</code>的所有功能都是由配置文件配置的</h4><ul>
+<li><code>keepalived</code>启动之后的日志路径：<code>/var/log/messages</code></li>
+<li><code>vip</code> 虚ip地址在三台服务器中只会有一台有，<code>ip a</code> 查看是否有虚<code>ips</code>是否生成</li>
+<li>如下为<code>MASTER</code> 配置</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">vrrp_instance VI_1 &#123; #vrrp实例名</span><br><span class="line">	state MASTER # 实例状态,只有MASTER和BACKUP两种状态，并且需要全部大写，抢占模式下，其中MASTER为工作状态，BACKUP为备用状态，当MASTER服务失效时，BACKUP所在的服务会自动把它的状态由BACKUP切换到MASTER状态,当失效的MASTER所在的服务恢复时，BACKUP从MASTER恢复到BACKUP状态</span><br><span class="line">	interface eth0 # 对外提供服务的网卡,即vip绑定的网卡接口,如:eth0,eth1</span><br><span class="line">    virtual_router_id 01 #虚拟路由的ID号，每个节点设置必须一样，可选择IP最后一段使用，相同的 VRID 为一个组,一个keepalived集群这个值必须一样</span><br><span class="line">	priority 100 #节点优先级，取值范围0～254，MASTER要比BACKUP高,值越大，优先级越高</span><br><span class="line">	advert_int 1 # MASTER与BACKUP节点间同步检查的时间间隔，单位为秒</span><br><span class="line">	nopreempt # 禁止抢占服务。默认情况，当MASTER服务挂掉之后，BACKUP自动升级为MASTER并接替它的任务，当MASTER服务恢复后，升级为MASTER的BACKUP服务又自动降为BACKUP，把工作权交给原MASTER。当配置了nopreempt，MASTER从挂掉到恢复，不再将服务抢占过来。</span><br><span class="line">	authentication &#123;      #传递信息的认证方式，密码仅支持8位</span><br><span class="line">    		auth_type PASS # 类型主要有 PASS、AH 两种</span><br><span class="line">    		auth_pass 1111 # 同一vrrp 实例MASTER与BACKUP使用相同的密码才能正常通信</span><br><span class="line">	&#125;</span><br><span class="line">	virtual_ipaddress &#123; #虚拟IP地址池，可以有多个IP，每个IP占一行，不需要指定子网掩码。注意：这个IP必须与我们的设定的vip保持一致。</span><br><span class="line">		255.255.10.99</span><br><span class="line"><span class="meta">		#</span><span class="bash"><span class="comment">## 可以配置多个</span></span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">virtual_server 255.255.10.99 80 &#123;　#虚拟服务器virtual_server定义块</span><br><span class="line">	delay_loop 10 #健康检查时间间隔，单位：秒 </span><br><span class="line">	lb_algo wrr # 负载均衡调度算法，互联网应用常用方式为wlc或rr</span><br><span class="line">	lb_kind NAT # 负载均衡转发规则。包括DR、NAT、TUN3种，一般使用路由（DR）转发规则，DR和NAT效率最高，但是有使用场景限制</span><br><span class="line">	persistence_timeout 50 # http服务会话保持时间，单位：秒 </span><br><span class="line">    protocol TCP # 转发协议，分为TCP和UDP两种</span><br><span class="line">   	# 下面的配置用户检测服务故障，然后剔除到vrrp集群中</span><br><span class="line">	real_server 255.255.10.203 8081 &#123; #真实服务器IP和端口，可以定义多个</span><br><span class="line">		weight 2　# 负载权重，值越大，转发的优先级越高 </span><br><span class="line">		HTTP_GET &#123; # 使用HTTP_GET来检查服务的状态，也可以使用 TCP_CHECK</span><br><span class="line">			url &#123;</span><br><span class="line">				path /beat</span><br><span class="line">				digest 7bd3d5f5b3cdb13aed632121206e729c # 这个值是一个md5的求和，安装keepalived之后有一个工具用来求和，</span><br><span class="line">				# genhash -s 255.255.10.203 -p 8081 -u /beat 执行这个命令就可以算出digest值</span><br><span class="line">			&#125;</span><br><span class="line">			connect_timeout 3 #服务连接超时时长，单位：秒 </span><br><span class="line">            retry 3 # 重试次数</span><br><span class="line">            delay_before_retry 2 #重试连接间隔</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	real_server 255.255.10.204 8081 &#123; #另一个节点</span><br><span class="line">                weight 2</span><br><span class="line">                HTTP_GET &#123;</span><br><span class="line">                        url &#123;</span><br><span class="line">                                path /beat</span><br><span class="line">                                digest 7bd3d5f5b3cdb13aed632121206e729c</span><br><span class="line">                        &#125;</span><br><span class="line">                        connect_timeout 3</span><br><span class="line">                        retry 3</span><br><span class="line">                        delay_before_retry 2</span><br><span class="line">                &#125;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>如下为<code>BACKUP</code>的配置</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">vrrp_instance VI_1 &#123;</span><br><span class="line">        state  BACKUP # BACKUP</span><br><span class="line">		interface eth0</span><br><span class="line">        virtual_router_id 01</span><br><span class="line">        priority 99　# 比master下</span><br><span class="line">        advert_int 1</span><br><span class="line">		nopreempt</span><br><span class="line">        authentication &#123;      //传递信息的认证方式，密码仅支持8位</span><br><span class="line">                auth_type PASS</span><br><span class="line">                auth_pass 1111</span><br><span class="line">        &#125;</span><br><span class="line">        virtual_ipaddress &#123;</span><br><span class="line">                255.255.10.99</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line">virtual_server 255.255.10.99 8000 &#123;</span><br><span class="line">        delay_loop 6</span><br><span class="line">        lb_algo wrr</span><br><span class="line">        lb_kind NAT</span><br><span class="line">        persistence_timeout 50</span><br><span class="line">        protocol TCP</span><br><span class="line"></span><br><span class="line">        real_server 255.255.10.204 8081 &#123;</span><br><span class="line">                weight 1</span><br><span class="line">				HTTP_GET &#123;</span><br><span class="line">					url &#123;</span><br><span class="line">						path /beat</span><br><span class="line">						digest 7bd3d5f5b3cdb13aed632121206e729c</span><br><span class="line">					&#125;</span><br><span class="line">					connect_timeout 3</span><br><span class="line">            		retry 3</span><br><span class="line">            		delay_before_retry 2</span><br><span class="line">			&#125;</span><br><span class="line">        &#125;</span><br><span class="line">		real_server 255.255.10.203 8081 &#123;</span><br><span class="line">                weight 2</span><br><span class="line">                HTTP_GET &#123;</span><br><span class="line">                        url &#123;</span><br><span class="line">                                path /beat</span><br><span class="line">                                digest 7bd3d5f5b3cdb13aed632121206e729c</span><br><span class="line">                        &#125;</span><br><span class="line">                        connect_timeout 3</span><br><span class="line">                        retry 3</span><br><span class="line">                        delay_before_retry 2</span><br><span class="line">                &#125;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>​</p>
+</li>
+</ul>
+<ul>
+<li><p>日志查看，停止<code>255.255.10.204 8081</code> 上的服务，就会打印如下的日志</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Mar 30 18:36:01 dev_file Keepalived_healthcheckers[23744]: Error connecting server [255.255.10.204]:8081.</span><br><span class="line">Mar 30 18:36:01 dev_file Keepalived_healthcheckers[23744]: Removing service [255.255.10.204]:8081 from VS [255.255.10.99]:80</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>日志查看，启动<code>255.255.10.204 8081</code>服务，打印如下日志</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Mar 30 18:36:49 dev_file Keepalived_healthcheckers[23744]: MD5 digest success to [255.255.10.204]:8081 url(1).</span><br><span class="line">Mar 30 18:36:59 dev_file Keepalived_healthcheckers[23744]: Remote Web server [255.255.10.204]:8081 succeed on service.</span><br><span class="line">Mar 30 18:36:59 dev_file Keepalived_healthcheckers[23744]: Adding service [255.255.10.204]:8081 to VS [255.255.10.99]:80</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a target="_blank" rel="noopener" href="http://www.linuxvirtualserver.org/zh/lvs1.html">Linux服务器集群系统</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.linuxvirtualserver.org/docs/ha/keepalived.html">keepalived+lvs</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.linuxvirtualserver.org/zh/">官方中文文档</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/images/wechat_channel.jpg">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/linux/" rel="tag"># linux</a>
+              <a href="/tags/Keepalived/" rel="tag"># Keepalived</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/10/17/new-spring-boot-stater/" rel="prev" title="自定义 spring-boot-stater">
+      <i class="fa fa-chevron-left"></i> 自定义 spring-boot-stater
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/10/17/linux-Firewall/" rel="next" title="linux-Firewall 配置">
+      linux-Firewall 配置 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Keepalived-%E6%9E%84%E5%BB%BA%E4%B8%80%E4%B8%AA%E9%AB%98%E5%8F%AF%E7%94%A8%E7%9A%84%E9%9B%86%E7%BE%A4"><span class="nav-number">1.</span> <span class="nav-text">Keepalived 构建一个高可用的集群</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%AE%89%E8%A3%85"><span class="nav-number">1.0.1.</span> <span class="nav-text">一、安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E4%BD%BF%E7%94%A8Keepalived%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB%E7%9A%84%E9%AB%98%E5%8F%AF%E7%94%A8%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.0.2.</span> <span class="nav-text">二、使用Keepalived实现一个故障转移的高可用服务</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%91%E3%80%81%E9%9C%80%E6%B1%82"><span class="nav-number">1.0.2.1.</span> <span class="nav-text">１、需求</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%92%E3%80%81%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="nav-number">1.0.2.2.</span> <span class="nav-text">２、准备工作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%93%E3%80%81%E4%BD%BF%E7%94%A8-Keepalived%E7%9A%84%E6%89%80%E6%9C%89%E5%8A%9F%E8%83%BD%E9%83%BD%E6%98%AF%E7%94%B1%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E9%85%8D%E7%BD%AE%E7%9A%84"><span class="nav-number">1.0.2.3.</span> <span class="nav-text">３、使用,Keepalived的所有功能都是由配置文件配置的</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3"><span class="nav-number">1.1.</span> <span class="nav-text">参考文档</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">lengrongfu</p>
+  <div class="site-description" itemprop="description">通过持续的学习，记录了成为软件工程师的成长轨迹</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">74</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/lengrongfu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;lengrongfu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lenronfu@gmail.com" title="E-Mail → mailto:lenronfu@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/lengrongfu" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;lengrongfu" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/lengrongf" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;lengrongf" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.douban.com/people/156753267/" title="豆瓣 → https:&#x2F;&#x2F;www.douban.com&#x2F;people&#x2F;156753267&#x2F;" rel="noopener" target="_blank"><i class="fab fa-douban fa-fw"></i>豆瓣</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lengrongfu</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+    </div>
+</body>
+</html>

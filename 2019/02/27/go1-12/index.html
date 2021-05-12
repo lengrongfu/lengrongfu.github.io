@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Monda:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"lengrongfu.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Go1.12 概述 Go1.12是目前最新的Go版本，在Go1.11发行之后的六个月到来，大多数的改变是工具链、运行时和包，总的来说，该版本依然保持了Go1的兼容性承诺,希望大多数的程序还能和以前一样继续的编译和运行。  语言上的改变 语言规范上是没有改变的。   部分  * 竞争检测现在是支持在linux&#x2F;arm64  * Go1.12是最后一个支持FreeBSD 10.x的版本，Go1.13将">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go1.12 发行说明">
+<meta property="og:url" content="http://lengrongfu.github.io/2019/02/27/go1-12/index.html">
+<meta property="og:site_name" content="LRF成长记">
+<meta property="og:description" content="Go1.12 概述 Go1.12是目前最新的Go版本，在Go1.11发行之后的六个月到来，大多数的改变是工具链、运行时和包，总的来说，该版本依然保持了Go1的兼容性承诺,希望大多数的程序还能和以前一样继续的编译和运行。  语言上的改变 语言规范上是没有改变的。   部分  * 竞争检测现在是支持在linux&#x2F;arm64  * Go1.12是最后一个支持FreeBSD 10.x的版本，Go1.13将">
+<meta property="og:locale">
+<meta property="article:published_time" content="2019-02-27T05:10:57.000Z">
+<meta property="article:modified_time" content="2021-05-12T01:56:12.724Z">
+<meta property="article:author" content="lengrongfu">
+<meta property="article:tag" content="golang">
+<meta property="article:tag" content="go1.12">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://lengrongfu.github.io/2019/02/27/go1-12/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>go1.12 发行说明 | LRF成长记</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H5BLLGCN5H"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-H5BLLGCN5H');
+      }
+    </script>
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?1d997d88f37f7096db1c4c9d9f8eeccc";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">LRF成长记</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://lengrongfu.github.io/2019/02/27/go1-12/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lengrongfu">
+      <meta itemprop="description" content="通过持续的学习，记录了成为软件工程师的成长轨迹">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LRF成长记">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          go1.12 发行说明
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-02-27 13:10:57" itemprop="dateCreated datePublished" datetime="2019-02-27T13:10:57+08:00">2019-02-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-05-12 09:56:12" itemprop="dateModified" datetime="2021-05-12T09:56:12+08:00">2021-05-12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/golang/" itemprop="url" rel="index"><span itemprop="name">golang</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Go1-12-概述"><a href="#Go1-12-概述" class="headerlink" title="Go1.12 概述"></a>Go1.12 概述</h1><p><code>Go1.12</code>是目前最新的<code>Go</code>版本，在<code>Go1.11</code>发行之后的六个月到来，大多数的改变是工具链、运行时和包，总的来说，该版本依然保持了<code>Go1</code>的<a target="_blank" rel="noopener" href="https://golang.org/doc/go1compat">兼容性承诺</a>,希望大多数的程序还能和以前一样继续的编译和运行。</p>
+<h1 id="语言上的改变"><a href="#语言上的改变" class="headerlink" title="语言上的改变"></a>语言上的改变</h1><pre><code>语言规范上是没有改变的。
+</code></pre><h1 id="部分"><a href="#部分" class="headerlink" title="部分"></a>部分</h1><ul>
+<li>竞争检测现在是支持在<code>linux/arm64</code></li>
+<li><code>Go1.12</code>是最后一个支持<code>FreeBSD 10.x</code>的版本，<code>Go1.13</code>将开始支持<code>FreeBSD 11.2+ or FreeBSD 12.0+</code>,<code>FreeBSD 12.0+</code>要求设置一个<code>COMPAT_FREEBSD11</code>的变量，这是默认设置的。</li>
+<li>在<code>linux/ppc64</code>上支持<code>cgo</code></li>
+</ul>
+<h2 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h2><p><code>windows/arm</code>的部分支持<code>go</code>在<code>windows10 lot</code>的32位物联网<code>arm</code>芯片上，比如树莓派3.</p>
+<h2 id="AIX"><a href="#AIX" class="headerlink" title="AIX"></a>AIX</h2><p>Go现在支持AIX 7.2及更高版本的POWER8体系结构（aix / ppc64）。尚不支持外部链接，cgo，pprof和竞赛检测器</p>
+<h2 id="Darwin"><a href="#Darwin" class="headerlink" title="Darwin"></a>Darwin</h2><p><code>Go 1.12</code>是最后一个支持运行在<code>macOS 10.10</code>系统之上的版本，<code>Go1.13</code>将要求操作系统必须是<code>macOS 10.11</code>以上。</p>
+<h1 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h1><h2 id="go-tool-vet-不再支持"><a href="#go-tool-vet-不再支持" class="headerlink" title="go tool vet 不再支持"></a>go tool vet 不再支持</h2><p><code>go vet</code>命令将不在支持，关于这部分功能迁移到了<code>analysis</code>工具中，更多详情查看包<a target="_blank" rel="noopener" href="https://godoc.org/golang.org/x/tools/go/analysis">golang.org/x/tools/go/analysis</a>,使用方式有所改变，不能再使用<code>go tool vet</code>此命令，需要更改为<code>go vet</code>命令，使用<code>go vet</code>可以支持所以的版本。<br><code>-shadow</code>将不再可用，需要替换。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">go</span> get -u golang.org/x/tools/<span class="keyword">go</span>/analysis/passes/shadow/cmd/shadow</span><br><span class="line"><span class="keyword">go</span> vet -vettool=$(which shadow)</span><br></pre></td></tr></table></figure></p>
+<h2 id="Tour将不在默认安装"><a href="#Tour将不在默认安装" class="headerlink" title="Tour将不在默认安装"></a>Tour将不在默认安装</h2><p><code>Go Tour</code>不会包含再主要的包中，如果需要使用需要自行安装。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">go</span> get -u golang.org/x/tour</span><br><span class="line">tour</span><br></pre></td></tr></table></figure></p>
+<h2 id="Build-cache-要求"><a href="#Build-cache-要求" class="headerlink" title="Build cache 要求"></a>Build cache 要求</h2><p>如果设置了<code>GOCACHE=off</code>将导致<code>go</code>命令行写缓存失败。</p>
+<h2 id="二进制包"><a href="#二进制包" class="headerlink" title="二进制包"></a>二进制包</h2><p><code>Go 1.12</code>是最后一个支持二进制包的版本.</p>
+<h2 id="Cgo"><a href="#Cgo" class="headerlink" title="Cgo"></a>Cgo</h2><p><code>Go1.12</code>将<code>C</code>语言的<code>EGLDisplay</code>类型翻译为<code>go</code>的<code>uintptr</code>类型。更多信息请参考<a target="_blank" rel="noopener" href="https://golang.org/cmd/cgo/#hdr-Special_cases">cgo 文档</a></p>
+<h1 id="核心库"><a href="#核心库" class="headerlink" title="核心库"></a>核心库</h1><h2 id="TLS1-3"><a href="#TLS1-3" class="headerlink" title="TLS1.3"></a>TLS1.3</h2><p><code>Go1.12</code>添加了对<code>TLS 1.3</code>的支持，可以通过设置环境变量<code>tls13=1GODEBUG</code>来启用，在<code>Go1.13</code>版本中将默认开启。</p>
+<h2 id="bufio"><a href="#bufio" class="headerlink" title="bufio"></a>bufio</h2><p>如果在调用完<code>Peek</code>方法之后调用<code>UnreadRune and UnreadByte</code>将会返回一个错误。</p>
+<h2 id="bytes"><a href="#bytes" class="headerlink" title="bytes"></a>bytes</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ReplaceAll</span><span class="params">(s, old, <span class="built_in">new</span> []<span class="keyword">byte</span>)</span> []<span class="title">byte</span></span></span><br></pre></td></tr></table></figure>
+<p>新函数<code>ReplaceAll</code>将返回一个字节切片的副本。<code>s</code>是原字节，<code>old</code>是匹配字节，<code>new</code>是替换为新的字符。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;bytes&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;%s\n&quot;</span>, bytes.ReplaceAll([]<span class="keyword">byte</span>(<span class="string">&quot;oink oink oink&quot;</span>), []<span class="keyword">byte</span>(<span class="string">&quot;oink&quot;</span>), []<span class="keyword">byte</span>(<span class="string">&quot;moo&quot;</span>)))</span><br><span class="line">	fmt.Printf(<span class="string">&quot;%s\n&quot;</span>,bytes.ReplaceAll([]<span class="keyword">byte</span>(<span class="string">&quot;this is a demo,place open the demo file&quot;</span>),[]<span class="keyword">byte</span>(<span class="string">&quot;demo&quot;</span>),[]<span class="keyword">byte</span>(<span class="string">&quot;test&quot;</span>)))</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//输出</span></span><br><span class="line">moo moo moo</span><br><span class="line">this is a test,place open the test file</span><br></pre></td></tr></table></figure></p>
+<h2 id="crypto-rand"><a href="#crypto-rand" class="headerlink" title="crypto/rand"></a>crypto/rand</h2><p><code>Reader.Read</code>如果超过60s还没有读取到熵，那么将会打印输出。</p>
+<h2 id="crypto-rc4"><a href="#crypto-rc4" class="headerlink" title="crypto/rc4"></a>crypto/rc4</h2><p>这个版本移除了其他版本的实现，只保留了<code>Go</code>版本。<br><code>RC4</code>是一种流<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/RC4">加密算法</a></p>
+<h2 id="crypto-tls"><a href="#crypto-tls" class="headerlink" title="crypto/tls"></a>crypto/tls</h2><p>如果客户端发送的初始消息看起来不像TLS，则服务器将不再使用警报进行回复,当TLS记录头无效时，返回<code>RecordHeaderError</code>.<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> RecordHeaderError <span class="keyword">struct</span> &#123;</span><br><span class="line">        <span class="comment">// Msg contains a human readable string that describes the error.</span></span><br><span class="line">        Msg <span class="keyword">string</span></span><br><span class="line">        <span class="comment">// RecordHeader contains the five bytes of TLS record header that</span></span><br><span class="line">        <span class="comment">// triggered the error.</span></span><br><span class="line">        RecordHeader [<span class="number">5</span>]<span class="keyword">byte</span></span><br><span class="line">        <span class="comment">// Conn provides the underlying net.Conn in the case that a client</span></span><br><span class="line">        <span class="comment">// sent an initial handshake that didn&#x27;t look like TLS.</span></span><br><span class="line">        <span class="comment">// It is nil if there&#x27;s already been a handshake or a TLS alert has</span></span><br><span class="line">        <span class="comment">// been written to the connection.</span></span><br><span class="line">        Conn net.Conn <span class="comment">// Go 1.12</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="database-sql"><a href="#database-sql" class="headerlink" title="database/sql"></a>database/sql</h2><p>现在可以通过将<code>*Rows</code>值传递给<code>Row.Scan</code>方法来获取查询光标.</p>
+<h2 id="expvar"><a href="#expvar" class="headerlink" title="expvar"></a>expvar</h2><p><code>Delete</code>方法运行删除一个<code>Map</code>类型的的<code>key</code>.<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(v *Map)</span> <span class="title">Delete</span><span class="params">(key <span class="keyword">string</span>)</span></span></span><br></pre></td></tr></table></figure></p>
+<h2 id="lib-time"><a href="#lib-time" class="headerlink" title="lib/time"></a>lib/time</h2><p>当操作系统未提供时区数据时，将会使用配置的<code>$GOROOT/lib/time/zoneinfo.zip</code>数据。</p>
+<h1 id="参考官方"><a href="#参考官方" class="headerlink" title="参考官方"></a>参考官方</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://golang.org/doc/go1.12">https://golang.org/doc/go1.12</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/images/wechat_channel.jpg">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/golang/" rel="tag"># golang</a>
+              <a href="/tags/go1-12/" rel="tag"># go1.12</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/01/24/es-cluster-reroute/" rel="prev" title="ES cluster reroute">
+      <i class="fa fa-chevron-left"></i> ES cluster reroute
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/03/16/Prometheus-1/" rel="next" title="Prometheus 初探一">
+      Prometheus 初探一 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Go1-12-%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">Go1.12 概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AF%AD%E8%A8%80%E4%B8%8A%E7%9A%84%E6%94%B9%E5%8F%98"><span class="nav-number">2.</span> <span class="nav-text">语言上的改变</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%83%A8%E5%88%86"><span class="nav-number">3.</span> <span class="nav-text">部分</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Windows"><span class="nav-number">3.1.</span> <span class="nav-text">Windows</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AIX"><span class="nav-number">3.2.</span> <span class="nav-text">AIX</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Darwin"><span class="nav-number">3.3.</span> <span class="nav-text">Darwin</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B7%A5%E5%85%B7"><span class="nav-number">4.</span> <span class="nav-text">工具</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#go-tool-vet-%E4%B8%8D%E5%86%8D%E6%94%AF%E6%8C%81"><span class="nav-number">4.1.</span> <span class="nav-text">go tool vet 不再支持</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Tour%E5%B0%86%E4%B8%8D%E5%9C%A8%E9%BB%98%E8%AE%A4%E5%AE%89%E8%A3%85"><span class="nav-number">4.2.</span> <span class="nav-text">Tour将不在默认安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Build-cache-%E8%A6%81%E6%B1%82"><span class="nav-number">4.3.</span> <span class="nav-text">Build cache 要求</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%8C%85"><span class="nav-number">4.4.</span> <span class="nav-text">二进制包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cgo"><span class="nav-number">4.5.</span> <span class="nav-text">Cgo</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E5%BA%93"><span class="nav-number">5.</span> <span class="nav-text">核心库</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#TLS1-3"><span class="nav-number">5.1.</span> <span class="nav-text">TLS1.3</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#bufio"><span class="nav-number">5.2.</span> <span class="nav-text">bufio</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#bytes"><span class="nav-number">5.3.</span> <span class="nav-text">bytes</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#crypto-rand"><span class="nav-number">5.4.</span> <span class="nav-text">crypto&#x2F;rand</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#crypto-rc4"><span class="nav-number">5.5.</span> <span class="nav-text">crypto&#x2F;rc4</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#crypto-tls"><span class="nav-number">5.6.</span> <span class="nav-text">crypto&#x2F;tls</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#database-sql"><span class="nav-number">5.7.</span> <span class="nav-text">database&#x2F;sql</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#expvar"><span class="nav-number">5.8.</span> <span class="nav-text">expvar</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lib-time"><span class="nav-number">5.9.</span> <span class="nav-text">lib&#x2F;time</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E5%AE%98%E6%96%B9"><span class="nav-number">6.</span> <span class="nav-text">参考官方</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">lengrongfu</p>
+  <div class="site-description" itemprop="description">通过持续的学习，记录了成为软件工程师的成长轨迹</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">74</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/lengrongfu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;lengrongfu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lenronfu@gmail.com" title="E-Mail → mailto:lenronfu@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/lengrongfu" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;lengrongfu" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/lengrongf" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;lengrongf" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.douban.com/people/156753267/" title="豆瓣 → https:&#x2F;&#x2F;www.douban.com&#x2F;people&#x2F;156753267&#x2F;" rel="noopener" target="_blank"><i class="fab fa-douban fa-fw"></i>豆瓣</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lengrongfu</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+    </div>
+</body>
+</html>

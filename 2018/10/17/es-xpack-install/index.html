@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Monda:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"lengrongfu.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="假如已经有es和kibana了。  下面的为安装路径. 1 2 3   esHome&#x3D;&#x2F;data&#x2F;home&#x2F;elastic&#x2F;elasticsearch-5.4.3 xpackHome&#x3D;&#x2F;data&#x2F;home&#x2F;xpack kibanaHome&#x3D;&#x2F;data&#x2F;home&#x2F;kibana     1、下载xpakc 1 2 3 4   # 下载xpack压缩包 $ cd ${xpackHome} $ wget">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ES X-Pack 5.4.3破解安装">
+<meta property="og:url" content="http://lengrongfu.github.io/2018/10/17/es-xpack-install/index.html">
+<meta property="og:site_name" content="LRF成长记">
+<meta property="og:description" content="假如已经有es和kibana了。  下面的为安装路径. 1 2 3   esHome&#x3D;&#x2F;data&#x2F;home&#x2F;elastic&#x2F;elasticsearch-5.4.3 xpackHome&#x3D;&#x2F;data&#x2F;home&#x2F;xpack kibanaHome&#x3D;&#x2F;data&#x2F;home&#x2F;kibana     1、下载xpakc 1 2 3 4   # 下载xpack压缩包 $ cd ${xpackHome} $ wget">
+<meta property="og:locale">
+<meta property="article:published_time" content="2018-10-17T14:26:17.000Z">
+<meta property="article:modified_time" content="2021-05-12T01:56:12.713Z">
+<meta property="article:author" content="lengrongfu">
+<meta property="article:tag" content="elasticsearch">
+<meta property="article:tag" content="install">
+<meta property="article:tag" content="X-pack">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://lengrongfu.github.io/2018/10/17/es-xpack-install/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>ES X-Pack 5.4.3破解安装 | LRF成长记</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H5BLLGCN5H"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-H5BLLGCN5H');
+      }
+    </script>
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?1d997d88f37f7096db1c4c9d9f8eeccc";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">LRF成长记</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://lengrongfu.github.io/2018/10/17/es-xpack-install/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lengrongfu">
+      <meta itemprop="description" content="通过持续的学习，记录了成为软件工程师的成长轨迹">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LRF成长记">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ES X-Pack 5.4.3破解安装
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-10-17 22:26:17" itemprop="dateCreated datePublished" datetime="2018-10-17T22:26:17+08:00">2018-10-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-05-12 09:56:12" itemprop="dateModified" datetime="2021-05-12T09:56:12+08:00">2021-05-12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/es/" itemprop="url" rel="index"><span itemprop="name">es</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>假如已经有<code>es</code>和<code>kibana</code>了。</p>
+<p>下面的为安装路径.<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">esHome=/data/home/elastic/elasticsearch-5.4.3</span><br><span class="line">xpackHome=/data/home/xpack</span><br><span class="line">kibanaHome=/data/home/kibana</span><br></pre></td></tr></table></figure></p>
+<h2 id="1、下载xpakc"><a href="#1、下载xpakc" class="headerlink" title="1、下载xpakc"></a>1、下载xpakc</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 下载xpack压缩包</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;xpackHome&#125;</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> wget -c <span class="string">&#x27;https://artifacts.elastic.co/downloads/packs/x-pack/x-pack-5.4.3.zip</span></span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="2、Elasticsearch安装X-Pack"><a href="#2、Elasticsearch安装X-Pack" class="headerlink" title="2、Elasticsearch安装X-Pack"></a>2、Elasticsearch安装X-Pack</h2><p><code>ES</code>安装<code>x-pack</code>有两种方法。</p>
+<h3 id="一、手动安装"><a href="#一、手动安装" class="headerlink" title="一、手动安装"></a>一、手动安装</h3><ul>
+<li>安装插件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ./bin/elasticsearch-plugin install file://<span class="variable">$&#123;xpackHome&#125;</span>/x-pack-5.4.3.zip</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>破解<code>xpack</code></li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;esHome&#125;</span>/plugins</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> touch LicenseVerifier.java</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> vim LicenseVerifier.java</span></span><br><span class="line"></span><br><span class="line">package org.elasticsearch.license;</span><br><span class="line"></span><br><span class="line">import java.nio.*;</span><br><span class="line">import java.util.*;</span><br><span class="line">import java.security.*;</span><br><span class="line">import org.elasticsearch.common.xcontent.*;</span><br><span class="line">import org.apache.lucene.util.*;</span><br><span class="line">import org.elasticsearch.common.io.*;</span><br><span class="line">import java.io.*;</span><br><span class="line"></span><br><span class="line">public class LicenseVerifier</span><br><span class="line">&#123;</span><br><span class="line">    public static boolean verifyLicense(final License license, final byte[] encryptedPublicKeyData) &#123;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static boolean verifyLicense(final License license) &#123;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ul>
+<li>编译</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;esHome&#125;</span>/plugins</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> javac -cp <span class="string">&quot;<span class="variable">$&#123;esHome&#125;</span>/lib/elasticsearch-5.4.3.jar:<span class="variable">$&#123;esHome&#125;</span>/lib/lucene-core-6.5.1.jar:<span class="variable">$&#123;esHome&#125;</span>/plugins/x-pack/x-pack-5.4.3.jar&quot;</span> LicenseVerifier.java</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ul>
+<li>替换class文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 解压</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;esHome&#125;</span>/plugins/x-pack/</span></span><br><span class="line">mkdir test</span><br><span class="line">mv x-pack-5.4.3.jar test/</span><br><span class="line">cd test/</span><br><span class="line">jar xvf x-pack-5.4.3.jar</span><br><span class="line"><span class="meta">#</span><span class="bash">替换</span></span><br><span class="line">cd ./org/elasticsearch/license</span><br><span class="line">rm -f LicenseVerifier.class</span><br><span class="line">mv $&#123;esHome&#125;/plugins/LicenseVerifier.class .</span><br><span class="line"><span class="meta">#</span><span class="bash"> 打包</span></span><br><span class="line">cd $&#123;esHome&#125;/plugins/x-pack/test</span><br><span class="line">jar cvf x-pack-5.4.3.jar .</span><br><span class="line">mv x-pack-5.4.3.jar ../</span><br><span class="line"><span class="meta">#</span><span class="bash">删除临时文件</span></span><br><span class="line">cd ../</span><br><span class="line">rm -rf test</span><br><span class="line">cd ../</span><br><span class="line">rm LicenseVerifier.java</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>申请license</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">来此注册，并下载license文件</span></span><br><span class="line">https://license.elastic.co/registration</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改license</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">&#123;                                                                                                                                                                                                       </span><br><span class="line">       <span class="attr">&quot;license&quot;</span>: &#123;</span><br><span class="line">           <span class="attr">&quot;uid&quot;</span>: <span class="string">&quot;01957577-fa6e-426f-9257-200ccdfaee73&quot;</span>,</span><br><span class="line">           <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;platinum&quot;</span>,</span><br><span class="line">           <span class="attr">&quot;issue_date_in_millis&quot;</span>: <span class="number">1534464000000</span>,</span><br><span class="line">           <span class="attr">&quot;expiry_date_in_millis&quot;</span>: <span class="number">2524579200999</span>,</span><br><span class="line">           <span class="attr">&quot;max_nodes&quot;</span>: <span class="number">100</span>,</span><br><span class="line">           <span class="attr">&quot;issued_to&quot;</span>: <span class="string">&quot;leng rongfu (no)&quot;</span>,</span><br><span class="line">           <span class="attr">&quot;issuer&quot;</span>: <span class="string">&quot;Web Form&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;signature&quot;</span>: <span class="string">&quot;AAAAAwAAAA0p6LA0HKNGcIOkCCRqAAABmC9ZN0hjZDBGYnVyRXpCOW5Bb3FjZDAxOWpSbTVoMVZwUzRxVk1PSmkxaktJRVl5MUYvUWh3bHZVUTllbXNPbzBUemtnbWpBbmlWRmRZb25KNFlBR2x0TXc2K2p1Y1VtMG1UQU9TRGZVSGRwaE   JGUjE3bXd3LzRqZ05iLzRteWFNekdxRGpIYlFwYkJiNUs0U1hTVlJKNVlXekMrSlVUdFIvV0FNeWdOYnlESDc3MWhlY3hSQmdKSjJ2ZTcvYlBFOHhPQlV3ZHdDQ0tHcG5uOElCaDJ4K1hob29xSG85N0kvTWV3THhlQk9NL01VMFRjNDZpZEVXeUtUMXIyMlIveFpJUk    k2WUdveEZaME9XWitGUi9WNTZVQW1FMG1DenhZU0ZmeXlZakVEMjZFT2NvOWxpZGlqVmlHNC8rWVVUYzMwRGVySHpIdURzKzFiRDl4TmM1TUp2VTBOUlJZUlAyV0ZVL2kvVk10L0NsbXNFYVZwT3NSU082dFNNa2prQ0ZsclZ4NTltbU1CVE5lR09Bck93V2J1Y3c9PQ    AAAQBENsHqhC2OW/yYxaKP5tS/GHT9TrEbcEtI62k//Id9p2DzSHUv+xekDbfiu550wMrBnoeOi4xV4X6C2WcJCYLSM/QRTotlm11SGvWnUgRXFst83n/nceh3l3Y9D3Odec4zAhrhrYynisls2WfCFGSEW5EUO1II+3C5xhyKMyLROlAxkwNco0H4zD3GlEjZNqC3CK    8cQRRmeJ1lIPvb/Tw8JbbG5zjQuYhQakMAbXqIeL9BLla7sAP4+M8lmvh4Z6bwUGy1MQ9j1+ijdswWMNVs8Vr7CnxZ1j4pla2ZWkGSr4sNfI0LF6U25HC4ofb8CQkrKoAq80EPdINnrfyr56CU&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;start_date_in_millis&quot;</span>: <span class="number">1534464000000</span></span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">&quot;license&quot;</span>:&#123;</span><br><span class="line">        <span class="attr">&quot;uid&quot;</span>:<span class="string">&quot;01957577-fa6e-426f-9257-200ccdfaee73&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;type&quot;</span>:<span class="string">&quot;platinum&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;issue_date_in_millis&quot;</span>:<span class="number">1534464000000</span>,</span><br><span class="line">        <span class="attr">&quot;expiry_date_in_millis&quot;</span>:<span class="number">2524579200999</span>,</span><br><span class="line">        <span class="attr">&quot;max_nodes&quot;</span>:<span class="number">100</span>,</span><br><span class="line">        <span class="attr">&quot;issued_to&quot;</span>:<span class="string">&quot;leng rongfu (no)&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;issuer&quot;</span>:<span class="string">&quot;Web Form&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;signature&quot;</span>:<span class="string">&quot;AAAAAwAAAA0p6LA0HKNGcIOkCCRqAAABmC9ZN0hjZDBGYnVyRXpCOW5Bb3FjZDAxOWpSbTVoMVZwUzRxVk1PSmkxaktJRVl5MUYvUWh3bHZVUTllbXNPbzBUemtnbWpBbmlWRmRZb25KNFlBR2x0TXc2K2p1Y1VtMG1UQU9TRGZVSGRwaEJGUjE3bXd3LzRqZ05iLzRteWFNekdxRGpIYlFwYkJiNUs0U1hTVlJKNVlXekMrSlVUdFIvV0FNeWdOYnlESDc3MWhlY3hSQmdKSjJ2ZTcvYlBFOHhPQlV3ZHdDQ0tHcG5uOElCaDJ4K1hob29xSG85N0kvTWV3THhlQk9NL01VMFRjNDZpZEVXeUtUMXIyMlIveFpJUkk2WUdveEZaME9XWitGUi9WNTZVQW1FMG1DenhZU0ZmeXlZakVEMjZFT2NvOWxpZGlqVmlHNC8rWVVUYzMwRGVySHpIdURzKzFiRDl4TmM1TUp2VTBOUlJZUlAyV0ZVL2kvVk10L0NsbXNFYVZwT3NSU082dFNNa2prQ0ZsclZ4NTltbU1CVE5lR09Bck93V2J1Y3c9PQAAAQBENsHqhC2OW/yYxaKP5tS/GHT9TrEbcEtI62k//Id9p2DzSHUv+xekDbfiu550wMrBnoeOi4xV4X6C2WcJCYLSM/QRTotlm11SGvWnUgRXFst83n/nceh3l3Y9D3Odec4zAhrhrYynisls2WfCFGSEW5EUO1II+3C5xhyKMyLROlAxkwNco0H4zD3GlEjZNqC3CK8cQRRmeJ1lIPvb/Tw8JbbG5zjQuYhQakMAbXqIeL9BLla7sAP4+M8lmvh4Z6bwUGy1MQ9j1+ijdswWMNVs8Vr7CnxZ1j4pla2ZWkGSr4sNfI0LF6U25HC4ofb8CQkrKoAq80EPdINnrfyr56CU&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;start_date_in_millis&quot;</span>:<span class="number">1534464000000</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>ps：<code>platinum</code>表示白金版，可以使用所有功能。其他的如<code>expiry_date_in_millis</code>、<code>max_nodes</code>等根据自己需要修改即可,<code>expiry_date_in_millis</code>是过期时间,使用的是<code>uninx时间</code>,我设置的是到<code>2049</code>年.</p>
+<ul>
+<li>查看lience</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> curl -XGET -u elastic:changeme <span class="string">&#x27;http://&#123;host&#125;:9200/_license&#x27;</span></span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>注册新修改的lience</li>
+<li><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> curl -XPUT -u elastic:changeme <span class="string">&#x27;http://&#123;host&#125;:9200/_xpack/license?acknowledge=true&#x27;</span> -d @lience.json</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="二、直接导入文件"><a href="#二、直接导入文件" class="headerlink" title="二、直接导入文件"></a>二、直接导入文件</h3><p>如果有破解好的文件，直接把<code>plugins</code>下的<code>x-pack</code>文件夹进行压缩，复制到其它节点的<code>plugins</code>路径下，重启就可以使用。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"># 下载地址</span><br><span class="line">$ wget -c https://note.youdao.com/yws/api/personal/file/WEBe693b8fab3b4cad482e5b354cd4176cd?method=download&amp;shareKey=a16d1e40a0ec4461a4f619f325c3f150</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="3、kibana安装X-Pack"><a href="#3、kibana安装X-Pack" class="headerlink" title="3、kibana安装X-Pack"></a>3、kibana安装X-Pack</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;kibanaHome&#125;</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./bin/kibana-plugin install file://<span class="variable">$&#123;xpackHome&#125;</span>/x-pack-5.4.3.zip</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://my.oschina.net/guol/blog/1204258">https://my.oschina.net/guol/blog/1204258</a></li>
+<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/NN01SalzLz2Ue6Q4exCfAw">https://mp.weixin.qq.com/s/NN01SalzLz2Ue6Q4exCfAw</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/images/wechat_channel.jpg">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/elasticsearch/" rel="tag"># elasticsearch</a>
+              <a href="/tags/install/" rel="tag"># install</a>
+              <a href="/tags/X-pack/" rel="tag"># X-pack</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/10/16/cloudera-problem/" rel="prev" title="cloudera 问题解决">
+      <i class="fa fa-chevron-left"></i> cloudera 问题解决
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/10/17/es-xpack-watch-user/" rel="next" title="es-xpack-watch-user">
+      es-xpack-watch-user <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1%E3%80%81%E4%B8%8B%E8%BD%BDxpakc"><span class="nav-number">1.</span> <span class="nav-text">1、下载xpakc</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2%E3%80%81Elasticsearch%E5%AE%89%E8%A3%85X-Pack"><span class="nav-number">2.</span> <span class="nav-text">2、Elasticsearch安装X-Pack</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%89%8B%E5%8A%A8%E5%AE%89%E8%A3%85"><span class="nav-number">2.1.</span> <span class="nav-text">一、手动安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E7%9B%B4%E6%8E%A5%E5%AF%BC%E5%85%A5%E6%96%87%E4%BB%B6"><span class="nav-number">2.2.</span> <span class="nav-text">二、直接导入文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3%E3%80%81kibana%E5%AE%89%E8%A3%85X-Pack"><span class="nav-number">3.</span> <span class="nav-text">3、kibana安装X-Pack</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3"><span class="nav-number"></span> <span class="nav-text">参考文档</span></a></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">lengrongfu</p>
+  <div class="site-description" itemprop="description">通过持续的学习，记录了成为软件工程师的成长轨迹</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">74</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/lengrongfu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;lengrongfu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lenronfu@gmail.com" title="E-Mail → mailto:lenronfu@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/lengrongfu" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;lengrongfu" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/lengrongf" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;lengrongf" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.douban.com/people/156753267/" title="豆瓣 → https:&#x2F;&#x2F;www.douban.com&#x2F;people&#x2F;156753267&#x2F;" rel="noopener" target="_blank"><i class="fab fa-douban fa-fw"></i>豆瓣</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lengrongfu</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+    </div>
+</body>
+</html>

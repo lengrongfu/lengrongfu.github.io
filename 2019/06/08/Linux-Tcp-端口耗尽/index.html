@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Monda:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"lengrongfu.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Linux Tcp 端口耗尽 在Tcp连接中如果并发占用的端口过多，就会报socket: too many open files。我们一个正常的service可以提供多大并发的连接呢？  端口数量的理论限制 每个TCP连接在操作系统中由4元组唯一标识，包括： 1   (local ip, local port, peer ip, peer port)    如果客户端和服务端在统一机器的话loca">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux Tcp 端口耗尽">
+<meta property="og:url" content="http://lengrongfu.github.io/2019/06/08/Linux-Tcp-%E7%AB%AF%E5%8F%A3%E8%80%97%E5%B0%BD/index.html">
+<meta property="og:site_name" content="LRF成长记">
+<meta property="og:description" content="Linux Tcp 端口耗尽 在Tcp连接中如果并发占用的端口过多，就会报socket: too many open files。我们一个正常的service可以提供多大并发的连接呢？  端口数量的理论限制 每个TCP连接在操作系统中由4元组唯一标识，包括： 1   (local ip, local port, peer ip, peer port)    如果客户端和服务端在统一机器的话loca">
+<meta property="og:locale">
+<meta property="article:published_time" content="2019-06-08T02:30:35.000Z">
+<meta property="article:modified_time" content="2021-05-12T01:56:12.736Z">
+<meta property="article:author" content="lengrongfu">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="tcp">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://lengrongfu.github.io/2019/06/08/Linux-Tcp-%E7%AB%AF%E5%8F%A3%E8%80%97%E5%B0%BD/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>Linux Tcp 端口耗尽 | LRF成长记</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H5BLLGCN5H"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-H5BLLGCN5H');
+      }
+    </script>
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?1d997d88f37f7096db1c4c9d9f8eeccc";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">LRF成长记</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://lengrongfu.github.io/2019/06/08/Linux-Tcp-%E7%AB%AF%E5%8F%A3%E8%80%97%E5%B0%BD/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lengrongfu">
+      <meta itemprop="description" content="通过持续的学习，记录了成为软件工程师的成长轨迹">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LRF成长记">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Linux Tcp 端口耗尽
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-06-08 10:30:35" itemprop="dateCreated datePublished" datetime="2019-06-08T10:30:35+08:00">2019-06-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-05-12 09:56:12" itemprop="dateModified" datetime="2021-05-12T09:56:12+08:00">2021-05-12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Linux-Tcp-端口耗尽"><a href="#Linux-Tcp-端口耗尽" class="headerlink" title="Linux Tcp 端口耗尽"></a>Linux Tcp 端口耗尽</h1><p>在<code>Tcp</code>连接中如果并发占用的端口过多，就会报<code>socket: too many open files</code>。我们一个正常的<code>service</code>可以提供多大并发的连接呢？</p>
+<h2 id="端口数量的理论限制"><a href="#端口数量的理论限制" class="headerlink" title="端口数量的理论限制"></a>端口数量的理论限制</h2><p>每个<code>TCP</code>连接在操作系统中由4元组唯一标识，包括：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(local ip, local port, peer ip, peer port)</span><br></pre></td></tr></table></figure><br>如果客户端和服务端在统一机器的话<code>local ip</code>和<code>peer ip</code>是一样的，并且<code>peer port</code>是固定的，就是服务端提供的端口，唯一变化的就是<code>local port</code>这个变量，这个值是一个<code>16</code>字节的数，所以最大值为<code>65536</code>，这个是理论上的限制。</p>
+<h2 id="实际中端口限制"><a href="#实际中端口限制" class="headerlink" title="实际中端口限制"></a>实际中端口限制</h2><h3 id="1、当前用户进程可打开的文件数限制"><a href="#1、当前用户进程可打开的文件数限制" class="headerlink" title="1、当前用户进程可打开的文件数限制"></a>1、当前用户进程可打开的文件数限制</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 通过ulimit 这个命令可以查看操作系统分配给每个进程可以拥有的文件具柄数量。</span><br><span class="line">$ ulimit -n</span><br><span class="line">1024</span><br></pre></td></tr></table></figure>
+<h3 id="2、ip范围"><a href="#2、ip范围" class="headerlink" title="2、ip范围"></a>2、ip范围</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 这个配置文件中规定了最小端口和最大端口，理论上可以分配的最多端口就是最大端口减去最小端口。</span><br><span class="line">$ cat /proc/sys/net/ipv4/ip_local_port_range</span><br><span class="line">32768	60999</span><br></pre></td></tr></table></figure>
+<h3 id="3、linux-硬件上支持可以打开的最大文件连接数"><a href="#3、linux-硬件上支持可以打开的最大文件连接数" class="headerlink" title="3、linux 硬件上支持可以打开的最大文件连接数"></a>3、linux 硬件上支持可以打开的最大文件连接数</h3><p><strong>这个参数的默认值是跟内存大小有关系的，增加物理内存以后重启机器，这个值会增大。大约1G内存10万个句柄的线性关系。这个值是可以修改的，但是不要轻易修改。</strong><br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"># 查看最大文件具柄数</span><br><span class="line">$ cat /proc/sys/fs/file-max </span><br><span class="line">791038</span><br><span class="line"># 查看内存信息</span><br><span class="line">$ cat /proc/meminfo</span><br><span class="line">MemTotal:        8009808 kB</span><br><span class="line"># 查看当前使用的文件具柄</span><br><span class="line">$ cat /proc/sys/fs/file-nr </span><br><span class="line">5568	0	791038</span><br><span class="line">5568:已分配文件句柄的数目    </span><br><span class="line">0:   分配了但没有使用的句柄数  </span><br><span class="line">791038:文件句柄最大数目</span><br></pre></td></tr></table></figure></p>
+<p><strong>端口数量可分配的限制是由最小值限制的，比如上面的三种情况中的1,用户进程可分配的文件句柄为1024,那么就只可以创建这么多的。</strong></p>
+<h2 id="修改可支持的文件具柄数"><a href="#修改可支持的文件具柄数" class="headerlink" title="修改可支持的文件具柄数"></a>修改可支持的文件具柄数</h2><h3 id="1、修改用户进程可支持的最大文件具柄数。"><a href="#1、修改用户进程可支持的最大文件具柄数。" class="headerlink" title="1、修改用户进程可支持的最大文件具柄数。"></a>1、修改用户进程可支持的最大文件具柄数。</h3><p>如果单个进程想要支持更多的文件具柄可以调大，但是对于tcp来说最多就只支持65535个端口数。<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 编辑如下的文件，并加入下入的内容</span><br><span class="line">$ vim /etc/security/limits.conf</span><br><span class="line">* soft nofile 65535</span><br><span class="line">* hard nofile 65535</span><br></pre></td></tr></table></figure></p>
+<p>上述的配置修改之后当前的会话并不能马上生效，现在使用<code>ulimit -n</code>查看，值仍然是<code>1024</code>，可以使用<code>ulimit -n 65535</code>这样的方式让这次的会话生效。</p>
+<h3 id="2、ip范围端口也可更改范围"><a href="#2、ip范围端口也可更改范围" class="headerlink" title="2、ip范围端口也可更改范围"></a>2、ip范围端口也可更改范围</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> vim /proc/sys/net/ipv4/ip_local_port_range</span></span><br><span class="line">1024	65535</span><br></pre></td></tr></table></figure>
+<p>把可分配的端口范围调大一些。端口分配有上限，就是<strong>65535</strong>，只能把下限往下调整，一般情况<code>1024</code>一下的端口分配的操作系统使用，所以不要调整到<code>1024</code>一下去。</p>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><h3 id="服务端代码"><a href="#服务端代码" class="headerlink" title="服务端代码"></a>服务端代码</h3><p>创建一个<code>service</code>，并监听<code>8899</code>端口,暴露一个<code>/test</code>请求，这个请求里面有一个休眠，休眠时间为一个小时，我了模拟并发，把所有的请求都阻塞，不返回。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;net/http&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">test</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">	fmt.Println(r.RemoteAddr,r.RequestURI)</span><br><span class="line">	time.Sleep(<span class="number">60</span>*time.Minute)</span><br><span class="line">	fmt.Fprint(w, <span class="string">&quot;this is test https service&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	mux := http.NewServeMux()</span><br><span class="line">	mux.HandleFunc(<span class="string">&quot;/test&quot;</span>, test)</span><br><span class="line">	<span class="comment">//http.ListenAndServeTLS(&quot;:8899&quot;, &quot;server.crt&quot;, &quot;server.key&quot;, nil)</span></span><br><span class="line">	fmt.Println(http.ListenAndServe(<span class="string">&quot;:8899&quot;</span>, mux))</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></p>
+<h3 id="客户端代码"><a href="#客户端代码" class="headerlink" title="客户端代码"></a>客户端代码</h3><p>客户端通过添加请求的数量和请求地址来进行模拟并发请求，保证每个请求都不被释放端口占用。这样可以用于检验上述的配置是否有效。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;errors&quot;</span></span><br><span class="line">	<span class="string">&quot;flag&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;io/ioutil&quot;</span></span><br><span class="line">	<span class="string">&quot;net/http&quot;</span></span><br><span class="line">	_ <span class="string">&quot;net/http/pprof&quot;</span></span><br><span class="line">	<span class="string">&quot;sync&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> (</span><br><span class="line">	num *<span class="keyword">int</span></span><br><span class="line">	url *<span class="keyword">string</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> (</span><br><span class="line">	client = http.DefaultClient</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span>  &#123;</span><br><span class="line">	num = flag.Int(<span class="string">&quot;num&quot;</span>,<span class="number">1</span>,<span class="string">&quot;http request number&quot;</span>)</span><br><span class="line">	url = flag.String(<span class="string">&quot;url&quot;</span>,<span class="string">&quot;&quot;</span>,<span class="string">&quot;http request url&quot;</span>)</span><br><span class="line">	flag.Parse()</span><br><span class="line">	<span class="keyword">if</span> *url == <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(errors.New(<span class="string">&quot;request url is not nil&quot;</span>))</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">gorequest</span><span class="params">(wait *sync.WaitGroup)</span></span>  &#123;</span><br><span class="line">	resp, err := http.Get(*url)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span>  &#123;</span><br><span class="line">		fmt.Println(err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">defer</span> resp.Body.Close()</span><br><span class="line">	bytes, _ := ioutil.ReadAll(resp.Body)</span><br><span class="line">	fmt.Println(<span class="string">&quot;response:&quot;</span>,<span class="keyword">string</span>(bytes))</span><br><span class="line">	<span class="keyword">defer</span> wait.Done()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> wait sync.WaitGroup</span><br><span class="line">	wait.Add(*num)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; *num ; i++ &#123;</span><br><span class="line">		<span class="keyword">go</span> gorequest(&amp;wait)</span><br><span class="line">	&#125;</span><br><span class="line">	wait.Wait()</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></p>
+<h1 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/ad2754432a4b">https://www.jianshu.com/p/ad2754432a4b</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.51cto.com/ityunwei2017/1558092">https://blog.51cto.com/ityunwei2017/1558092</a></li>
+<li><a target="_blank" rel="noopener" href="https://making.pusher.com/ephemeral-port-exhaustion-and-how-to-avoid-it/">https://making.pusher.com/ephemeral-port-exhaustion-and-how-to-avoid-it/</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/images/wechat_channel.jpg">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/linux/" rel="tag"># linux</a>
+              <a href="/tags/tcp/" rel="tag"># tcp</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/05/21/orange-%E5%8E%9F%E7%90%86/" rel="prev" title="orange原理以及使用">
+      <i class="fa fa-chevron-left"></i> orange原理以及使用
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/06/10/Go-bootstrap-process/" rel="next" title="Go Bootstrap Process">
+      Go Bootstrap Process <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Linux-Tcp-%E7%AB%AF%E5%8F%A3%E8%80%97%E5%B0%BD"><span class="nav-number">1.</span> <span class="nav-text">Linux Tcp 端口耗尽</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AB%AF%E5%8F%A3%E6%95%B0%E9%87%8F%E7%9A%84%E7%90%86%E8%AE%BA%E9%99%90%E5%88%B6"><span class="nav-number">1.1.</span> <span class="nav-text">端口数量的理论限制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%99%85%E4%B8%AD%E7%AB%AF%E5%8F%A3%E9%99%90%E5%88%B6"><span class="nav-number">1.2.</span> <span class="nav-text">实际中端口限制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E5%BD%93%E5%89%8D%E7%94%A8%E6%88%B7%E8%BF%9B%E7%A8%8B%E5%8F%AF%E6%89%93%E5%BC%80%E7%9A%84%E6%96%87%E4%BB%B6%E6%95%B0%E9%99%90%E5%88%B6"><span class="nav-number">1.2.1.</span> <span class="nav-text">1、当前用户进程可打开的文件数限制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81ip%E8%8C%83%E5%9B%B4"><span class="nav-number">1.2.2.</span> <span class="nav-text">2、ip范围</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81linux-%E7%A1%AC%E4%BB%B6%E4%B8%8A%E6%94%AF%E6%8C%81%E5%8F%AF%E4%BB%A5%E6%89%93%E5%BC%80%E7%9A%84%E6%9C%80%E5%A4%A7%E6%96%87%E4%BB%B6%E8%BF%9E%E6%8E%A5%E6%95%B0"><span class="nav-number">1.2.3.</span> <span class="nav-text">3、linux 硬件上支持可以打开的最大文件连接数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E5%8F%AF%E6%94%AF%E6%8C%81%E7%9A%84%E6%96%87%E4%BB%B6%E5%85%B7%E6%9F%84%E6%95%B0"><span class="nav-number">1.3.</span> <span class="nav-text">修改可支持的文件具柄数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E4%BF%AE%E6%94%B9%E7%94%A8%E6%88%B7%E8%BF%9B%E7%A8%8B%E5%8F%AF%E6%94%AF%E6%8C%81%E7%9A%84%E6%9C%80%E5%A4%A7%E6%96%87%E4%BB%B6%E5%85%B7%E6%9F%84%E6%95%B0%E3%80%82"><span class="nav-number">1.3.1.</span> <span class="nav-text">1、修改用户进程可支持的最大文件具柄数。</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81ip%E8%8C%83%E5%9B%B4%E7%AB%AF%E5%8F%A3%E4%B9%9F%E5%8F%AF%E6%9B%B4%E6%94%B9%E8%8C%83%E5%9B%B4"><span class="nav-number">1.3.2.</span> <span class="nav-text">2、ip范围端口也可更改范围</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95"><span class="nav-number">1.4.</span> <span class="nav-text">测试</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF%E4%BB%A3%E7%A0%81"><span class="nav-number">1.4.1.</span> <span class="nav-text">服务端代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%BB%A3%E7%A0%81"><span class="nav-number">1.4.2.</span> <span class="nav-text">客户端代码</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">2.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">lengrongfu</p>
+  <div class="site-description" itemprop="description">通过持续的学习，记录了成为软件工程师的成长轨迹</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">74</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/lengrongfu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;lengrongfu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lenronfu@gmail.com" title="E-Mail → mailto:lenronfu@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/lengrongfu" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;lengrongfu" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/lengrongf" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;lengrongf" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.douban.com/people/156753267/" title="豆瓣 → https:&#x2F;&#x2F;www.douban.com&#x2F;people&#x2F;156753267&#x2F;" rel="noopener" target="_blank"><i class="fab fa-douban fa-fw"></i>豆瓣</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lengrongfu</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+    </div>
+</body>
+</html>

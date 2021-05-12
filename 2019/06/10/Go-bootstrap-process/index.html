@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Monda:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"lengrongfu.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Go Bootstrap Process 一、环境准备 1、 Go版本 1 2   $ go version go version go1.12.4 darwin&#x2F;amd64    2、准备代码 1 2 3 4 5 6 7   package main import ( 	&quot;fmt&quot; ) func main() { 	fmt.Println(&quot;hello world&quot;) }     3、调试工具">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go Bootstrap Process">
+<meta property="og:url" content="http://lengrongfu.github.io/2019/06/10/Go-bootstrap-process/index.html">
+<meta property="og:site_name" content="LRF成长记">
+<meta property="og:description" content="Go Bootstrap Process 一、环境准备 1、 Go版本 1 2   $ go version go version go1.12.4 darwin&#x2F;amd64    2、准备代码 1 2 3 4 5 6 7   package main import ( 	&quot;fmt&quot; ) func main() { 	fmt.Println(&quot;hello world&quot;) }     3、调试工具">
+<meta property="og:locale">
+<meta property="article:published_time" content="2019-06-10T10:26:18.000Z">
+<meta property="article:modified_time" content="2021-05-12T01:56:12.736Z">
+<meta property="article:author" content="lengrongfu">
+<meta property="article:tag" content="golang 源码">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://lengrongfu.github.io/2019/06/10/Go-bootstrap-process/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>Go Bootstrap Process | LRF成长记</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H5BLLGCN5H"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-H5BLLGCN5H');
+      }
+    </script>
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?1d997d88f37f7096db1c4c9d9f8eeccc";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">LRF成长记</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://lengrongfu.github.io/2019/06/10/Go-bootstrap-process/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lengrongfu">
+      <meta itemprop="description" content="通过持续的学习，记录了成为软件工程师的成长轨迹">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LRF成长记">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Go Bootstrap Process
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-06-10 18:26:18" itemprop="dateCreated datePublished" datetime="2019-06-10T18:26:18+08:00">2019-06-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-05-12 09:56:12" itemprop="dateModified" datetime="2021-05-12T09:56:12+08:00">2021-05-12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/golang/" itemprop="url" rel="index"><span itemprop="name">golang</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Go-Bootstrap-Process"><a href="#Go-Bootstrap-Process" class="headerlink" title="Go Bootstrap Process"></a>Go Bootstrap Process</h1><h2 id="一、环境准备"><a href="#一、环境准备" class="headerlink" title="一、环境准备"></a>一、环境准备</h2><p>1、 Go版本<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ go version</span><br><span class="line">go version go1.12.4 darwin/amd64</span><br></pre></td></tr></table></figure><br>2、准备代码<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">)</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Println(<span class="string">&quot;hello world&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>3、调试工具</p>
+<p>调试工具我使用的是<code>dlv</code>，对<code>golang</code>支持最好的调试工具，比<code>gdb</code>都好，先按官方文档安装上。编译上述代码<code>go build main.go</code>,得到一个可执行文件，执行<code>dlv exec ./main</code>就进入了调试空间。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> dlv <span class="built_in">exec</span> main</span></span><br><span class="line">Type &#x27;help&#x27; for list of commands.</span><br><span class="line">(dlv) </span><br></pre></td></tr></table></figure><br>输入<code>help</code>就可以看到帮助文档，打断点以及执行下一步都是通过命令进行的，不知道就可以随时进行查看。执行上述的命令之后，程序还没有真正的启动。</p>
+<p>4、<code>dlv</code>常用的命令<br>更具体的命令使用参考官方文档。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">args ：函数的参数</span><br><span class="line">break (alias: b) ：打一个断点</span><br><span class="line">breakpoints (alias: bp) ：打印已经添加的断点信息。</span><br><span class="line">clear ： 通过断点编号删除断点</span><br><span class="line">continue (alias: c) ：运行到有断点的地方</span><br><span class="line">locals ：打印本地变量</span><br><span class="line">next (alias: n) ：运行到下一行</span><br><span class="line">print (alias: p) ：可以指定变量进行打印查看，特别对于引用类型变量最有用。</span><br><span class="line">regs ：打印当前cpu寄存器的值。</span><br><span class="line">restart (alias: r) ：重启进程,重新开始调试.</span><br><span class="line">stack (alias: bt) ：打印堆栈信息</span><br><span class="line">step (alias: s) ：单步执行，会进入函数内部</span><br><span class="line">step-instruction (alias: si)  : cpu的单个指令执行</span><br><span class="line">thread (alias: tr) ：可以切换到指定的线程</span><br><span class="line">threads ：打印所有线程的信息</span><br><span class="line">goroutine ：显示或者切换当前的go</span><br><span class="line">goroutines : 列出程序的所有go</span><br></pre></td></tr></table></figure></p>
+<h2 id="二、进入调试"><a href="#二、进入调试" class="headerlink" title="二、进入调试"></a>二、进入调试</h2><h3 id="1、打断点"><a href="#1、打断点" class="headerlink" title="1、打断点"></a>1、打断点</h3><p>第一步先打断点，对于第一次才开始调试的人来说，最简单的就是打<code>main</code>函数的断点了.<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> (dlv) b main.main</span></span><br><span class="line">Breakpoint 1 set at 0x1093038 for main.main() ./main.go:27</span><br><span class="line">(dlv) bp</span><br><span class="line">Breakpoint 1 at 0x1093038 for main.main() ./main.go:27 (0)</span><br></pre></td></tr></table></figure></p>
+<h3 id="2、运行到断点出"><a href="#2、运行到断点出" class="headerlink" title="2、运行到断点出"></a>2、运行到断点出</h3><p><code>b</code>、<code>bp</code>是缩写，对应为打断点和打印所有的断点信息。打了断点之后就可以执行<code>c</code>这个命令了。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> (dlv) <span class="built_in">continue</span></span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> main.main() ./main.go:27 (hits goroutine(1):1 total:1) (PC: 0x1093038)</span></span><br><span class="line">=&gt;  27:	func main() &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="3、打印堆栈信息"><a href="#3、打印堆栈信息" class="headerlink" title="3、打印堆栈信息"></a>3、打印堆栈信息</h3><p>执行过后就会出现源代码，并且断点指向了<code>main</code>函数上,此时我们通过<code>stack</code>命令就可以看到这个<code>main</code>函数所在的<code>goroutine</code>栈了。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> (dlv) stack</span></span><br><span class="line">0  0x0000000001093038 in main.main</span><br><span class="line">   at ./main.go:27</span><br><span class="line">1  0x00000000010297ec in runtime.main</span><br><span class="line">   at ./golang_work/go/src/runtime/proc.go:200</span><br><span class="line">2  0x0000000001051011 in runtime.goexit</span><br><span class="line">   at ./golang_work/go/src/runtime/asm_amd64.s:1337</span><br></pre></td></tr></table></figure>
+<p>如上就是显示了一个<code>goroutine</code>的堆栈，堆栈中的信息就保证了调用过程，所以我们就可以去分析<code>go</code>启动过程了。<br>我们要从栈底往上看，所以我们首先去分析一下<code>asm_amd64.s</code>这个汇编代码。现在是逆向分析调用栈，后续的分析就是正向的过程。</p>
+<h2 id="三、分析启动过程"><a href="#三、分析启动过程" class="headerlink" title="三、分析启动过程"></a>三、分析启动过程</h2><h3 id="1、分析asm-amd64-s这个文件"><a href="#1、分析asm-amd64-s这个文件" class="headerlink" title="1、分析asm_amd64.s这个文件"></a>1、分析asm_amd64.s这个文件</h3><p>这里面的内容很多，我们不能全部看完，只能找一下重点，开始的两个函数都指向了<code>JMP    runtime·rt0_go(SB)</code>这条汇编代码，我们就去查看<code>rt0_go</code>这个函数。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">runtime/asm_amd64.s </span><br><span class="line">TEXT runtime·rt0_go(SB),NOSPLIT,$<span class="number">0</span></span><br><span class="line">	CALL	runtime·args(SB)</span><br><span class="line">	CALL	runtime·osinit(SB)</span><br><span class="line">	CALL	runtime·schedinit(SB)</span><br><span class="line">	CALL	runtime·newproc(SB)</span><br><span class="line">	CALL	runtime·mstart(SB)</span><br><span class="line">	CALL	runtime·abort(SB)	<span class="comment">// mstart should </span></span><br></pre></td></tr></table></figure><br>文件中的大部分内容都去掉了，我只留下了<code>CALL</code> 指令的部分，<code>call</code>调用的就是<code>runtime</code>包中的源代码，所以我们通过方法名就可以进行搜索了，并且是在可以运行之后的部分，所以上面就是<code>go</code>进程启动的过程。下面我们边打断点边查看每个函数都做了写什么内容。</p>
+<p>按顺序总结下runtime.rt0_go里几件重要的事：</p>
+<ul>
+<li>检查运行平台的CPU，设置好程序运行需要相关标志。</li>
+<li>TLS的初始化。</li>
+<li>runtime.args、runtime.osinit、runtime.schedinit 三个方法做好程序运行需要的各种变量与调度器。</li>
+<li>runtime.newproc创建新的goroutine用于绑定用户写的main方法。</li>
+<li>runtime.mstart开始goroutine的调度。</li>
+</ul>
+<h3 id="2、按顺序打上断点"><a href="#2、按顺序打上断点" class="headerlink" title="2、按顺序打上断点"></a>2、按顺序打上断点</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">(dlv) b runtime.args</span><br><span class="line">(dlv) b runtime.osinit</span><br><span class="line">(dlv) b runtime.schedinit</span><br><span class="line">(dlv) b runtime.newproc</span><br><span class="line">(dlv) b runtime.mstart</span><br><span class="line">(dlv) b runtime.abort</span><br><span class="line"></span><br><span class="line">Breakpoint 2 at 0x10360ff for runtime.args() ./go/src/runtime/runtime1.go:60 (0)</span><br><span class="line">Breakpoint 3 at 0x102604f for runtime.osinit() ./go/src/runtime/os_darwin.go:79 (0)</span><br><span class="line">Breakpoint 4 at 0x102a843 for runtime.schedinit() ./go/src/runtime/proc.go:526 (0)</span><br><span class="line">Breakpoint 5 at 0x1030f90 for runtime.newproc() ./go/src/runtime/proc.go:3239 (0)</span><br><span class="line">Breakpoint 6 at 0x102c410 for runtime.mstart() ./go/src/runtime/proc.go:1153 (0)</span><br><span class="line">Breakpoint 7 at 0x10509a0 for runtime.abort() ./go/src/runtime/asm_amd64.s:837 (0)</span><br></pre></td></tr></table></figure>
+<h3 id="3、runtime-args"><a href="#3、runtime-args" class="headerlink" title="3、runtime.args"></a>3、runtime.args</h3><p>打好断点之后，可以执行如下命令找到源码所在位置.<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> (dlv) s</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> runtime.args()</span> </span><br><span class="line">./go/src/runtime/runtime1.go:60 (hits total:1) (PC: 0x10360ff)</span><br><span class="line">=&gt;  60:	func args(c int32, v **byte) &#123;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>我们找到源码，并且验证了启动过程第一步就是这个<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">runtime/runtime1.<span class="keyword">go</span> +<span class="number">60</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">args</span><span class="params">(c <span class="keyword">int32</span>, v **<span class="keyword">byte</span>)</span></span> &#123;</span><br><span class="line">	argc = c</span><br><span class="line">	argv = v</span><br><span class="line">	sysargs(c, v)</span><br><span class="line">&#125;</span><br><span class="line">runtime/os_darwin.<span class="keyword">go</span> +<span class="number">341</span></span><br><span class="line"><span class="comment">//go:linkname executablePath os.executablePath</span></span><br><span class="line"><span class="keyword">var</span> executablePath <span class="keyword">string</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">sysargs</span><span class="params">(argc <span class="keyword">int32</span>, argv **<span class="keyword">byte</span>)</span></span> &#123;</span><br><span class="line">	<span class="comment">// skip over argv, envv and the first string will be the path</span></span><br><span class="line">	n := argc + <span class="number">1</span></span><br><span class="line">	<span class="keyword">for</span> argv_index(argv, n) != <span class="literal">nil</span> &#123;</span><br><span class="line">		n++</span><br><span class="line">	&#125;</span><br><span class="line">	executablePath = gostringnocopy(argv_index(argv, n+<span class="number">1</span>))</span><br><span class="line"></span><br><span class="line">	<span class="comment">// strip &quot;executable_path=&quot; prefix if available, it&#x27;s added after OS X 10.11.</span></span><br><span class="line">	<span class="keyword">const</span> prefix = <span class="string">&quot;executable_path=&quot;</span></span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(executablePath) &gt; <span class="built_in">len</span>(prefix) &amp;&amp; executablePath[:<span class="built_in">len</span>(prefix)] == prefix &#123;</span><br><span class="line">		executablePath = executablePath[<span class="built_in">len</span>(prefix):]</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这个方法只做了一件事，就是把二进制文件的绝对路径找出来，并存在os.executablePath里。</p>
+<p>按照本文的测试工程：os.executablePath=$GOPATH/test/main</p>
+<h3 id="4、runtime-osinit"><a href="#4、runtime-osinit" class="headerlink" title="4、runtime.osinit"></a>4、runtime.osinit</h3><p>再接着运行就会到下一个断点，也就是<code>runtime.osinit()</code>这个函数。<br><code>osinit</code>这个函数是根据操作系统的不同来选择不同的执行函数的，我的是<code>mac</code>,所以执行的是<code>os_darwin.go</code>里面的函数，同时还有<code>os_linux.go</code>里面也有同样的函数。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">runtime/os_darwin.<span class="keyword">go</span> +<span class="number">79</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">osinit</span><span class="params">()</span></span> &#123;</span><br><span class="line">	ncpu = getncpu()</span><br><span class="line">	physPageSize = getPageSize()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>这个函数主要做来两件事：</p>
+<ul>
+<li>第一是获取当前电脑的<code>cpu</code>个数，并赋值给<code>runtime/runtime2.go</code>中的<code>ncpu</code>变量。</li>
+<li>第二是设置<code>runtime/malloc.go</code>中的<code>physPageSize</code>变量，这个变量是用于分配内存的，操作系统分配内存或者回收内存都是按这个数字的整数倍来操作的。我获取的是<code>4096</code>这个数字，所以是<code>4k</code>字节。</li>
+</ul>
+<h3 id="5、runtime-schedinit"><a href="#5、runtime-schedinit" class="headerlink" title="5、runtime.schedinit"></a>5、runtime.schedinit</h3><p>再接着运行到下一个断点，就是<code>runtime.schedinit</code>这个函数。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line">runtime/proc.<span class="keyword">go</span> +<span class="number">526</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">schedinit</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="comment">//从TLS 中获取g</span></span><br><span class="line">	_g_ := getg()</span><br><span class="line">	<span class="comment">// 是否开启竞争检测，启动方法go run -race main.go</span></span><br><span class="line">	<span class="keyword">if</span> raceenabled &#123;</span><br><span class="line">		_g_.racectx, raceprocctx0 = raceinit()</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//运行创建的最大线程数</span></span><br><span class="line">	sched.maxmcount = <span class="number">10000</span></span><br><span class="line">	<span class="comment">// 初始化一系列函数所在的PC计数器，用于traceback</span></span><br><span class="line">	tracebackinit()</span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">	moduledataverify()</span><br><span class="line">	<span class="comment">//栈初始化,初始化了一个栈池，可以直接取，还有一个大栈的全局池.</span></span><br><span class="line">	<span class="comment">//golang 使用的是动态栈，初始是2k大小，后面增长，但是golang使用的不是分离栈，是连续栈，就是栈空间是连续的，分配的时候如果之前的空间不连续了，就拷贝一份到新的空间去。</span></span><br><span class="line">	stackinit()</span><br><span class="line">	mallocinit()</span><br><span class="line">	mcommoninit(_g_.m)</span><br><span class="line">	cpuinit()       <span class="comment">// must run before alginit</span></span><br><span class="line">	alginit()       <span class="comment">// maps must not be used before this call</span></span><br><span class="line">	modulesinit()   <span class="comment">// provides activeModules</span></span><br><span class="line">	typelinksinit() <span class="comment">// uses maps, activeModules</span></span><br><span class="line">	itabsinit()     <span class="comment">// uses activeModules</span></span><br><span class="line"></span><br><span class="line">	msigsave(_g_.m)</span><br><span class="line">	initSigmask = _g_.m.sigmask</span><br><span class="line">    <span class="comment">// 启动参数初始化</span></span><br><span class="line">	goargs()</span><br><span class="line">	<span class="comment">//</span></span><br><span class="line">	goenvs()</span><br><span class="line">	<span class="comment">// 解析debug变量，GODEBUG，GOTRACEBACK这些</span></span><br><span class="line">	parsedebugvars()</span><br><span class="line">	<span class="comment">// gc 初始化</span></span><br><span class="line">	gcinit()</span><br><span class="line">    </span><br><span class="line">	sched.lastpoll = <span class="keyword">uint64</span>(nanotime())</span><br><span class="line">	procs := ncpu</span><br><span class="line">	<span class="keyword">if</span> n, ok := atoi32(gogetenv(<span class="string">&quot;GOMAXPROCS&quot;</span>)); ok &amp;&amp; n &gt; <span class="number">0</span> &#123;</span><br><span class="line">		procs = n</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> procresize(procs) != <span class="literal">nil</span> &#123;</span><br><span class="line">		throw(<span class="string">&quot;unknown runnable goroutine during bootstrap&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// For cgocheck &gt; 1, we turn on the write barrier at all times</span></span><br><span class="line">	<span class="comment">// and check all pointer writes. We can&#x27;t do this until after</span></span><br><span class="line">	<span class="comment">// procresize because the write barrier needs a P.</span></span><br><span class="line">	<span class="keyword">if</span> debug.cgocheck &gt; <span class="number">1</span> &#123;</span><br><span class="line">		writeBarrier.cgo = <span class="literal">true</span></span><br><span class="line">		writeBarrier.enabled = <span class="literal">true</span></span><br><span class="line">		<span class="keyword">for</span> _, p := <span class="keyword">range</span> allp &#123;</span><br><span class="line">			p.wbBuf.reset()</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> buildVersion == <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">		<span class="comment">// Condition should never trigger. This code just serves</span></span><br><span class="line">		<span class="comment">// to ensure runtime·buildVersion is kept in the resulting binary.</span></span><br><span class="line">		buildVersion = <span class="string">&quot;unknown&quot;</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><p>mallocinit()：这个函数是内存分配器初始化。</p>
+</li>
+<li><p>mcommoninit(mp *m):初始化m0这个线程</p>
+</li>
+<li>cpuinit()：cpu初始化</li>
+<li>alginit()：初始化AES，HASH算法</li>
+</ul>
+<h3 id="6、runtime-newproc"><a href="#6、runtime-newproc" class="headerlink" title="6、runtime.newproc()"></a>6、runtime.newproc()</h3><p>再接着运行到下一个断点，就是<code>runtime.newproc</code>这个函数。</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://cbsheng.github.io/posts/%E6%8E%A2%E7%B4%A2goroutine%E7%9A%84%E5%88%9B%E5%BB%BA/">http://cbsheng.github.io/posts/%E6%8E%A2%E7%B4%A2goroutine%E7%9A%84%E5%88%9B%E5%BB%BA/</a><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">runtime/proc.<span class="keyword">go</span> +<span class="number">3239</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">newproc</span><span class="params">(siz <span class="keyword">int32</span>, fn *funcval)</span></span> &#123;</span><br><span class="line">	argp := add(unsafe.Pointer(&amp;fn), sys.PtrSize)</span><br><span class="line">	gp := getg()</span><br><span class="line">	pc := getcallerpc()</span><br><span class="line">	systemstack(<span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		newproc1(fn, (*<span class="keyword">uint8</span>)(argp), siz, gp, pc)</span><br><span class="line">	&#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="7、runtime-mstart"><a href="#7、runtime-mstart" class="headerlink" title="7、runtime.mstart()"></a>7、runtime.mstart()</h3><p>再接着运行到下一个断点，就是<code>runtime.mstart</code>这个函数。<br>mstart方法主要的执行路径是：</p>
+<p><strong>mstart -&gt; mstart1 -&gt; schedule -&gt; execute</strong></p>
+<ul>
+<li>mstart做一些栈相关的检查，然后就调用mstart1。</li>
+<li>mstart1先做一些初始化与M相关的工作，例如是信号栈和信号处理函数的初始化。最后调用schedule。</li>
+<li>schedule逻辑是这四个方法里最复杂的。简单来说，就是要找出一个可运行的G，不管是从P本地的G队列、全局调度器的G队列、GC - worker、因IO阻塞的G、甚至从别的P里偷。然后传给execute运行。</li>
+<li>execute对传进来的G设置好相关的状态后，就加载G自身记录着的PC、SP等寄存器信息，恢复现场继续执行。</li>
+</ul>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/go-delve/delve">dlv 官网</a></li>
+<li><a target="_blank" rel="noopener" href="http://cbsheng.github.io/posts/%E6%8E%A2%E7%B4%A2golang%E7%A8%8B%E5%BA%8F%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/">http://cbsheng.github.io/posts/%E6%8E%A2%E7%B4%A2golang%E7%A8%8B%E5%BA%8F%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/</a></li>
+<li><a target="_blank" rel="noopener" href="http://blog.jobbole.com/93100/">http://blog.jobbole.com/93100/</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/images/wechat_channel.jpg">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/golang-%E6%BA%90%E7%A0%81/" rel="tag"># golang 源码</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/06/08/Linux-Tcp-%E7%AB%AF%E5%8F%A3%E8%80%97%E5%B0%BD/" rel="prev" title="Linux Tcp 端口耗尽">
+      <i class="fa fa-chevron-left"></i> Linux Tcp 端口耗尽
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/06/14/Go%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E6%B5%8B%E8%AF%95%E5%88%86%E8%A7%A3/" rel="next" title="Go 并发编程测试分析">
+      Go 并发编程测试分析 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Go-Bootstrap-Process"><span class="nav-number">1.</span> <span class="nav-text">Go Bootstrap Process</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="nav-number">1.1.</span> <span class="nav-text">一、环境准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E8%BF%9B%E5%85%A5%E8%B0%83%E8%AF%95"><span class="nav-number">1.2.</span> <span class="nav-text">二、进入调试</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E6%89%93%E6%96%AD%E7%82%B9"><span class="nav-number">1.2.1.</span> <span class="nav-text">1、打断点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E8%BF%90%E8%A1%8C%E5%88%B0%E6%96%AD%E7%82%B9%E5%87%BA"><span class="nav-number">1.2.2.</span> <span class="nav-text">2、运行到断点出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81%E6%89%93%E5%8D%B0%E5%A0%86%E6%A0%88%E4%BF%A1%E6%81%AF"><span class="nav-number">1.2.3.</span> <span class="nav-text">3、打印堆栈信息</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%88%86%E6%9E%90%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B"><span class="nav-number">1.3.</span> <span class="nav-text">三、分析启动过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E5%88%86%E6%9E%90asm-amd64-s%E8%BF%99%E4%B8%AA%E6%96%87%E4%BB%B6"><span class="nav-number">1.3.1.</span> <span class="nav-text">1、分析asm_amd64.s这个文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E6%8C%89%E9%A1%BA%E5%BA%8F%E6%89%93%E4%B8%8A%E6%96%AD%E7%82%B9"><span class="nav-number">1.3.2.</span> <span class="nav-text">2、按顺序打上断点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81runtime-args"><span class="nav-number">1.3.3.</span> <span class="nav-text">3、runtime.args</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4%E3%80%81runtime-osinit"><span class="nav-number">1.3.4.</span> <span class="nav-text">4、runtime.osinit</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5%E3%80%81runtime-schedinit"><span class="nav-number">1.3.5.</span> <span class="nav-text">5、runtime.schedinit</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6%E3%80%81runtime-newproc"><span class="nav-number">1.3.6.</span> <span class="nav-text">6、runtime.newproc()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7%E3%80%81runtime-mstart"><span class="nav-number">1.3.7.</span> <span class="nav-text">7、runtime.mstart()</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">2.</span> <span class="nav-text">参考</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">lengrongfu</p>
+  <div class="site-description" itemprop="description">通过持续的学习，记录了成为软件工程师的成长轨迹</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">74</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/lengrongfu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;lengrongfu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lenronfu@gmail.com" title="E-Mail → mailto:lenronfu@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/lengrongfu" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;lengrongfu" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/lengrongf" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;lengrongf" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.douban.com/people/156753267/" title="豆瓣 → https:&#x2F;&#x2F;www.douban.com&#x2F;people&#x2F;156753267&#x2F;" rel="noopener" target="_blank"><i class="fab fa-douban fa-fw"></i>豆瓣</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lengrongfu</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+    </div>
+</body>
+</html>

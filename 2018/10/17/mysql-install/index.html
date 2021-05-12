@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Monda:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"lengrongfu.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="mysql centos7 安装指南(Yum)  * 参考文档：https:&#x2F;&#x2F;dev.mysql.com&#x2F;doc&#x2F;mysql-yum-repo-quick-guide&#x2F;en&#x2F;1、添加 mysql yum存储库      * 下载平台发行包：wget -c https:&#x2F;&#x2F;repo.mysql.com&#x2F;&#x2F;mysql57-community-release-el6-11.noarch.rpm mys">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mysql-install">
+<meta property="og:url" content="http://lengrongfu.github.io/2018/10/17/mysql-install/index.html">
+<meta property="og:site_name" content="LRF成长记">
+<meta property="og:description" content="mysql centos7 安装指南(Yum)  * 参考文档：https:&#x2F;&#x2F;dev.mysql.com&#x2F;doc&#x2F;mysql-yum-repo-quick-guide&#x2F;en&#x2F;1、添加 mysql yum存储库      * 下载平台发行包：wget -c https:&#x2F;&#x2F;repo.mysql.com&#x2F;&#x2F;mysql57-community-release-el6-11.noarch.rpm mys">
+<meta property="og:locale">
+<meta property="article:published_time" content="2018-10-17T15:24:18.000Z">
+<meta property="article:modified_time" content="2021-05-12T01:56:12.713Z">
+<meta property="article:author" content="lengrongfu">
+<meta property="article:tag" content="install">
+<meta property="article:tag" content="mysql">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://lengrongfu.github.io/2018/10/17/mysql-install/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>mysql-install | LRF成长记</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H5BLLGCN5H"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-H5BLLGCN5H');
+      }
+    </script>
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?1d997d88f37f7096db1c4c9d9f8eeccc";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">LRF成长记</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://lengrongfu.github.io/2018/10/17/mysql-install/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lengrongfu">
+      <meta itemprop="description" content="通过持续的学习，记录了成为软件工程师的成长轨迹">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LRF成长记">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          mysql-install
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-10-17 23:24:18" itemprop="dateCreated datePublished" datetime="2018-10-17T23:24:18+08:00">2018-10-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-05-12 09:56:12" itemprop="dateModified" datetime="2021-05-12T09:56:12+08:00">2021-05-12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Mysql/" itemprop="url" rel="index"><span itemprop="name">Mysql</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="mysql-centos7-安装指南-Yum"><a href="#mysql-centos7-安装指南-Yum" class="headerlink" title="mysql centos7 安装指南(Yum)"></a>mysql centos7 安装指南(Yum)</h1><ul>
+<li>参考文档：<a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/mysql-yum-repo-quick-guide/en/">https://dev.mysql.com/doc/mysql-yum-repo-quick-guide/en/</a><h3 id="1、添加-mysql-yum存储库"><a href="#1、添加-mysql-yum存储库" class="headerlink" title="1、添加　mysql yum存储库"></a>1、添加　mysql yum存储库</h3></li>
+<li>下载平台发行包：<code>wget -c https://repo.mysql.com//mysql57-community-release-el6-11.noarch.rpm</code> mysql5.7版本</li>
+<li>安装下载的发行包：<code>$ sudo rpm -Uvh mysql57-community-release-el6-n.noarch.rpm</code><h3 id="2、选择版本"><a href="#2、选择版本" class="headerlink" title="2、选择版本"></a>2、选择版本</h3></li>
+<li>默认情况下选择最新的mysql版本进行安装，如果这是能接收的那就跳到安装步骤。</li>
+<li>可以查看启用或禁用的版本：<code>shell &gt; yum repolist all | grep mysql</code>，执行结果，默认最新版启用的。<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Repository epel is listed more than once in the configuration</span><br><span class="line">!mysql-connectors-community/x86_64 MySQL Connectors Community       启用:     36</span><br><span class="line">mysql-connectors-community-source  MySQL Connectors Community - Sou 禁用</span><br><span class="line">!mysql-tools-community/x86_64      MySQL Tools Community            启用:     47</span><br><span class="line">mysql-tools-community-source       MySQL Tools Community - Source   禁用</span><br><span class="line">mysql-tools-preview/x86_64         MySQL Tools Preview              禁用</span><br><span class="line">mysql-tools-preview-source         MySQL Tools Preview - Source     禁用</span><br><span class="line">mysql55-community/x86_64           MySQL 5.5 Community Server       禁用</span><br><span class="line">mysql55-community-source           MySQL 5.5 Community Server - Sou 禁用</span><br><span class="line">mysql56-community/x86_64           MySQL 5.6 Community Server       禁用</span><br><span class="line">mysql56-community-source           MySQL 5.6 Community Server - Sou 禁用</span><br><span class="line">!mysql57-community/x86_64          MySQL 5.7 Community Server       启用:    187</span><br><span class="line">mysql57-community-source           MySQL 5.7 Community Server - Sou 禁用</span><br></pre></td></tr></table></figure></li>
+<li>启用自定义版本并禁用最新版：<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">shell&gt;</span><span class="bash"> sudo yum-config-manager --<span class="built_in">disable</span> mysql57-community</span></span><br><span class="line"><span class="meta">shell&gt;</span><span class="bash"> sudo yum-config-manager --<span class="built_in">enable</span> mysql56-community</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="3、安装-MySQL"><a href="#3、安装-MySQL" class="headerlink" title="3、安装 MySQL"></a>3、安装 <code>MySQL</code></h3><ul>
+<li>以下是安装命令：<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo yum install mysql-community-server</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="4、启动MySQL服务器"><a href="#4、启动MySQL服务器" class="headerlink" title="4、启动MySQL服务器"></a>4、启动MySQL服务器</h3><p>-　使用以下命令启动MySQL：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo service mysqld start</span></span><br></pre></td></tr></table></figure><br>-　如果系统是<code>Centos7</code> 首选安装命令是：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo systemctl start mysqld.service</span></span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>以下命令是检查MySQL服务器的状态：<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo service mysqld status</span></span><br></pre></td></tr></table></figure></li>
+<li>对于<code>CentOs7</code>平台，首先以下命令：<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo systemctl status mysqld.service</span></span><br></pre></td></tr></table></figure>
+MySQL服务初始化(仅适用5.7)</li>
+</ul>
+<h3 id="5、保护MySQL（仅使用于MySQL5-6）"><a href="#5、保护MySQL（仅使用于MySQL5-6）" class="headerlink" title="5、保护MySQL（仅使用于MySQL5.6）"></a>5、保护MySQL（仅使用于MySQL5.6）</h3><ul>
+<li>初始化设置MySQL密码，执行以下命令：<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> mysqladmin -u root password</span></span><br></pre></td></tr></table></figure>
+<h3 id="６、安装其他的MySQL工具"><a href="#６、安装其他的MySQL工具" class="headerlink" title="６、安装其他的MySQL工具"></a>６、安装其他的MySQL工具</h3></li>
+<li>使用yum来安装和管理MySQL的各个组件，使用以下命令从mysql yum存储库中列出所有mysql：<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> yum --disablerepo=\* --enablerepo=<span class="string">&#x27;mysql*-community*&#x27;</span> list available</span></span><br></pre></td></tr></table></figure></li>
+<li>使用以下命令安装选择软件包：<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo yum install package-name</span></span><br><span class="line">//安装mysql workbench</span><br><span class="line">eg: $ sudo yum install mysql-workbench-community</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="7、使用yum升级MySQL"><a href="#7、使用yum升级MySQL" class="headerlink" title="7、使用yum升级MySQL"></a>7、使用yum升级MySQL</h3><p><em>作为一般规则，要从一个版本系列升级到另一个版本，请转到下一个系列，而不是跳过一系列。例如，如果您目前正在运行MySQL 5.5并希望升级到5.7，请先升级到MySQL 5.6，然后升级到5.7。</em></p>
+<ul>
+<li>使用以下命令升级MySQL：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo yum update mysql-server</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>在Yum更新后，MySQL服务器会重新启动。重启之后运行<code>mysql_upgrade</code>命令检查数据和软件升级带来的不兼容问题。</li>
+</ul>
+<h3 id="8、创建用户和授权、修改密码"><a href="#8、创建用户和授权、修改密码" class="headerlink" title="8、创建用户和授权、修改密码"></a>8、创建用户和授权、修改密码</h3><ul>
+<li>创建用户命令：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#foo表示你要建立的用户名，后面的123表示密码,</span><br><span class="line">#localhost限制在固定地址localhost登陆,如果没有限制则用%，此处也可以指个ｉｐ登录,此处密码也可以为空，如果为空则不需要密码就可以登录</span><br><span class="line">CREATE USER &#x27;foo&#x27;@&#x27;localhost&#x27; IDENTIFIED BY &#x27;123&#x27;;</span><br><span class="line">CREATE USER &#x27;foo&#x27;@&#x27;%&#x27;; #不需要密码，任何地址可登录</span><br><span class="line">#删除用户</span><br><span class="line">DROP USER foo;</span><br></pre></td></tr></table></figure></li>
+<li>授权命令：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#说明: privileges - 用户的操作权限,如SELECT , INSERT , UPDATE 等。如果要授予所的权限则使用 ALL;</span><br><span class="line">#databasename - 数据库名,tablename-表名,如果要授予该用户对所有数据库和表的相应操作权限则可用*表示, 如*.*</span><br><span class="line">GRANT privileges ON databasename.tablename TO &#x27;username&#x27;@&#x27;host&#x27;</span><br><span class="line">eg:</span><br><span class="line">GRANT INSERT,DELETE,UPDATE,SELECT ON test.user TO &#x27;foo&#x27;@&#x27;localhost&#x27;;</span><br><span class="line">flush privileges;</span><br><span class="line">GRANT all ON user.* TO &#x27;foo&#x27;@&#x27;localhost&#x27; #把user表的所有权限赋给foo这个用户</span><br></pre></td></tr></table></figure></li>
+<li>设置与更改用户密码：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">SET PASSWORD FOR &#x27;username&#x27;@&#x27;host&#x27; = PASSWORD(&#x27;newpassword&#x27;)</span><br><span class="line"></span><br><span class="line">#如果是当前登陆用户</span><br><span class="line">SET PASSWORD = PASSWORD(&quot;newpassword&quot;);</span><br><span class="line"></span><br><span class="line">#例如：</span><br><span class="line">SET PASSWORD FOR &#x27;foo&#x27;@&#x27;%&#x27; = PASSWORD(&quot;123456&quot;);</span><br><span class="line"></span><br><span class="line">update mysql.user set password=password(&#x27;新密码&#x27;) where User=&quot;phplamp&quot; and Host=&quot;localhost&quot;;</span><br></pre></td></tr></table></figure></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/images/wechat_channel.jpg">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/install/" rel="tag"># install</a>
+              <a href="/tags/mysql/" rel="tag"># mysql</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/10/17/linux-crond/" rel="prev" title="linux-crond">
+      <i class="fa fa-chevron-left"></i> linux-crond
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/10/18/pinpoint-add-hbase-kerberos-auth/" rel="next" title="pinpoint 添加 hbase kerberos认证">
+      pinpoint 添加 hbase kerberos认证 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#mysql-centos7-%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97-Yum"><span class="nav-number">1.</span> <span class="nav-text">mysql centos7 安装指南(Yum)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E6%B7%BB%E5%8A%A0-mysql-yum%E5%AD%98%E5%82%A8%E5%BA%93"><span class="nav-number">1.0.1.</span> <span class="nav-text">1、添加　mysql yum存储库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E9%80%89%E6%8B%A9%E7%89%88%E6%9C%AC"><span class="nav-number">1.0.2.</span> <span class="nav-text">2、选择版本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81%E5%AE%89%E8%A3%85-MySQL"><span class="nav-number">1.0.3.</span> <span class="nav-text">3、安装 MySQL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4%E3%80%81%E5%90%AF%E5%8A%A8MySQL%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">1.0.4.</span> <span class="nav-text">4、启动MySQL服务器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5%E3%80%81%E4%BF%9D%E6%8A%A4MySQL%EF%BC%88%E4%BB%85%E4%BD%BF%E7%94%A8%E4%BA%8EMySQL5-6%EF%BC%89"><span class="nav-number">1.0.5.</span> <span class="nav-text">5、保护MySQL（仅使用于MySQL5.6）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%96%E3%80%81%E5%AE%89%E8%A3%85%E5%85%B6%E4%BB%96%E7%9A%84MySQL%E5%B7%A5%E5%85%B7"><span class="nav-number">1.0.6.</span> <span class="nav-text">６、安装其他的MySQL工具</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7%E3%80%81%E4%BD%BF%E7%94%A8yum%E5%8D%87%E7%BA%A7MySQL"><span class="nav-number">1.0.7.</span> <span class="nav-text">7、使用yum升级MySQL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8%E3%80%81%E5%88%9B%E5%BB%BA%E7%94%A8%E6%88%B7%E5%92%8C%E6%8E%88%E6%9D%83%E3%80%81%E4%BF%AE%E6%94%B9%E5%AF%86%E7%A0%81"><span class="nav-number">1.0.8.</span> <span class="nav-text">8、创建用户和授权、修改密码</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">lengrongfu</p>
+  <div class="site-description" itemprop="description">通过持续的学习，记录了成为软件工程师的成长轨迹</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">74</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/lengrongfu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;lengrongfu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lenronfu@gmail.com" title="E-Mail → mailto:lenronfu@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/lengrongfu" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;lengrongfu" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/lengrongf" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;lengrongf" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.douban.com/people/156753267/" title="豆瓣 → https:&#x2F;&#x2F;www.douban.com&#x2F;people&#x2F;156753267&#x2F;" rel="noopener" target="_blank"><i class="fab fa-douban fa-fw"></i>豆瓣</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lengrongfu</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+    </div>
+</body>
+</html>

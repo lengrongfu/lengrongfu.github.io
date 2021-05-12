@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Monda:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"lengrongfu.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="1、简介 Sqoop是一种用于转换Hadoop和关系型数据库之间的数据。你可以导出关系型数据库如mysql到HDFS上，在Hadoop MapReduce上进行数据转换，然后在导出到关系型数据库中。Sqoop依靠数据库来描述要导入的数据的模式，Sqoop使用MapReduce来做数据的导入和导出，它提供并行操作和容错.    2、基本使用 使用Sqoop，可以把关系型数据库中的数据导入到HDFS中">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Sqoop User Guide(Sqoop使用指南)">
+<meta property="og:url" content="http://lengrongfu.github.io/2018/09/11/Sqoop/index.html">
+<meta property="og:site_name" content="LRF成长记">
+<meta property="og:description" content="1、简介 Sqoop是一种用于转换Hadoop和关系型数据库之间的数据。你可以导出关系型数据库如mysql到HDFS上，在Hadoop MapReduce上进行数据转换，然后在导出到关系型数据库中。Sqoop依靠数据库来描述要导入的数据的模式，Sqoop使用MapReduce来做数据的导入和导出，它提供并行操作和容错.    2、基本使用 使用Sqoop，可以把关系型数据库中的数据导入到HDFS中">
+<meta property="og:locale">
+<meta property="og:image" content="http://lengrongfu.github.io/2018/09/11/Sqoop/sqoop.png">
+<meta property="article:published_time" content="2018-09-11T05:58:54.000Z">
+<meta property="article:modified_time" content="2021-05-12T01:56:12.712Z">
+<meta property="article:author" content="lengrongfu">
+<meta property="article:tag" content="Sqoop">
+<meta property="article:tag" content="Hadoop">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://lengrongfu.github.io/2018/09/11/Sqoop/sqoop.png">
+
+<link rel="canonical" href="http://lengrongfu.github.io/2018/09/11/Sqoop/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>Sqoop User Guide(Sqoop使用指南) | LRF成长记</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H5BLLGCN5H"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-H5BLLGCN5H');
+      }
+    </script>
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?1d997d88f37f7096db1c4c9d9f8eeccc";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">LRF成长记</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://lengrongfu.github.io/2018/09/11/Sqoop/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lengrongfu">
+      <meta itemprop="description" content="通过持续的学习，记录了成为软件工程师的成长轨迹">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LRF成长记">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Sqoop User Guide(Sqoop使用指南)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-09-11 13:58:54" itemprop="dateCreated datePublished" datetime="2018-09-11T13:58:54+08:00">2018-09-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-05-12 09:56:12" itemprop="dateModified" datetime="2021-05-12T09:56:12+08:00">2021-05-12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Hadoop/" itemprop="url" rel="index"><span itemprop="name">Hadoop</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h1><blockquote>
+<p><code>Sqoop</code>是一种用于转换<code>Hadoop</code>和关系型数据库之间的数据。你可以导出关系型数据库如<code>mysql</code>到<code>HDFS</code>上，在<code>Hadoop MapReduce</code>上进行数据转换，然后在导出到关系型数据库中。<code>Sqoop</code>依靠数据库来描述要导入的数据的模式，<code>Sqoop</code>使用<code>MapReduce</code>来做数据的导入和导出，它提供并行操作和容错.</p>
+</blockquote>
+<p><img src="/2018/09/11/Sqoop/sqoop.png" alt="sqoop"></p>
+<h1 id="2、基本使用"><a href="#2、基本使用" class="headerlink" title="2、基本使用"></a>2、基本使用</h1><blockquote>
+<p>使用<code>Sqoop</code>，可以把关系型数据库中的数据导入到<code>HDFS</code>中。对于数据库，<code>Sqoop</code>将逐行读取表格到<code>HDFS</code>,此导入过程的输出是一组文件，其中包含导入的表或数据集的副本(<code>parquet</code>)，导入是由<code>MapReduce</code>并行执行的，因此输出会在多个<code>parquet</code>文件中。</p>
+</blockquote>
+<blockquote>
+<p>导入过程的副产品是生成的java类，</p>
+</blockquote>
+<blockquote>
+<p>在进行数据操作之后(使用<code>MapReduce</code>或者<code>Hive</code>)计算之后，会有一个结果集，然后你可以将其导出回关系型数据库中，<code>Sqoop</code>的导出过程将并行读取<code>HDFS</code>中的一组分割文本文件，将他们解析为记录，并将它们作为新行插入目录数据库表中，供外部应用程序或用户使用。</p>
+</blockquote>
+<blockquote>
+<p><code>Sqoop</code>包含一些其它命令，如：可以列出目前所有可用的数据库，<code>sqoop-list-databases --connect=jdbc:mysql://10.1.4.99:3306/test --username=lrf --password=lrf</code>,列出数据库中的所有表：<code>sqoop-list-tables --connect=jdbc:mysql://10.1.4.99:3306/test --username=lrf --password=lrf</code>,还包括一个原始的SQl执行shell:<code>sqoop-eval</code></p>
+</blockquote>
+<blockquote>
+<p>可以自定义导入,对于数据库，可以控制导入的特定行范围或列，</p>
+</blockquote>
+<h1 id="3、Sqoop-工具"><a href="#3、Sqoop-工具" class="headerlink" title="3、Sqoop 工具"></a>3、Sqoop 工具</h1><p><code>Sqoop</code>时相关工具的集合，要使用<code>Sqoop</code>,需要指定要使用的工具和控制工具的参数。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sqoop -<span class="built_in">help</span></span></span><br><span class="line">usage: sqoop COMMAND [ARGS]</span><br><span class="line"></span><br><span class="line">Available commands:</span><br><span class="line">  codegen            Generate code to interact with database records #生成与数据库交互的代码</span><br><span class="line">  create-hive-table  Import a table definition into Hive # 导入表定义到hive</span><br><span class="line">  eval               Evaluate a SQL statement and display the results # 评估sql语句并显示结果</span><br><span class="line">  export             Export an HDFS directory to a database table # 将HDFS目录导出到数据库</span><br><span class="line">  help               List available commands # 列出可用命令</span><br><span class="line">  import             Import a table from a database to HDFS # 从数据库中导入一个指定表到HDFS</span><br><span class="line">  import-all-tables  Import tables from a database to HDFS # 把一个数据库中的表都导入到HDFS</span><br><span class="line">  import-mainframe   Import mainframe datasets to HDFS # 导入主数据库到HDFS</span><br><span class="line">  list-databases     List available databases on a server # </span><br><span class="line">  list-tables        List available tables in a database</span><br><span class="line">  version            Display version information</span><br><span class="line"></span><br><span class="line">See &#x27;sqoop help COMMAND&#x27; for information on a specific command.</span><br></pre></td></tr></table></figure></p>
+<h1 id="4、从mysql-到-HDFS"><a href="#4、从mysql-到-HDFS" class="headerlink" title="4、从mysql 到 HDFS"></a>4、从mysql 到 HDFS</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 导入指定的表</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sqoop import --connect jdbc:mysql://&lt;dburi&gt;/&lt;dbname&gt;?zeroDateTimeBehavior=CONVERT_TO_NULL <span class="comment"># db</span></span></span><br><span class="line">                --username &lt;username&gt; # db user</span><br><span class="line">                --password &lt;password&gt; # db pwd</span><br><span class="line">                --table &lt;tablename&gt; # db table</span><br><span class="line">                --check-column &lt;col&gt; # 要检查的列的名称</span><br><span class="line">                --incremental &lt;mode&gt;  # 改模式决定sqoop如何定义哪些行为新的行。取值为append或lastmodified</span><br><span class="line">                --last-value &lt;value&gt; # 前一个导入中检查列的最大值</span><br><span class="line">                --target-dir &lt;hdfs-dir&gt; # HDFS 的写入目录，例如：/user/hdfs/result.</span><br><span class="line"><span class="meta">#</span><span class="bash"> 列子</span></span><br><span class="line">sqoop import --connect jdbc:mysql://10.1.4.99:3306/test?zeroDateTimeBehavior=CONVERT_TO_NULL --table student --username lrf --password lrf --target-dir hdfs://hadoop-11.146.dev.net/user/hdfs/test/student</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 导入数据库下的所有表</span></span><br><span class="line">sqoop import-all-tables \</span><br><span class="line">    --username &lt;username&gt; # db user</span><br><span class="line">    --password &lt;password&gt; # db pwd</span><br><span class="line">    --check-column &lt;col&gt; # 要检查的列的名称</span><br><span class="line">    --incremental &lt;mode&gt;  # 改模式决定sqoop如何定义哪些行为新的行。取值为append或lastmodified</span><br><span class="line">    --last-value &lt;value&gt; # 前一个导入中检查列的最大值</span><br><span class="line"><span class="meta">#</span><span class="bash"> 列子,不能指定导入，默认会全部导入到/user/hdfs目录下</span></span><br><span class="line">sqoop import-all-tables --connect jdbc:mysql://10.1.4.99:3306/test?zeroDateTimeBehavior=CONVERT_TO_NULL --username lrf --password lrf </span><br></pre></td></tr></table></figure>
+<h1 id="5、从HDFS-到Mysql"><a href="#5、从HDFS-到Mysql" class="headerlink" title="5、从HDFS 到Mysql"></a>5、从HDFS 到Mysql</h1><blockquote>
+<p>需要先创建好对应 HDFS 中的数据结构的 MySQL 表，然后在集群的 Master 节点上执行如下命令，指定要导的数据文件的路径<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sqoop <span class="built_in">export</span> --connect jdbc:mysql://&lt;dburi&gt;/&lt;dbname&gt;</span> </span><br><span class="line">               --username &lt;username&gt; </span><br><span class="line">               --password &lt;password&gt; </span><br><span class="line">               --table &lt;tablename&gt; </span><br><span class="line">               --export-dir &lt;hdfs-dir&gt;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 列子</span></span><br><span class="line">sqoop export --connect jdbc:mysql://10.1.4.99:3306/test --username lrf --password lrf --table student </span><br><span class="line">--export-dir hdfs://hadoop-11.146.dev.net/user/hdfs/test/student</span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<h1 id="6、从mysql-到Hive"><a href="#6、从mysql-到Hive" class="headerlink" title="6、从mysql 到Hive"></a>6、从mysql 到Hive</h1><blockquote>
+<p>在集群的 Master 节点上执行如下命令后，从MySQL数据库导入数据的同时，也会新建一个 Hive 表。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sqoop import --connect jdbc:mysql://&lt;dburi&gt;/&lt;dbname&gt;</span> </span><br><span class="line">               --username &lt;username&gt; </span><br><span class="line">               --password &lt;password&gt; </span><br><span class="line">               --table &lt;tablename&gt; </span><br><span class="line">               --check-column &lt;col&gt; </span><br><span class="line">               --incremental &lt;mode&gt; </span><br><span class="line">               --last-value &lt;value&gt; </span><br><span class="line">               --fields-terminated-by &quot;\t&quot; </span><br><span class="line">               --lines-terminated-by &quot;\n&quot; </span><br><span class="line">               --hive-import </span><br><span class="line">               --warehouse-dir &lt;hdfs-dir&gt; </span><br><span class="line">               --hive-table &lt;hive-tablename&gt;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 列子</span></span><br><span class="line">sqoop import-all-tables \</span><br><span class="line">    -m 3 \ </span><br><span class="line">    --connect jdbc:mysql://10.1.4.99:3306/test?zeroDateTimeBehavior=CONVERT_TO_NULL \ #mysql连接，zeroDateTimeBehavior 处理异常时间的配置,比如0，</span><br><span class="line">    --username=lrf \</span><br><span class="line">    --password=lrf \</span><br><span class="line">    --compression-codec=snappy \</span><br><span class="line">    --as-parquetfile \</span><br><span class="line">    --warehouse-dir=/user/hive/warehouse \</span><br><span class="line">    --hive-import</span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<h1 id="7、从Hive到mysql"><a href="#7、从Hive到mysql" class="headerlink" title="7、从Hive到mysql"></a>7、从Hive到mysql</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sqoop <span class="built_in">export</span> --connect jdbc:mysql://&lt;dburi&gt;/&lt;dbname&gt;</span> </span><br><span class="line">               --username &lt;username&gt; </span><br><span class="line">               --password &lt;password&gt; </span><br><span class="line">               --table &lt;tablename&gt; </span><br><span class="line">               --export-dir &lt;hive-dir&gt;</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 例子,如果导出时要指定hive表的字段，不然分割不了，导出默认是使用逗号分割的，需要指定hive的列对应上mysql中的列，下列中的columns字段就是hive表中的字段。</span></span><br><span class="line">sqoop export --connect jdbc:mysql://10.1.4.99:3306/test --username lrf --password lrf --table nginx_access_logs --columns reote_addr,time_local,request,status,body_bytes_sent,http_referer,http_user_agent,http_x_forwarded_for --export-dir hdfs://hadoop-11.146.dev.net/user/hive/warehouse/nginx_access_logs</span><br></pre></td></tr></table></figure>
+<h1 id="8、使用sql条件导入到hdfs或hive"><a href="#8、使用sql条件导入到hdfs或hive" class="headerlink" title="8、使用sql条件导入到hdfs或hive"></a>8、使用sql条件导入到hdfs或hive</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">sqoop import --connect jdbc:mysql://&lt;dburi&gt;/&lt;dbname&gt; </span><br><span class="line">             --username &lt;username&gt; </span><br><span class="line">             --password &lt;password&gt; </span><br><span class="line">             --query &lt;query-sql&gt; </span><br><span class="line">             --split-by &lt;sp-column&gt; # 查询的条件,如:&#x27;select * from student where age &gt; 20&#x27;</span><br><span class="line">             --hive-import </span><br><span class="line">             --hive-table &lt;hive-tablename&gt; </span><br><span class="line">             --target-dir &lt;hdfs-dir&gt;</span><br></pre></td></tr></table></figure>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://sqoop.apache.org/docs/1.4.7/SqoopUserGuide.html">https://sqoop.apache.org/docs/1.4.7/SqoopUserGuide.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://sqoop.apache.org/docs/1.4.7/SqoopUserGuide.html#_connecting_to_a_database_server">https://sqoop.apache.org/docs/1.4.7/SqoopUserGuide.html#_connecting_to_a_database_server</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/images/wechat_channel.jpg">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Sqoop/" rel="tag"># Sqoop</a>
+              <a href="/tags/Hadoop/" rel="tag"># Hadoop</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/09/06/cloudera/" rel="prev" title="cloudera hadoop 安装">
+      <i class="fa fa-chevron-left"></i> cloudera hadoop 安装
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/10/16/cloudera-problem/" rel="next" title="cloudera 问题解决">
+      cloudera 问题解决 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1%E3%80%81%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">1、简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2%E3%80%81%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="nav-number">2.</span> <span class="nav-text">2、基本使用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3%E3%80%81Sqoop-%E5%B7%A5%E5%85%B7"><span class="nav-number">3.</span> <span class="nav-text">3、Sqoop 工具</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4%E3%80%81%E4%BB%8Emysql-%E5%88%B0-HDFS"><span class="nav-number">4.</span> <span class="nav-text">4、从mysql 到 HDFS</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5%E3%80%81%E4%BB%8EHDFS-%E5%88%B0Mysql"><span class="nav-number">5.</span> <span class="nav-text">5、从HDFS 到Mysql</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#6%E3%80%81%E4%BB%8Emysql-%E5%88%B0Hive"><span class="nav-number">6.</span> <span class="nav-text">6、从mysql 到Hive</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#7%E3%80%81%E4%BB%8EHive%E5%88%B0mysql"><span class="nav-number">7.</span> <span class="nav-text">7、从Hive到mysql</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#8%E3%80%81%E4%BD%BF%E7%94%A8sql%E6%9D%A1%E4%BB%B6%E5%AF%BC%E5%85%A5%E5%88%B0hdfs%E6%88%96hive"><span class="nav-number">8.</span> <span class="nav-text">8、使用sql条件导入到hdfs或hive</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">9.</span> <span class="nav-text">参考</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">lengrongfu</p>
+  <div class="site-description" itemprop="description">通过持续的学习，记录了成为软件工程师的成长轨迹</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">74</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/lengrongfu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;lengrongfu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lenronfu@gmail.com" title="E-Mail → mailto:lenronfu@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/lengrongfu" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;lengrongfu" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/lengrongf" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;lengrongf" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.douban.com/people/156753267/" title="豆瓣 → https:&#x2F;&#x2F;www.douban.com&#x2F;people&#x2F;156753267&#x2F;" rel="noopener" target="_blank"><i class="fab fa-douban fa-fw"></i>豆瓣</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lengrongfu</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+    </div>
+</body>
+</html>

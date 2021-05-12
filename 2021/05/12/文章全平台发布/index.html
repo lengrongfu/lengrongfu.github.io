@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Monda:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"lengrongfu.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="这篇文章主要是记录如何构建一个可以把文章发布到各平台的环境。   平台 之所以把文章发布到多平台有如下几点原因：   * 扩大阅读的受众，让各个平台的用户都能共同学习，变得更好。  * 防止文章被其它平台的用户复制、盗版。  * 扩大个人的影响力。  文章发布的平台我选择了如下几个：   * 自己的博客主页: LRF成长记  * 知乎：leng  * 简书: LRF成长记  * 掘金: LRF成长">
+<meta property="og:type" content="article">
+<meta property="og:title" content="文章全平台发布">
+<meta property="og:url" content="http://lengrongfu.github.io/2021/05/12/%E6%96%87%E7%AB%A0%E5%85%A8%E5%B9%B3%E5%8F%B0%E5%8F%91%E5%B8%83/index.html">
+<meta property="og:site_name" content="LRF成长记">
+<meta property="og:description" content="这篇文章主要是记录如何构建一个可以把文章发布到各平台的环境。   平台 之所以把文章发布到多平台有如下几点原因：   * 扩大阅读的受众，让各个平台的用户都能共同学习，变得更好。  * 防止文章被其它平台的用户复制、盗版。  * 扩大个人的影响力。  文章发布的平台我选择了如下几个：   * 自己的博客主页: LRF成长记  * 知乎：leng  * 简书: LRF成长记  * 掘金: LRF成长">
+<meta property="og:locale">
+<meta property="og:image" content="https://raw.githubusercontent.com/lengrongfu/images/master/imgblog-flow.png">
+<meta property="article:published_time" content="2021-05-12T03:30:06.000Z">
+<meta property="article:modified_time" content="2021-05-12T04:40:34.999Z">
+<meta property="article:author" content="lengrongfu">
+<meta property="article:tag" content="blog">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/lengrongfu/images/master/imgblog-flow.png">
+
+<link rel="canonical" href="http://lengrongfu.github.io/2021/05/12/%E6%96%87%E7%AB%A0%E5%85%A8%E5%B9%B3%E5%8F%B0%E5%8F%91%E5%B8%83/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>文章全平台发布 | LRF成长记</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H5BLLGCN5H"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-H5BLLGCN5H');
+      }
+    </script>
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?1d997d88f37f7096db1c4c9d9f8eeccc";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">LRF成长记</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://lengrongfu.github.io/2021/05/12/%E6%96%87%E7%AB%A0%E5%85%A8%E5%B9%B3%E5%8F%B0%E5%8F%91%E5%B8%83/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lengrongfu">
+      <meta itemprop="description" content="通过持续的学习，记录了成为软件工程师的成长轨迹">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LRF成长记">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          文章全平台发布
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2021-05-12 11:30:06 / Modified: 12:40:34" itemprop="dateCreated datePublished" datetime="2021-05-12T11:30:06+08:00">2021-05-12</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/blog/" itemprop="url" rel="index"><span itemprop="name">blog</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>这篇文章主要是记录如何构建一个可以把文章发布到各平台的环境。<br><span id="more"></span></p>
+<h3 id="平台"><a href="#平台" class="headerlink" title="平台"></a>平台</h3><p>之所以把文章发布到多平台有如下几点原因：</p>
+<ul>
+<li>扩大阅读的受众，让各个平台的用户都能共同学习，变得更好。</li>
+<li>防止文章被其它平台的用户复制、盗版。</li>
+<li>扩大个人的影响力。</li>
+</ul>
+<p>文章发布的平台我选择了如下几个：</p>
+<ul>
+<li>自己的博客主页: <a href="https://lengrongfu.github.io/">LRF成长记</a></li>
+<li>知乎：<a target="_blank" rel="noopener" href="https://www.zhihu.com/people/leng-77-26">leng</a></li>
+<li>简书: <a target="_blank" rel="noopener" href="https://www.jianshu.com/u/1ef6ada5fbb4">LRF成长记</a></li>
+<li>掘金: <a target="_blank" rel="noopener" href="https://juejin.cn/user/289926802576647/posts">LRF成长记</a></li>
+<li>SegmentFault：<a target="_blank" rel="noopener" href="https://segmentfault.com/u/lengrongfu/articles">LRF成长记</a></li>
+<li>微信公众号：<strong>菜鸟随笔</strong></li>
+</ul>
+<h3 id="写文章"><a href="#写文章" class="headerlink" title="写文章"></a>写文章</h3><p>上述平台几乎都支持发布<code>Markdown</code>文件，除了微信公众号除外，后面我会讲到怎么用工具把<code>Markdown</code>直接转换为微信公众号可接受的内容。</p>
+<h4 id="1、图片"><a href="#1、图片" class="headerlink" title="1、图片"></a>1、图片</h4><p>在写文档的过程中总会有需要用到图片，因此我们需要一个可以方便上传图片的工具，这里我们选用<code>PicGo</code>。</p>
+<p><code>PicGo</code>能快速上传图片并获取上传后的<code>url</code>，且兼容多平台。而且图片可以选择上传到多个平台：七牛、腾讯云、又拍云、<code>github</code>、阿里云、<code>gitee</code>等等，并且可以和<code>typora</code>无缝集成，<code>typora</code>是用来写<code>Markdown</code>的工具，稍后再来讲解。</p>
+<p>此处我选用<code>Github</code>作为我的图片存储，之所以没有选择<code>gitee</code>，是因为<code>gitee</code>有文件<code>1M</code>的限制，如果文件大于<code>1M</code>就不能创建外链了。</p>
+<h5 id="1-下载PicGo"><a href="#1-下载PicGo" class="headerlink" title="(1)下载PicGo"></a>(1)下载PicGo</h5><p><code>PicGo</code>的<code>Github</code>地址：<a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/">https://github.com/Molunerfinn/</a></p>
+<h5 id="2-配置"><a href="#2-配置" class="headerlink" title="(2) 配置"></a>(2) 配置</h5><p>点击<code>PicGo</code>的<strong>打开详细窗口</strong>，进行图床配置，此处配置为<code>Github</code>，需要设置仓库名：<code>lengrongfu/images</code>,分支：<code>master</code>，以及<code>Token</code>三个必要参数。</p>
+<h5 id="3-验证"><a href="#3-验证" class="headerlink" title="(3)验证"></a>(3)验证</h5><p>配置好之后可以上传一张图片进行测试。</p>
+<h4 id="2、写文档"><a href="#2、写文档" class="headerlink" title="2、写文档"></a>2、写文档</h4><p>写文章我们采用<code>Typora</code>工具，<code>Typora</code> 是一款<strong>支持实时预览的 Markdown 文本编辑器</strong>。它有<code>OS X</code>、<code>Windows</code>、<code>Linux</code>三个平台的版本，并且由于仍在测试中，是<strong>完全免费</strong>的，好用就对了。</p>
+<h5 id="1-Typora下载安装"><a href="#1-Typora下载安装" class="headerlink" title="(1)Typora下载安装"></a>(1)Typora下载安装</h5><p><code>Typora</code>的官方地址：<a target="_blank" rel="noopener" href="https://www.typora.io/">Typora</a></p>
+<h5 id="2-配置PicGo"><a href="#2-配置PicGo" class="headerlink" title="(2)配置PicGo"></a>(2)配置PicGo</h5><p>配置<code>PicGo</code>，这样就可以直接从<code>Typora</code>中触发图片的上传了。设置方式(<code>Typora</code>-&gt;偏好设置-&gt;图像)</p>
+<h4 id="3、任务排期"><a href="#3、任务排期" class="headerlink" title="3、任务排期"></a>3、任务排期</h4><p>写文章和做项目一样，要把重要的时间拿来写复杂、重要的内容，因此最好对要写的东西做一个任务排期，什么时候做什么，这样会好很多。</p>
+<p>此处推荐使用<strong>trello</strong>,<a target="_blank" rel="noopener" href="https://trello.com/">https://trello.com/</a></p>
+<h4 id="4、代码图片"><a href="#4、代码图片" class="headerlink" title="4、代码图片"></a>4、代码图片</h4><p>有些网站不支持代码格式，所以可以把代码转换为图片，可以使用现有的网站实现这个功能：<a target="_blank" rel="noopener" href="https://carbon.now.sh/">https://carbon.now.sh/</a></p>
+<p>如果代码是在<code>IDEA</code>或者<code>VSCode</code>中也可以直接使用，通过安装<code>carbon</code>的插件即可。</p>
+<h3 id="发布"><a href="#发布" class="headerlink" title="发布"></a>发布</h3><p>这里主要记录把文章发布到各个平台的方式，此处推荐两种方式:</p>
+<ul>
+<li><code>openwrite</code>，一个收费产品，可以做到发布到上诉的所有平台，以及微信公众号。免费每个月可以发布<code>10</code>次，收费是<code>199</code>一年。</li>
+<li><code>bloghelper</code>，一个<a target="_blank" rel="noopener" href="https://github.com/onblog/BlogHelper">开源产品</a>，好处就是免费，并且可以自己添加公共，目前它只支持发布到上述的博客平台，不能发送到微信公众号。此处我主要是用这个工具来发布，后面我会扩展它使其可以发布到微信公众号。</li>
+</ul>
+<h5 id="发布到公众号"><a href="#发布到公众号" class="headerlink" title="发布到公众号"></a>发布到公众号</h5><p>由于文章采用 <strong>markdown</strong> 写作，而微信公众号编辑器不支持渲染 <strong>markdown</strong>，这就导致我们需要自己排版。可以使用自动排版 <strong>markdown</strong> 的网站，里面支持样式也是比较简洁好看。</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://md.aclickall.com/">http://md.aclickall.com/</a></li>
+<li><a target="_blank" rel="noopener" href="https://mdnice.com/">https://mdnice.com/</a> (这个项目目前要开始收费)</li>
+</ul>
+<p>上面这些工具更多的是只能从页面把<code>Markdown</code>转换为微信公众号文章，我们可以通过代码的方式，使其转换、发布做到自动化，并最后集成到<code>bloghelper</code>中去。</p>
+<ul>
+<li>转换</li>
+</ul>
+<p>此处借用一个开源项目<a target="_blank" rel="noopener" href="https://github.com/LinusLing/wechat-format-cli"><code>wechat-format-cli</code></a>，可以做到使用命令行来转换<code>Markdown</code>到公众号的文章去。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装工具</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> npm install wechat-format-cli -g</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 执行转换命令</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> wechat-format-cli [your_md_path.md]</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>发布</li>
+</ul>
+<p>上述的工具把文档转换好之后，我们再使用一款自动预览/发布文章的命令行工具，也是一个开源项目<a target="_blank" rel="noopener" href="https://github.com/LinusLing/WeChatMediaPlatformAutomation"><code>wechat-mp-automation</code></a>。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> npm install wechat-mp-automation -g</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> wechat-mp-automation -h</span></span><br><span class="line">Usage: wechat-mp-automation [options]</span><br><span class="line"></span><br><span class="line">Options:</span><br><span class="line">  -V, --version                 output the version number</span><br><span class="line">  -C, --configPath [xxx]        配置文件的本地路径（支持所有自定义参数）</span><br><span class="line">  -t, --title [xxx]             文章标题</span><br><span class="line">  -a, --author [xxx]            文章作者</span><br><span class="line">  -c, --content [xxx]           文章内容[可选]，默认从粘贴板复制</span><br><span class="line">  -u, --username [xxx]          公众号账号</span><br><span class="line">  -p, --password [xxx]          公众号密码</span><br><span class="line">  -o, --original                声明原创[可选]</span><br><span class="line">  --preview                     预览而不发布[可选]</span><br><span class="line">  --preview_username [xxx~yyy]  预览名单[可选]，以~间隔多个微信号（自行保证微信号已关注公众号）</span><br><span class="line">  --skip_typing                 跳过文章标题、作者、文章的填写和封面图片选择（声明原创除外）[可选]</span><br><span class="line">  --last_edit                   选中最近编辑的文章[可选]，请自行确保当前有“最近编辑”的文章</span><br><span class="line">  -h, --help                    output usage information</span><br><span class="line"><span class="meta">  </span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 只预览</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> wechat-mp-automation -C YOUR_CONFIG_JSON_FILE_PATH --preview_username XXXXX --preview</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 发布</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> wechat-mp-automation -t [标题] -a [作者] -u [账号] -p [密码] -o</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 配合wechat-format-cli工具可做到自动转换和发布</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> wechat-format-cli test.md &amp;&amp; wechat-mp-automation -t [标题] -a [作者] -u [账号] -p [密码] -o</span></span><br></pre></td></tr></table></figure>
+<h3 id="全平台发布流程"><a href="#全平台发布流程" class="headerlink" title="全平台发布流程"></a>全平台发布流程</h3><p>下图我定义了全平台发布流程，把图床、发布工具设置好之后，用户只需要在<code>Typora</code>上进行编写<code>Markdown</code>格式的内容即可，编写完之后就可以全平台的发布了。</p>
+<p><img src="https://raw.githubusercontent.com/lengrongfu/images/master/imgblog-flow.png" alt="blog-flow"></p>
+<h3 id="我的流程"><a href="#我的流程" class="headerlink" title="我的流程"></a>我的流程</h3><p>在使用过程中发现一个好的<code>Chrome</code>插件<a target="_blank" rel="noopener" href="https://github.com/lengrongfu/Wechatsync">Wechatsync</a> ，可以在发微信文章的时候自动把内容容不到其它平台上去。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/images/wechat_channel.jpg">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/blog/" rel="tag"># blog</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/10/20/intellij-idea%E6%BF%80%E6%B4%BB/" rel="prev" title="intellij-idea激活">
+      <i class="fa fa-chevron-left"></i> intellij-idea激活
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B9%B3%E5%8F%B0"><span class="nav-number">1.</span> <span class="nav-text">平台</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%99%E6%96%87%E7%AB%A0"><span class="nav-number">2.</span> <span class="nav-text">写文章</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E5%9B%BE%E7%89%87"><span class="nav-number">2.1.</span> <span class="nav-text">1、图片</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-%E4%B8%8B%E8%BD%BDPicGo"><span class="nav-number">2.1.1.</span> <span class="nav-text">(1)下载PicGo</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-%E9%85%8D%E7%BD%AE"><span class="nav-number">2.1.2.</span> <span class="nav-text">(2) 配置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-%E9%AA%8C%E8%AF%81"><span class="nav-number">2.1.3.</span> <span class="nav-text">(3)验证</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E5%86%99%E6%96%87%E6%A1%A3"><span class="nav-number">2.2.</span> <span class="nav-text">2、写文档</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-Typora%E4%B8%8B%E8%BD%BD%E5%AE%89%E8%A3%85"><span class="nav-number">2.2.1.</span> <span class="nav-text">(1)Typora下载安装</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-%E9%85%8D%E7%BD%AEPicGo"><span class="nav-number">2.2.2.</span> <span class="nav-text">(2)配置PicGo</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81%E4%BB%BB%E5%8A%A1%E6%8E%92%E6%9C%9F"><span class="nav-number">2.3.</span> <span class="nav-text">3、任务排期</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4%E3%80%81%E4%BB%A3%E7%A0%81%E5%9B%BE%E7%89%87"><span class="nav-number">2.4.</span> <span class="nav-text">4、代码图片</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%91%E5%B8%83"><span class="nav-number">3.</span> <span class="nav-text">发布</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8F%91%E5%B8%83%E5%88%B0%E5%85%AC%E4%BC%97%E5%8F%B7"><span class="nav-number">3.0.1.</span> <span class="nav-text">发布到公众号</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%A8%E5%B9%B3%E5%8F%B0%E5%8F%91%E5%B8%83%E6%B5%81%E7%A8%8B"><span class="nav-number">4.</span> <span class="nav-text">全平台发布流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%88%91%E7%9A%84%E6%B5%81%E7%A8%8B"><span class="nav-number">5.</span> <span class="nav-text">我的流程</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">lengrongfu</p>
+  <div class="site-description" itemprop="description">通过持续的学习，记录了成为软件工程师的成长轨迹</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">74</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/lengrongfu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;lengrongfu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lenronfu@gmail.com" title="E-Mail → mailto:lenronfu@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/lengrongfu" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;lengrongfu" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/lengrongf" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;lengrongf" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.douban.com/people/156753267/" title="豆瓣 → https:&#x2F;&#x2F;www.douban.com&#x2F;people&#x2F;156753267&#x2F;" rel="noopener" target="_blank"><i class="fab fa-douban fa-fw"></i>豆瓣</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lengrongfu</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+    </div>
+</body>
+</html>

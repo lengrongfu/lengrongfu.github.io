@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Monda:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"lengrongfu.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Networking Basics 单主机 Bridge Driver 网桥驱动 当创建一个bridge的网络驱动时这个模型是默认的，这个驱动创建了一个私有的网络环境，并在主机提供了一个外部端口以供外部使用。  1 2 3 4 5 6 7 8 9   #创建一个我们的应用用户定义的网桥网络 $ docker network create -d bridge catnet  #使用自定义的网络创建一">
+<meta property="og:type" content="article">
+<meta property="og:title" content="docker network 入门">
+<meta property="og:url" content="http://lengrongfu.github.io/2018/11/13/docker-network-beginner/index.html">
+<meta property="og:site_name" content="LRF成长记">
+<meta property="og:description" content="Networking Basics 单主机 Bridge Driver 网桥驱动 当创建一个bridge的网络驱动时这个模型是默认的，这个驱动创建了一个私有的网络环境，并在主机提供了一个外部端口以供外部使用。  1 2 3 4 5 6 7 8 9   #创建一个我们的应用用户定义的网桥网络 $ docker network create -d bridge catnet  #使用自定义的网络创建一">
+<meta property="og:locale">
+<meta property="og:image" content="http://lengrongfu.github.io/2018/11/13/docker-network-beginner/singlehost-bridge.png">
+<meta property="og:image" content="http://lengrongfu.github.io/2018/11/13/docker-network-beginner/pets-overlay.png">
+<meta property="og:image" content="http://lengrongfu.github.io/2018/11/13/docker-network-beginner/multitenant.png">
+<meta property="article:published_time" content="2018-11-13T09:46:17.000Z">
+<meta property="article:modified_time" content="2021-05-12T01:56:12.719Z">
+<meta property="article:author" content="lengrongfu">
+<meta property="article:tag" content="docker">
+<meta property="article:tag" content="network">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://lengrongfu.github.io/2018/11/13/docker-network-beginner/singlehost-bridge.png">
+
+<link rel="canonical" href="http://lengrongfu.github.io/2018/11/13/docker-network-beginner/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>docker network 入门 | LRF成长记</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H5BLLGCN5H"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-H5BLLGCN5H');
+      }
+    </script>
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?1d997d88f37f7096db1c4c9d9f8eeccc";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">LRF成长记</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://lengrongfu.github.io/2018/11/13/docker-network-beginner/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lengrongfu">
+      <meta itemprop="description" content="通过持续的学习，记录了成为软件工程师的成长轨迹">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LRF成长记">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          docker network 入门
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-11-13 17:46:17" itemprop="dateCreated datePublished" datetime="2018-11-13T17:46:17+08:00">2018-11-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-05-12 09:56:12" itemprop="dateModified" datetime="2021-05-12T09:56:12+08:00">2021-05-12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">学习</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Networking-Basics"><a href="#Networking-Basics" class="headerlink" title="Networking Basics"></a>Networking Basics</h1><h1 id="单主机-Bridge-Driver-网桥驱动"><a href="#单主机-Bridge-Driver-网桥驱动" class="headerlink" title="单主机 Bridge Driver 网桥驱动"></a>单主机 Bridge Driver 网桥驱动</h1><blockquote>
+<p>当创建一个<code>bridge</code>的网络驱动时这个模型是默认的，这个驱动创建了一个私有的网络环境，并在主机提供了一个外部端口以供外部使用。</p>
+</blockquote>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">创建一个我们的应用用户定义的网桥网络</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> docker network create -d bridge catnet</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash">使用自定义的网络创建一个redis容器</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> docker run -d --net catnet --name cat-db redis</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash">Instantiate the web frontend on the catnet network and configure it to connect to a container named `cat-db`</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 实例这个web容器，使用catnet这个网络并且配置它连接到cat-db的容器实例。</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> docker run -d --net catnet -p 8000:5000 -e <span class="string">&#x27;DB=cat-db&#x27;</span> -e <span class="string">&#x27;ROLE=cat&#x27;</span> chrch/web</span> </span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>当一个IP地址不指定时，端口会被映射到所有网卡上，0.0.0.0:8000，可以通过指定一个IP来只开放一个端口，<code>-p 127.0.0.1:8000:5000</code>,更多内容查看 <a target="_blank" rel="noopener" href="https://docs.docker.com/engine/reference/run/#/expose-incoming-ports">Docker doc</a>.</p>
+</blockquote>
+<p><img src="/2018/11/13/docker-network-beginner/singlehost-bridge.png" alt="singlehost-bridge"></p>
+<p>两个容器通过同一个网桥进行网络通信，上面的<code>web</code>这个容器访问<code>redis</code>时通过<code>cat-db</code>这个域名进行访问，<code>Docker</code>引擎内部有<code>DNS</code>能将容器域名解析为可以访问的容器<code>IP</code>，因此,在<code>Bridge</code>模式下，多个容器都是可以通过容器名称进行访问。</p>
+<p>可以通过<code>docker network inspect catnet</code>查看这个网络下所以容器。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 如下可以看出有两个容器是使用了这同一个网络。</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> docker network inspect catnet</span></span><br><span class="line">[</span><br><span class="line">    &#123;</span><br><span class="line">        &quot;Name&quot;: &quot;catnet&quot;,</span><br><span class="line">        &quot;Id&quot;: &quot;81e45d3e3bf4f989abe87c42c8db63273f9bf30c1f5a593bae4667d5f0e33145&quot;,</span><br><span class="line">        &quot;Scope&quot;: &quot;local&quot;,</span><br><span class="line">        &quot;Driver&quot;: &quot;bridge&quot;,</span><br><span class="line">        &quot;EnableIPv6&quot;: false,</span><br><span class="line">        &quot;IPAM&quot;: &#123;</span><br><span class="line">            &quot;Driver&quot;: &quot;default&quot;,</span><br><span class="line">            &quot;Options&quot;: &#123;&#125;,</span><br><span class="line">            &quot;Config&quot;: [</span><br><span class="line">                &#123;</span><br><span class="line">                    &quot;Subnet&quot;: &quot;172.19.0.0/16&quot;,</span><br><span class="line">                    &quot;Gateway&quot;: &quot;172.19.0.1/16&quot;</span><br><span class="line">                &#125;</span><br><span class="line">            ]</span><br><span class="line">        &#125;,</span><br><span class="line">        &quot;Internal&quot;: false,</span><br><span class="line">        &quot;Attachable&quot;: false,</span><br><span class="line">        &quot;Containers&quot;: &#123;</span><br><span class="line">            &quot;2a23faa18fb33b5d07eb4e0affb5da36449a78eeb196c944a5af3aaffe1ada37&quot;: &#123;</span><br><span class="line">                &quot;Name&quot;: &quot;backstabbing_pike&quot;,</span><br><span class="line">                &quot;EndpointID&quot;: &quot;9039dae3218c47739ae327a30c9d9b219159deb1c0a6274c6d994d37baf2f7e3&quot;,</span><br><span class="line">                &quot;MacAddress&quot;: &quot;02:42:ac:13:00:03&quot;,</span><br><span class="line">                &quot;IPv4Address&quot;: &quot;172.19.0.3/16&quot;,</span><br><span class="line">                &quot;IPv6Address&quot;: &quot;&quot;</span><br><span class="line">            &#125;,</span><br><span class="line">            &quot;dbf7f59187801e1bcd2b0a7d4731ca5f0a95236dbc4b4157af01697f295d4528&quot;: &#123;</span><br><span class="line">                &quot;Name&quot;: &quot;cat-db&quot;,</span><br><span class="line">                &quot;EndpointID&quot;: &quot;7f7c51a0468acd849fd575adeadbcb5310c5987195555620d60ee3ffad37c680&quot;,</span><br><span class="line">                &quot;MacAddress&quot;: &quot;02:42:ac:13:00:02&quot;,</span><br><span class="line">                &quot;IPv4Address&quot;: &quot;172.19.0.2/16&quot;,</span><br><span class="line">                &quot;IPv6Address&quot;: &quot;&quot;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        &quot;Options&quot;: &#123;&#125;,</span><br><span class="line">        &quot;Labels&quot;: &#123;&#125;</span><br><span class="line">    &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure></p>
+<h1 id="多主机-Bridge-Driver-网桥模式"><a href="#多主机-Bridge-Driver-网桥模式" class="headerlink" title="多主机 Bridge Driver 网桥模式"></a>多主机 Bridge Driver 网桥模式</h1><p>在多台宿主机中使用<code>Bridge</code>网络模式，<code>redis</code>部署在<code>host-A</code>中，并且需要映射一个外部IP，供<code>web</code>去调用，<code>web</code>部署在<code>host-B</code>中，要调用<code>db</code>时，要通过<code>DB=host-A:6379</code>指定主机A的<code>host</code>和<code>redis</code>暴露的端口进行连接。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 每个docker中都有一个默认的Bridge网络模式</span></span><br><span class="line">host-A $ docker run -d -p 6379:6379 redis</span><br><span class="line">host-B $ docker run -d -p 8000:5000 -e &#x27;DB=host-A:6379&#x27; -e &#x27;ROLE=cat&#x27; --name web chrch/web </span><br><span class="line">````</span><br><span class="line"></span><br><span class="line">![多主机模式](multihost-bridge.png)</span><br><span class="line"></span><br><span class="line">主机B通过本机`Host`来解析主机A的IP地址已进行访问。通常不建议这样硬编码的使用服务地址。</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Overlay Driver</span></span><br><span class="line"></span><br><span class="line">`overlay` 网络模式提供了服务发现和自动负载均衡的功能，但是前提是要把多主机部署为`swarm`集群模式。</span><br><span class="line">在`lead`上面查看`swarm`的节点数量。</span><br><span class="line">```shell</span><br><span class="line"><span class="meta">$</span><span class="bash"> docker node ls</span></span><br><span class="line">ID                           HOSTNAME          STATUS  AVAILABILITY  MANAGER STATUS</span><br><span class="line">a8dwuh6gy5898z3yeuvxaetjo    host-B  Ready   Active</span><br><span class="line">elgt0bfuikjrntv3c33hr0752 *  host-A  Ready   Active        Leader</span><br></pre></td></tr></table></figure>
+<p>创建一个自定义的<code>overlay</code>网络。在一个<code>overlay</code>网络中开放的<code>TCP</code>和<code>UDP</code>端口都是开放。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> docker network create -d overlay --subnet 192.0.0.0/24 --gateway 192.0.0.1 dognet</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> docker service create --network dognet --name dog-db redis</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> docker service create --network dognet -p 8000:5000  -e <span class="string">&#x27;DB=dog-db&#x27;</span> -e <span class="string">&#x27;ROLE=dog&#x27;</span> --name dog-web chrch/web</span></span><br></pre></td></tr></table></figure></p>
+<p><img src="/2018/11/13/docker-network-beginner/pets-overlay.png" alt="overlay网络模式"></p>
+<p>上图讲解了上面的命令中的部署图，首先创建了一个叫<code>dognet</code>的<code>overlay</code>网络,然后创建一个<code>service</code>,使用<code>dognet</code>这个创建好的网络，并且不开放任何可访问端口，命令为<code>dog-db</code>；然后创建另一个服务，也是使用同一个网络，并且直接指定<code>redis</code>的name即可.</p>
+<p>同时访问两个<code>overlay</code>的网络模式，比如有一个<code>admin</code>需要同时访问<code>dog-web</code>和<code>cat-web</code>两个服务。我们可以如下操作，先启动一个<code>catnet</code>的<code>overlay</code>网络。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> docker network create -d overlay --subnet 172.0.0.0/24 --gateway 172.0.0.1 catnet</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> docker service create --network catnet --name cat-db redis</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> docker service create --network catnet -p 8000:5000  -e <span class="string">&#x27;DB=cat-db&#x27;</span> -e <span class="string">&#x27;ROLE=cat&#x27;</span> --name cat-web chrch/web</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 同时使用两个overlay的网络环境</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> docker service create --network catnet --network dognet -p 7000:5000 -e <span class="string">&#x27;DB1=dog-db&#x27;</span> -e <span class="string">&#x27;DB2=cat-db&#x27;</span> --name admin chrch/admin</span></span><br></pre></td></tr></table></figure>
+<p><img src="/2018/11/13/docker-network-beginner/multitenant.png" alt="多主机控制"><br><code>dog-web</code>和<code>dog-db</code>之间网络可以互通，当时不可以访问<code>catnet</code>上的服务,<code>cat-web</code>和<code>cat-db</code>之间也是可以互相访问的，但是不可以访问<code>dognet</code>网络上的服务。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/docker/labs/blob/master/networking/tutorials.md">https://github.com/docker/labs/blob/master/networking/tutorials.md</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/images/wechat_channel.jpg">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/docker/" rel="tag"># docker</a>
+              <a href="/tags/network/" rel="tag"># network</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/11/12/java-util-concurrency/" rel="prev" title="java.util.concurrency 包">
+      <i class="fa fa-chevron-left"></i> java.util.concurrency 包
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/11/16/es-xpack-machinelean/" rel="next" title="es-xpack-machinelean">
+      es-xpack-machinelean <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Networking-Basics"><span class="nav-number">1.</span> <span class="nav-text">Networking Basics</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8D%95%E4%B8%BB%E6%9C%BA-Bridge-Driver-%E7%BD%91%E6%A1%A5%E9%A9%B1%E5%8A%A8"><span class="nav-number">2.</span> <span class="nav-text">单主机 Bridge Driver 网桥驱动</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%9A%E4%B8%BB%E6%9C%BA-Bridge-Driver-%E7%BD%91%E6%A1%A5%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.</span> <span class="nav-text">多主机 Bridge Driver 网桥模式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">lengrongfu</p>
+  <div class="site-description" itemprop="description">通过持续的学习，记录了成为软件工程师的成长轨迹</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">74</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/lengrongfu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;lengrongfu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lenronfu@gmail.com" title="E-Mail → mailto:lenronfu@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/lengrongfu" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;lengrongfu" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/lengrongf" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;lengrongf" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.douban.com/people/156753267/" title="豆瓣 → https:&#x2F;&#x2F;www.douban.com&#x2F;people&#x2F;156753267&#x2F;" rel="noopener" target="_blank"><i class="fab fa-douban fa-fw"></i>豆瓣</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lengrongfu</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+    </div>
+</body>
+</html>

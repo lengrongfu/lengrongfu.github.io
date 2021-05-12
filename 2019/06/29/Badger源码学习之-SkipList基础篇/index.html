@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Monda:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"lengrongfu.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Badger源码学习之-SkipList基础篇 SkipList 全称跳跃表，具体定义可以查看维基百科的定义，或者论文。SkipList是一个有序的高效的链表结构，数组数据结构的search的时间复杂度为O(lgn)，通过二分法搜索，但是插入和删除的时间复杂度为O(n)；链表的search的时间复杂度为O(n)，插入和删除的时间复杂度为O(lg)。SkipList这个数据结构很好的结合了这两种数据">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Badger源码学习之-SkipList基础篇">
+<meta property="og:url" content="http://lengrongfu.github.io/2019/06/29/Badger%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8B-SkipList%E5%9F%BA%E7%A1%80%E7%AF%87/index.html">
+<meta property="og:site_name" content="LRF成长记">
+<meta property="og:description" content="Badger源码学习之-SkipList基础篇 SkipList 全称跳跃表，具体定义可以查看维基百科的定义，或者论文。SkipList是一个有序的高效的链表结构，数组数据结构的search的时间复杂度为O(lgn)，通过二分法搜索，但是插入和删除的时间复杂度为O(n)；链表的search的时间复杂度为O(n)，插入和删除的时间复杂度为O(lg)。SkipList这个数据结构很好的结合了这两种数据">
+<meta property="og:locale">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEBd674a10db06c67251c7f6fa7fdab6816?method=download&amp;shareKey=d5888342b4deb27fcaaabf4767cfe334">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEB2484842e529d992295f5918ed9f99767?method=download&amp;shareKey=0836909ea6857dd9b6ba2b13c5f81401">
+<meta property="og:image" content="https://note.youdao.com/yws/api/personal/file/WEB3e6a78c1c7642b5eee88e6752c4ae91a?method=download&amp;shareKey=cab1b3a195affd9b3e24c9827a290495">
+<meta property="article:published_time" content="2019-06-29T07:07:15.000Z">
+<meta property="article:modified_time" content="2021-05-12T01:56:12.737Z">
+<meta property="article:author" content="lengrongfu">
+<meta property="article:tag" content="数据结构">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://note.youdao.com/yws/api/personal/file/WEBd674a10db06c67251c7f6fa7fdab6816?method=download&amp;shareKey=d5888342b4deb27fcaaabf4767cfe334">
+
+<link rel="canonical" href="http://lengrongfu.github.io/2019/06/29/Badger%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8B-SkipList%E5%9F%BA%E7%A1%80%E7%AF%87/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>Badger源码学习之-SkipList基础篇 | LRF成长记</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H5BLLGCN5H"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-H5BLLGCN5H');
+      }
+    </script>
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?1d997d88f37f7096db1c4c9d9f8eeccc";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">LRF成长记</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://lengrongfu.github.io/2019/06/29/Badger%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8B-SkipList%E5%9F%BA%E7%A1%80%E7%AF%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lengrongfu">
+      <meta itemprop="description" content="通过持续的学习，记录了成为软件工程师的成长轨迹">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LRF成长记">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Badger源码学习之-SkipList基础篇
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-06-29 15:07:15" itemprop="dateCreated datePublished" datetime="2019-06-29T15:07:15+08:00">2019-06-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-05-12 09:56:12" itemprop="dateModified" datetime="2021-05-12T09:56:12+08:00">2021-05-12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Badger/" itemprop="url" rel="index"><span itemprop="name">Badger</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Badger源码学习之-SkipList基础篇"><a href="#Badger源码学习之-SkipList基础篇" class="headerlink" title="Badger源码学习之-SkipList基础篇"></a>Badger源码学习之-SkipList基础篇</h1><p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Skip_list">SkipList</a> 全称跳跃表，具体定义可以查看维基百科的定义，或者<a target="_blank" rel="noopener" href="http://homepage.cs.uiowa.edu/~ghosh/skip.pdf">论文</a>。<code>SkipList</code>是一个有序的高效的链表结构，数组数据结构的<code>search</code>的时间复杂度为<code>O(lgn)</code>，通过二分法搜索，但是插入和删除的时间复杂度为<code>O(n)</code>；链表的<code>search</code>的时间复杂度为<code>O(n)</code>，插入和删除的时间复杂度为<code>O(lg)</code>。<code>SkipList</code>这个数据结构很好的结合了这两种数据结构的特性，<code>search</code>、<code>insert</code>、<code>delete</code>的时间复杂度都是<code>O(lgn)</code>，但是空间复杂度比其他的高，利用了空间换取时间的做法。</p>
+<p><code>SkipList</code>是根据链表而来的，其数据结构类似与链表。</p>
+<h2 id="链表"><a href="#链表" class="headerlink" title="链表"></a>链表</h2><p><img src="https://note.youdao.com/yws/api/personal/file/WEBd674a10db06c67251c7f6fa7fdab6816?method=download&amp;shareKey=d5888342b4deb27fcaaabf4767cfe334" alt="singl-list.jpg"></p>
+<p>这就是一个简单的顺序链表，每次<code>search</code>、<code>insert</code>、<code>delete</code>的时间复杂度都是<code>O(n)</code>，都需要遍历整个链表。</p>
+<h2 id="SkipList"><a href="#SkipList" class="headerlink" title="SkipList"></a>SkipList</h2><p><img src="https://note.youdao.com/yws/api/personal/file/WEB2484842e529d992295f5918ed9f99767?method=download&amp;shareKey=0836909ea6857dd9b6ba2b13c5f81401" alt="skip list"><br><code>SkipList</code>和单链表的不同点就是相邻两层的节点比为<code>1/2</code>。查找的时间从最上层开始来查找，这就相对于建了一个索引。</p>
+<p>层级之间节点比为<code>1/2</code>实现起来有会边复杂，相当于需要固定维护相邻层级之间的关系。所以作者推荐使用一个随机高度，每个节点的高度随机产生，再去修改节点的前后关系。通过设置一个最大高度和相邻节点比来生成随机高度。如下设置的最大高度是<code>20</code>，相邻节点是<code>1/3</code>；算法作者推荐这个比最好为<code>1/2^n</code>次方,但是我不明白为啥<code>badger</code>选择<code>1/3</code>.<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 这事badger中的随机高度的实现方式，</span></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">	maxHeight      = <span class="number">20</span></span><br><span class="line">	heightIncrease = math.MaxUint32 / <span class="number">3</span></span><br><span class="line">)</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">randomHeight</span><span class="params">(heightIncrease <span class="keyword">uint32</span>)</span> <span class="title">int32</span></span> &#123;</span><br><span class="line">	h := <span class="number">1</span></span><br><span class="line">	<span class="keyword">for</span> h &lt; maxHeight &amp;&amp; rand.Uint32() &lt;= heightIncrease &#123;</span><br><span class="line">		h++</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">int32</span>(h)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>高度看似是随机产生的，但是是按比例划分的，官方是按照概率去计算的，我通过生成<code>10000000</code>个数字来查看数字的分布，基本是和上面的概率比一致的。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Test_randomHeight1</span><span class="params">(t *testing.T)</span></span>  &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line">	num := <span class="number">10000000</span></span><br><span class="line">	data2 := <span class="built_in">make</span>([]<span class="keyword">int32</span>,num)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span> ; i &lt; num ; i++ &#123;</span><br><span class="line">		data2[i] = randomHeight(math.MaxUint32 / <span class="number">2</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	scatterData2 := randomPoints1(data2)</span><br><span class="line"></span><br><span class="line">	data3 := <span class="built_in">make</span>([]<span class="keyword">int32</span>,num)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span> ; i &lt; num ; i++ &#123;</span><br><span class="line">		data3[i] = randomHeight(math.MaxUint32 / <span class="number">3</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	scatterData3 := randomPoints1(data3)</span><br><span class="line"></span><br><span class="line">	data4 := <span class="built_in">make</span>([]<span class="keyword">int32</span>,num)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span> ; i &lt; num ; i++ &#123;</span><br><span class="line">		data4[i] = randomHeight(math.MaxUint32 / <span class="number">4</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	scatterData4  := randomPoints1(data4)</span><br><span class="line"></span><br><span class="line">	data5 := <span class="built_in">make</span>([]<span class="keyword">int32</span>,num)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span> ; i &lt; num ; i++ &#123;</span><br><span class="line">		data5[i] = randomHeight(math.MaxUint32 / <span class="number">5</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	scatterData5 := randomPoints1(data5)</span><br><span class="line">	<span class="comment">// Create a new plot, set its title and</span></span><br><span class="line">	<span class="comment">// axis labels.</span></span><br><span class="line">	p, err := plot.New()</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(err)</span><br><span class="line">	&#125;</span><br><span class="line">	p.Title.Text = <span class="string">&quot;Points Example&quot;</span></span><br><span class="line">	p.X.Label.Text = <span class="string">&quot;X&quot;</span></span><br><span class="line">	p.Y.Label.Text = <span class="string">&quot;Y&quot;</span></span><br><span class="line">	<span class="comment">// Draw a grid behind the data</span></span><br><span class="line">	<span class="comment">//p.Add(plotter.NewGrid())</span></span><br><span class="line">	<span class="comment">//</span></span><br><span class="line">	<span class="comment">//// Make a scatter plotter and set its style.</span></span><br><span class="line">	<span class="comment">//s, err := plotter.NewScatter(scatterData)</span></span><br><span class="line">	<span class="comment">//if err != nil &#123;</span></span><br><span class="line">	<span class="comment">//	panic(err)</span></span><br><span class="line">	<span class="comment">//&#125;</span></span><br><span class="line">	<span class="comment">//s.GlyphStyle.Color = color.RGBA&#123;R: 255, B: 128, A: 255&#125;</span></span><br><span class="line">	<span class="comment">//p.Add(s)</span></span><br><span class="line">	l2, s2, _ := plotter.NewLinePoints(scatterData2)</span><br><span class="line">	l2.Color = plotutil.Color(<span class="number">0</span>)</span><br><span class="line">	l2.Dashes = plotutil.Dashes(<span class="number">0</span>)</span><br><span class="line">	s2.Color = plotutil.Color(<span class="number">0</span>)</span><br><span class="line">	s2.Shape = plotutil.Shape(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">	l3, s3, _ := plotter.NewLinePoints(scatterData3)</span><br><span class="line">	l3.Color = plotutil.Color(<span class="number">1</span>)</span><br><span class="line">	l3.Dashes = plotutil.Dashes(<span class="number">1</span>)</span><br><span class="line">	s3.Color = plotutil.Color(<span class="number">1</span>)</span><br><span class="line">	s3.Shape = plotutil.Shape(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">	l4, s4, _ := plotter.NewLinePoints(scatterData4)</span><br><span class="line">	l4.Color = plotutil.Color(<span class="number">2</span>)</span><br><span class="line">	l4.Dashes = plotutil.Dashes(<span class="number">2</span>)</span><br><span class="line">	s4.Color = plotutil.Color(<span class="number">2</span>)</span><br><span class="line">	s4.Shape = plotutil.Shape(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">	l5, s5, _ := plotter.NewLinePoints(scatterData5)</span><br><span class="line">	l5.Color = plotutil.Color(<span class="number">3</span>)</span><br><span class="line">	l5.Dashes = plotutil.Dashes(<span class="number">3</span>)</span><br><span class="line">	s5.Color = plotutil.Color(<span class="number">3</span>)</span><br><span class="line">	s5.Shape = plotutil.Shape(<span class="number">3</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment">//plotutil.AddLinePoints(p, scatterData2,scatterData3,scatterData4,scatterData5)</span></span><br><span class="line">	p.Add(l2,s2,l3,s3,l4,s4,l5,s5)</span><br><span class="line">	p.Legend.Add(<span class="string">&quot;line points 2&quot;</span>, l2, s2)</span><br><span class="line">	p.Legend.Add(<span class="string">&quot;line points 3&quot;</span>, l3, s3)</span><br><span class="line">	p.Legend.Add(<span class="string">&quot;line points 4&quot;</span>, l4, s4)</span><br><span class="line">	p.Legend.Add(<span class="string">&quot;line points 5&quot;</span>, l5, s5)</span><br><span class="line">	<span class="comment">// Save the plot to a PNG file.</span></span><br><span class="line">	<span class="keyword">if</span> err := p.Save(<span class="number">8</span>*vg.Inch, <span class="number">8</span>*vg.Inch, <span class="string">&quot;4-points0.5.png&quot;</span>); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(err)</span><br><span class="line">	&#125;</span><br><span class="line">	t.Log(<span class="string">&quot;Test Pass&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// randomPoints returns some random x, y points.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">randomPoints1</span><span class="params">(n []<span class="keyword">int32</span>)</span> <span class="title">plotter</span>.<span class="title">XYs</span></span> &#123;</span><br><span class="line">	m := <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">int32</span>]<span class="keyword">int</span>)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> _,v := <span class="keyword">range</span> n &#123;</span><br><span class="line">		<span class="keyword">if</span> _,ok := m[v]; ok  &#123;</span><br><span class="line">			m[v] ++</span><br><span class="line">		&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">			m[v] = <span class="number">1</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	pts := <span class="built_in">make</span>(plotter.XYs, <span class="built_in">len</span>(m))</span><br><span class="line">	<span class="keyword">for</span> i:= <span class="number">0</span> ; i &lt; <span class="built_in">len</span>(m) ; &#123;</span><br><span class="line">		k := i+<span class="number">1</span></span><br><span class="line">		v := m[<span class="keyword">int32</span>(k)]</span><br><span class="line">		fmt.Println(k,v)</span><br><span class="line">		pts[i].X = <span class="keyword">float64</span>(k)</span><br><span class="line">		pts[i].Y = <span class="keyword">float64</span>(v)</span><br><span class="line">		i ++</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;map:%+v\n&quot;</span>,m)</span><br><span class="line">	<span class="keyword">return</span> pts</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我写了如上的一个测试程序，并画出数据的分布情况。<br><img src="https://note.youdao.com/yws/api/personal/file/WEB3e6a78c1c7642b5eee88e6752c4ae91a?method=download&amp;shareKey=cab1b3a195affd9b3e24c9827a290495" alt="分布"></p>
+<p>横轴是最大高度，纵轴是分布在高度上的情况，从图上可以看出，<code>p</code>越小，衰变的速度越快，数据分布越集中，当<code>p</code>为<code>1/2</code>是数据基本是按层级间<code>1/2</code>的关系递减的。</p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>官方论文中有实现的伪代码，按照伪代码即可实现。</p>
+<h3 id="Search"><a href="#Search" class="headerlink" title="Search"></a>Search</h3><p>如下是查询时的一个伪代码，基本逻辑就是从头节点的最高层级开始变量查询，如果查询节点不为<code>nil</code>并且<code>key</code>大于当前节点的<code>key</code>，就往后查询，否则层级下降。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Search(list, searchKey)</span><br><span class="line">    x := list→header</span><br><span class="line">    -- loop invariant: x→key &lt; searchKey</span><br><span class="line">    <span class="keyword">for</span> i := list→level downto <span class="number">1</span> do</span><br><span class="line">        while x→forward[i] != <span class="literal">nil</span> &amp;&amp;&amp; x→forward[i]→key &lt; searchKey do</span><br><span class="line">            x := x→forward[i]</span><br><span class="line">    -- x→key &lt; searchKey ≤ x→forward[<span class="number">1</span>]→key</span><br><span class="line">    x := x→forward[<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">if</span> x→key = searchKey then </span><br><span class="line">        <span class="keyword">return</span> x→value</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">return</span> failure</span><br></pre></td></tr></table></figure></p>
+<h3 id="Insert"><a href="#Insert" class="headerlink" title="Insert"></a>Insert</h3><p>插入的不同点就是要记录下查找的路径，后面需要更新插入前后的元素;只记录阶梯变化的最后一个；下面的<code>update</code>数组就是记录变化的，然后查找到要插入的地方，如果<code>key</code>已经存在就更新值，不存在就插入。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">Insert(list, searchKey, newValue)</span><br><span class="line">    local update[<span class="number">1.</span>.MaxLevel]</span><br><span class="line">    x := list→header</span><br><span class="line">    <span class="keyword">for</span> i := list→level downto <span class="number">1</span> do</span><br><span class="line">        while x→forward[i]→key &lt; searchKey do</span><br><span class="line">            x := x→forward[i]</span><br><span class="line">        update[i] := x</span><br><span class="line">    x := x→forward[<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">if</span> x→key = searchKey then x→value := newValue</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        newLevel := randomLevel()</span><br><span class="line">        <span class="keyword">if</span> newLevel &gt; list→level then</span><br><span class="line">            <span class="keyword">for</span> i := list→level + <span class="number">1</span> to newLevel do</span><br><span class="line">                update[i] := list→header</span><br><span class="line">            list→level := newLevel</span><br><span class="line">        x := makeNode(newLevel , searchKey, value)</span><br><span class="line">        <span class="keyword">for</span> i := <span class="number">1</span> to newLevel do</span><br><span class="line">            x→forward[i] := update[i]→forward[i]</span><br><span class="line">            update[i]→forward[i] := x</span><br></pre></td></tr></table></figure></p>
+<h3 id="Delete"><a href="#Delete" class="headerlink" title="Delete"></a>Delete</h3><p>删除是同样需要记录查找路径，后面需要更新前后的路径。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">Delete(list, searchKey)</span><br><span class="line">    local update[<span class="number">1.</span>.MaxLevel]</span><br><span class="line">    x := list→header</span><br><span class="line">    <span class="keyword">for</span> i := list→level downto <span class="number">1</span> do</span><br><span class="line">        while x→forward[i]→key &lt; searchKey do</span><br><span class="line">            x := x→forward[i]</span><br><span class="line">        update[i] := x</span><br><span class="line">    x := x→forward[<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">if</span> x→key = searchKey then</span><br><span class="line">        <span class="keyword">for</span> i := <span class="number">1</span> to list→level do</span><br><span class="line">            <span class="keyword">if</span> update[i]→forward[i] ≠ x then <span class="keyword">break</span></span><br><span class="line">            update[i]→forward[i] := x→forward[i]</span><br><span class="line">        free(x)</span><br><span class="line">        while list→level &gt; <span class="number">1</span> and</span><br><span class="line">            list→header→forward[list→level] = NIL do</span><br><span class="line">            list→level := list→level – <span class="number">1</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a target="_blank" rel="noopener" href="http://zhangtielei.com/posts/blog-redis-skiplist.html">redis之Skiplist</a></li>
+<li><a target="_blank" rel="noopener" href="http://homepage.cs.uiowa.edu/~ghosh/skip.pdf">论文</a></li>
+<li><a target="_blank" rel="noopener" href="https://eugene-eeo.github.io/blog/skip-lists.html">https://eugene-eeo.github.io/blog/skip-lists.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://ticki.github.io/blog/skip-lists-done-right/">https://ticki.github.io/blog/skip-lists-done-right/</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/images/wechat_channel.jpg">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag"># 数据结构</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/06/19/linux-sed/" rel="prev" title="linux sed">
+      <i class="fa fa-chevron-left"></i> linux sed
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/09/18/go-channel%E6%BA%90%E7%A0%81/" rel="next" title="go channel 实现">
+      go channel 实现 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Badger%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8B-SkipList%E5%9F%BA%E7%A1%80%E7%AF%87"><span class="nav-number">1.</span> <span class="nav-text">Badger源码学习之-SkipList基础篇</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%93%BE%E8%A1%A8"><span class="nav-number">1.1.</span> <span class="nav-text">链表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SkipList"><span class="nav-number">1.2.</span> <span class="nav-text">SkipList</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.3.</span> <span class="nav-text">实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Search"><span class="nav-number">1.3.1.</span> <span class="nav-text">Search</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Insert"><span class="nav-number">1.3.2.</span> <span class="nav-text">Insert</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Delete"><span class="nav-number">1.3.3.</span> <span class="nav-text">Delete</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">1.4.</span> <span class="nav-text">参考</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">lengrongfu</p>
+  <div class="site-description" itemprop="description">通过持续的学习，记录了成为软件工程师的成长轨迹</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">74</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/lengrongfu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;lengrongfu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lenronfu@gmail.com" title="E-Mail → mailto:lenronfu@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/lengrongfu" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;lengrongfu" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/lengrongf" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;lengrongf" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.douban.com/people/156753267/" title="豆瓣 → https:&#x2F;&#x2F;www.douban.com&#x2F;people&#x2F;156753267&#x2F;" rel="noopener" target="_blank"><i class="fab fa-douban fa-fw"></i>豆瓣</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lengrongfu</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+    </div>
+</body>
+</html>
