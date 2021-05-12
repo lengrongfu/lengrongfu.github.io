@@ -199,7 +199,7 @@
       <div class="post-meta">
         <time itemprop="dateCreated"
               datetime="2019-10-20T15:59:13+08:00"
-              content="2019-10-20">
+              content="2019-10-20 15:59:13">
           10-20
         </time>
       </div>
@@ -219,7 +219,7 @@
       <div class="post-meta">
         <time itemprop="dateCreated"
               datetime="2019-09-18T15:02:51+08:00"
-              content="2019-09-18">
+              content="2019-09-18 15:02:51">
           09-18
         </time>
       </div>
@@ -239,7 +239,7 @@
       <div class="post-meta">
         <time itemprop="dateCreated"
               datetime="2019-06-29T15:07:15+08:00"
-              content="2019-06-29">
+              content="2019-06-29 15:07:15">
           06-29
         </time>
       </div>
@@ -259,7 +259,7 @@
       <div class="post-meta">
         <time itemprop="dateCreated"
               datetime="2019-06-19T21:17:02+08:00"
-              content="2019-06-19">
+              content="2019-06-19 21:17:02">
           06-19
         </time>
       </div>
@@ -279,7 +279,7 @@
       <div class="post-meta">
         <time itemprop="dateCreated"
               datetime="2019-06-18T20:07:55+08:00"
-              content="2019-06-18">
+              content="2019-06-18 20:07:55">
           06-18
         </time>
       </div>
@@ -299,7 +299,7 @@
       <div class="post-meta">
         <time itemprop="dateCreated"
               datetime="2019-06-14T20:09:47+08:00"
-              content="2019-06-14">
+              content="2019-06-14 20:09:47">
           06-14
         </time>
       </div>
@@ -319,7 +319,7 @@
       <div class="post-meta">
         <time itemprop="dateCreated"
               datetime="2019-06-10T18:26:18+08:00"
-              content="2019-06-10">
+              content="2019-06-10 18:26:18">
           06-10
         </time>
       </div>
@@ -339,7 +339,7 @@
       <div class="post-meta">
         <time itemprop="dateCreated"
               datetime="2019-06-08T10:30:35+08:00"
-              content="2019-06-08">
+              content="2019-06-08 10:30:35">
           06-08
         </time>
       </div>
@@ -359,7 +359,7 @@
       <div class="post-meta">
         <time itemprop="dateCreated"
               datetime="2019-05-21T15:24:13+08:00"
-              content="2019-05-21">
+              content="2019-05-21 15:24:13">
           05-21
         </time>
       </div>
@@ -379,7 +379,7 @@
       <div class="post-meta">
         <time itemprop="dateCreated"
               datetime="2019-05-14T17:47:20+08:00"
-              content="2019-05-14">
+              content="2019-05-14 17:47:20">
           05-14
         </time>
       </div>
@@ -530,6 +530,16 @@
     <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">lengrongfu</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">153k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">2:20</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
   </div>
@@ -539,6 +549,77 @@
 
 
 
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-firestore.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey   : '967293500156',
+      projectId: 'blog-5c00b'
+    });
+
+    function getCount(doc, increaseCount) {
+      // IncreaseCount will be false when not in article page
+      return doc.get().then(d => {
+        var count = 0;
+        if (!d.exists) { // Has no data, initialize count
+          if (increaseCount) {
+            doc.set({
+              count: 1
+            });
+            count = 1;
+          }
+        } else { // Has data
+          count = d.data().count;
+          if (increaseCount) {
+            // If first view this article
+            doc.set({ // Increase count
+              count: count + 1
+            });
+            count++;
+          }
+        }
+
+        return count;
+      });
+    }
+
+    function appendCountTo(el) {
+      return count => {
+        el.innerText = count;
+      }
+    }
+  </script>
+  <script data-pjax>
+    (function() {
+      var db = firebase.firestore();
+      var articles = db.collection('articles');
+
+      if (CONFIG.page.isPost) { // Is article page
+        var title = document.querySelector('.post-title').innerText.trim();
+        var doc = articles.doc(title);
+        var increaseCount = CONFIG.hostname === location.hostname;
+        if (localStorage.getItem(title)) {
+          increaseCount = false;
+        } else {
+          // Mark as visited
+          localStorage.setItem(title, true);
+        }
+        getCount(doc, increaseCount).then(appendCountTo(document.querySelector('.firestore-visitors-count')));
+      } else if (CONFIG.page.isHome) { // Is index page
+        var promises = [...document.querySelectorAll('.post-title')].map(element => {
+          var title = element.innerText.trim();
+          var doc = articles.doc(title);
+          return getCount(doc);
+        });
+        Promise.all(promises).then(counts => {
+          var metas = document.querySelectorAll('.firestore-visitors-count');
+          counts.forEach((val, idx) => {
+            appendCountTo(metas[idx])(val);
+          });
+        });
+      }
+    })();
+  </script>
 
 
 
@@ -645,6 +726,7 @@ window.addEventListener('pjax:success', () => {
   
 
   
+
 
     </div>
 </body>
