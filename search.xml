@@ -2515,8 +2515,7 @@ MySQL服务初始化(仅适用5.7)</li>
   <entry>
     <title>Kubernetes Network</title>
     <url>/2021/05/13/Kubernetes-Network/</url>
-    <content><![CDATA[<h1 id="Kubernetes-Network"><a href="#Kubernetes-Network" class="headerlink" title="Kubernetes Network"></a>Kubernetes Network</h1><p>tags: </p>
-<h2 id="一、单机容器网络"><a href="#一、单机容器网络" class="headerlink" title="一、单机容器网络"></a>一、单机容器网络</h2><h3 id="名词"><a href="#名词" class="headerlink" title="名词"></a>名词</h3><ul>
+    <content><![CDATA[<h1 id="Kubernetes-Network"><a href="#Kubernetes-Network" class="headerlink" title="Kubernetes Network"></a>Kubernetes Network</h1><h2 id="一、单机容器网络"><a href="#一、单机容器网络" class="headerlink" title="一、单机容器网络"></a>一、单机容器网络</h2><h3 id="名词"><a href="#名词" class="headerlink" title="名词"></a>名词</h3><ul>
 <li>网络栈：网络栈包括了网卡(<code>Network Interface</code>)、回环设备(<code>Loopback Device</code>)、路由表(<code>Routing Table</code>)和<code>Iptables</code>规则，对于一个进程来说，这些要素，就构成了它发起请求和响应网络请求的基本环境。</li>
 <li>网桥(<code>Bridge</code>)：<code>bridge</code>是一个虚拟网络设备，所以具有网络设备的特征，可以配置<code>IP</code>、<code>MAC</code>地址；<code>Bridger</code>是一个虚拟交换机，具有和物理交换机类似的功能。它是工作在数据链路层的设备。</li>
 <li><code>Veth Pair</code>: 虚拟网线，用来连接容器到网桥上的；它被创建出来以后，总是以两张虚拟网卡(<code>Veth Peer</code>)的形式成对出现，并且，从其中一个网卡发出的数据包会自动出现在与之对应的网卡上，哪怕是这两张<em>*网卡</em>在不同的<code>Network Namespace</code>中。</li>
@@ -2635,10 +2634,10 @@ MySQL服务初始化(仅适用5.7)</li>
 <p>因为他会使用下一跳的目的<code>MAC</code>地址，所以它要求宿主机之间是二层联通的，不如就没法通过使用<code>ARP</code>协议用<code>IP</code>去获取<code>MAC</code>地址了。</p>
 ]]></content>
       <categories>
-        <category>Kubernetes</category>
         <category>云原生</category>
       </categories>
       <tags>
+        <tag>Kubernetes</tag>
         <tag>容器网络</tag>
         <tag>Kubernetes网络</tag>
       </tags>
