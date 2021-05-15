@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>读大数据时代</title>
-    <url>/2018/09/04/%E8%AF%BB%E5%A4%A7%E6%95%B0%E6%8D%AE%E6%97%B6%E4%BB%A3/</url>
-    <content><![CDATA[<!--
-
--->
-]]></content>
-  </entry>
-  <entry>
     <title>搭建一个自己的blog</title>
     <url>/2018/09/03/%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84blog/</url>
     <content><![CDATA[<span id="more"></span>
@@ -53,6 +45,14 @@
         <tag>github-pages</tag>
         <tag>安装教程</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>读大数据时代</title>
+    <url>/2018/09/04/%E8%AF%BB%E5%A4%A7%E6%95%B0%E6%8D%AE%E6%97%B6%E4%BB%A3/</url>
+    <content><![CDATA[<!--
+
+-->
+]]></content>
   </entry>
   <entry>
     <title>cloudera hadoop 安装</title>
@@ -110,37 +110,6 @@
       </tags>
   </entry>
   <entry>
-    <title>cloudera 问题解决</title>
-    <url>/2018/10/16/cloudera-problem/</url>
-    <content><![CDATA[<blockquote>
-<p>如下为记录<code>cloudera</code> 使用过程中的一些常见问题。</p>
-</blockquote>
-<h1 id="1、服务没有设置-opt这个挂载点"><a href="#1、服务没有设置-opt这个挂载点" class="headerlink" title="1、服务没有设置/opt这个挂载点"></a>1、服务没有设置<code>/opt</code>这个挂载点</h1><ul>
-<li><code>cloudera</code>所有的数据都是存储在<code>/opt</code>这个根目录下的，所以服务器在安装系统的时候最好让运维同事挂载一个大空间到这个目录下。</li>
-<li>如果安装的时候不知道，安装软件的时候可以选择存储空间,如果安装的时候也不知道，没有设置的话那就很悲催了。</li>
-<li>如果没有设置就回存到根目录的<code>/opt</code>下，这里面的存储空间一般都很小。说一下解决办法。<br>1、重装（我没这精力）<br>2、把<code>/opt</code>这个目录移动到一个大的挂载点上去，然后使用软连接，本人就是这么做的。</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 步骤</span></span><br><span class="line"><span class="meta">#</span><span class="bash">1、先停掉集群。</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv cloudera cloudera.bak</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv cloudera.bak /data/cloudera</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ln -sv /data/cloudera cloudera</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 经过上面的步骤之后再重启集群就可以了。</span></span><br></pre></td></tr></table></figure>
-<h1 id="2、Error-creating-LevelDB-timeseries-store-in-directory-var-lib-cloudera-service-monitor-ts"><a href="#2、Error-creating-LevelDB-timeseries-store-in-directory-var-lib-cloudera-service-monitor-ts" class="headerlink" title="2、Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts"></a>2、Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts</h1><blockquote>
-<p>具体现象如下，报找不到一个文件。解释一下出现这个问题的原因，还是由于根目录下的空间不够了，因此我移动了一个占有很<br>大空间的包，就是错误中的 <code>/var/lib/cloudera-service-monitor</code> 这个目录，然后通过软连接进行访问的。</p>
-</blockquote>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2018-10-16 16:24:25,993 INFO com.cloudera.cmon.firehose.Main: Cluster size: SMALL</span><br><span class="line">2018-10-16 16:24:26,056 INFO com.cloudera.cmon.tstore.leveldb.LDBResourceManager: Max file descriptors: 32768</span><br><span class="line">2018-10-16 16:24:26,057 INFO com.cloudera.cmon.tstore.leveldb.LDBResourceManager: Setting maximum open fds to: 768</span><br><span class="line">2018-10-16 16:24:26,181 ERROR com.cloudera.cmon.firehose.Main: Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts</span><br><span class="line">org.fusesource.leveldbjni.internal.NativeDB$DBException: Corruption: 3 missing files; e.g.: /data/lib/ts/ts_entity_metadata/000072.sst</span><br><span class="line">        at org.fusesource.leveldbjni.internal.NativeDB.checkStatus(NativeDB.java:194)</span><br><span class="line">        at org.fusesource.leveldbjni.internal.NativeDB.open(NativeDB.java:212)</span><br><span class="line">        at org.fusesource.leveldbjni.JniDBFactory.open(JniDBFactory.java:168)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBUtils.openVersionedDB(LDBUtils.java:264)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBUtils.openVersionedDB(LDBUtils.java:212)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBTimeSeriesMetadataStore.openMetadataDB(LDBTimeSeriesMetadataStore.java:148)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBTimeSeriesMetadataStore.&lt;init&gt;(LDBTimeSeriesMetadataStore.java:138)</span><br><span class="line">        at com.cloudera.cmon.firehose.Main.main(Main.java:453)</span><br></pre></td></tr></table></figure>
-<ul>
-<li>说一下解决办法：</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进行如下的操作，再重启就可以了。亲测可以</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv /var/lib/cloudera-service-monitor /var/lib/cloudera-service-monitor.moved</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv /var/lib/cloudera-host-monitor /var/lib/cloudera-host-monitor.moved</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>参考：<a href="https://community.cloudera.com/t5/Security-Apache-Sentry/Host-Monitor-and-Service-Monitor-is-not-starting-after/td-p/49207">https://community.cloudera.com/t5/Security-Apache-Sentry/Host-Monitor-and-Service-Monitor-is-not-starting-after/td-p/49207</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Hadoop</category>
-      </categories>
-      <tags>
-        <tag>cloudera</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Sqoop User Guide(Sqoop使用指南)</title>
     <url>/2018/09/11/Sqoop/</url>
     <content><![CDATA[<h1 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h1><blockquote>
@@ -183,6 +152,37 @@
       <tags>
         <tag>Sqoop</tag>
         <tag>Hadoop</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>cloudera 问题解决</title>
+    <url>/2018/10/16/cloudera-problem/</url>
+    <content><![CDATA[<blockquote>
+<p>如下为记录<code>cloudera</code> 使用过程中的一些常见问题。</p>
+</blockquote>
+<h1 id="1、服务没有设置-opt这个挂载点"><a href="#1、服务没有设置-opt这个挂载点" class="headerlink" title="1、服务没有设置/opt这个挂载点"></a>1、服务没有设置<code>/opt</code>这个挂载点</h1><ul>
+<li><code>cloudera</code>所有的数据都是存储在<code>/opt</code>这个根目录下的，所以服务器在安装系统的时候最好让运维同事挂载一个大空间到这个目录下。</li>
+<li>如果安装的时候不知道，安装软件的时候可以选择存储空间,如果安装的时候也不知道，没有设置的话那就很悲催了。</li>
+<li>如果没有设置就回存到根目录的<code>/opt</code>下，这里面的存储空间一般都很小。说一下解决办法。<br>1、重装（我没这精力）<br>2、把<code>/opt</code>这个目录移动到一个大的挂载点上去，然后使用软连接，本人就是这么做的。</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 步骤</span></span><br><span class="line"><span class="meta">#</span><span class="bash">1、先停掉集群。</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv cloudera cloudera.bak</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv cloudera.bak /data/cloudera</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ln -sv /data/cloudera cloudera</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 经过上面的步骤之后再重启集群就可以了。</span></span><br></pre></td></tr></table></figure>
+<h1 id="2、Error-creating-LevelDB-timeseries-store-in-directory-var-lib-cloudera-service-monitor-ts"><a href="#2、Error-creating-LevelDB-timeseries-store-in-directory-var-lib-cloudera-service-monitor-ts" class="headerlink" title="2、Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts"></a>2、Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts</h1><blockquote>
+<p>具体现象如下，报找不到一个文件。解释一下出现这个问题的原因，还是由于根目录下的空间不够了，因此我移动了一个占有很<br>大空间的包，就是错误中的 <code>/var/lib/cloudera-service-monitor</code> 这个目录，然后通过软连接进行访问的。</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2018-10-16 16:24:25,993 INFO com.cloudera.cmon.firehose.Main: Cluster size: SMALL</span><br><span class="line">2018-10-16 16:24:26,056 INFO com.cloudera.cmon.tstore.leveldb.LDBResourceManager: Max file descriptors: 32768</span><br><span class="line">2018-10-16 16:24:26,057 INFO com.cloudera.cmon.tstore.leveldb.LDBResourceManager: Setting maximum open fds to: 768</span><br><span class="line">2018-10-16 16:24:26,181 ERROR com.cloudera.cmon.firehose.Main: Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts</span><br><span class="line">org.fusesource.leveldbjni.internal.NativeDB$DBException: Corruption: 3 missing files; e.g.: /data/lib/ts/ts_entity_metadata/000072.sst</span><br><span class="line">        at org.fusesource.leveldbjni.internal.NativeDB.checkStatus(NativeDB.java:194)</span><br><span class="line">        at org.fusesource.leveldbjni.internal.NativeDB.open(NativeDB.java:212)</span><br><span class="line">        at org.fusesource.leveldbjni.JniDBFactory.open(JniDBFactory.java:168)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBUtils.openVersionedDB(LDBUtils.java:264)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBUtils.openVersionedDB(LDBUtils.java:212)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBTimeSeriesMetadataStore.openMetadataDB(LDBTimeSeriesMetadataStore.java:148)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBTimeSeriesMetadataStore.&lt;init&gt;(LDBTimeSeriesMetadataStore.java:138)</span><br><span class="line">        at com.cloudera.cmon.firehose.Main.main(Main.java:453)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>说一下解决办法：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进行如下的操作，再重启就可以了。亲测可以</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv /var/lib/cloudera-service-monitor /var/lib/cloudera-service-monitor.moved</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv /var/lib/cloudera-host-monitor /var/lib/cloudera-host-monitor.moved</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>参考：<a href="https://community.cloudera.com/t5/Security-Apache-Sentry/Host-Monitor-and-Service-Monitor-is-not-starting-after/td-p/49207">https://community.cloudera.com/t5/Security-Apache-Sentry/Host-Monitor-and-Service-Monitor-is-not-starting-after/td-p/49207</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Hadoop</category>
+      </categories>
+      <tags>
+        <tag>cloudera</tag>
       </tags>
   </entry>
   <entry>
@@ -670,6 +670,52 @@ system call filters failed to install; check the logs and fix your configuration
       </tags>
   </entry>
   <entry>
+    <title>自定义 spring-boot-stater</title>
+    <url>/2018/10/17/new-spring-boot-stater/</url>
+    <content><![CDATA[<h1 id="spring-boot-stater"><a href="#spring-boot-stater" class="headerlink" title="spring boot stater"></a>spring boot stater</h1><p>通过使用<code>Spring Boot Starter</code>将一些层、组件拆分为模块来管理，以便相互依赖复用。</p>
+<h2 id="自定义"><a href="#自定义" class="headerlink" title="自定义"></a>自定义</h2><h3 id="1、创建一个Maven项目"><a href="#1、创建一个Maven项目" class="headerlink" title="1、创建一个Maven项目"></a>1、创建一个<code>Maven</code>项目</h3><p>首先自定义一个<code>Maven</code>项目，<code>pom.xml</code>中引入依赖。</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- Import dependency management from Spring Boot --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.5.2.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这里说下<code>artifactId</code>的命名问题，<code>Spring</code> 官方 <code>Starter</code>通常命名为<code>spring-boot-starter-&#123;name&#125;</code>如 <code>spring-boot-starter-web</code>， <code>Spring</code><a href="https://link.juejin.im/?target=http%3A%2F%2Fdocs.spring.io%2Fspring-boot%2Fdocs%2F1.5.2.RELEASE%2Freference%2Fhtmlsingle%2F%23boot-features-custom-starter-naming">官方建议</a>非官方<code>Starter</code>命名应遵循<code>&#123;name&#125;-spring-boot-starter</code>的格式.</p>
+<h3 id="2、创建一个简单的Starter"><a href="#2、创建一个简单的Starter" class="headerlink" title="2、创建一个简单的Starter"></a>2、创建一个简单的<code>Starter</code></h3><p>提供一个简单的<code>Stater</code>,提供一个<code>Service</code>,包含一个能够将字符串加上前后缀的方法String wrap(String word)。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DemoService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> String prefix;</span><br><span class="line">	<span class="keyword">private</span> String suffix;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">DemoService</span><span class="params">(String prefix, String suffix)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.prefix = prefix;</span><br><span class="line">		<span class="keyword">this</span>.suffix = suffix;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> String <span class="title">wrap</span><span class="params">(String word)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> prefix + word + suffix;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>前缀、后缀通过读取application.properties(yml)内的参数获得。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@ConfigurationProperties(&quot;demo.service&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DemoServiceProperties</span> </span>&#123;</span><br><span class="line">	<span class="keyword">private</span> String prefix;</span><br><span class="line">	<span class="keyword">private</span> String suffix;</span><br><span class="line">	#省略 set 和 get</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编写<code>AutoConfigure</code>类。<br><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@ConditionalOnClass(DemoService.class)</span></span><br><span class="line"><span class="meta">@EnableConfigurationProperties(DemoServiceProperties.class)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DemoAutoConfigure</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Autowired</span></span><br><span class="line">	<span class="keyword">private</span> DemoServiceProperties demoServiceProperties;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">	<span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line">	<span class="meta">@ConditionalOnProperty(prefix = &quot;demo.service&quot;,value = &quot;enabled&quot;,havingValue = &quot;true&quot;)</span></span><br><span class="line">	<span class="function">DemoService <span class="title">demoService</span><span class="params">()</span></span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">new</span> DemoService(demoServiceProperties.getPrefix(),demoServiceProperties.getSuffix());</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>解释下用到的几个和Starter相关的注解：</p>
+<ul>
+<li><code>@ConditionalOnClass</code>，当<code>classpath</code>下发现该类的情况下进行自动配置。</li>
+<li><code>@ConditionalOnMissingBean</code>，当<code>Spring Context</code>中不存在该<code>Bean</code>时。</li>
+<li><code>@ConditionalOnProperty(prefix = &quot;example.service&quot;,value = &quot;enabled&quot;,havingValue = &quot;true&quot;)</code>，当配置文件中<code>example.service.enabled=true</code>时</li>
+</ul>
+<p>更多相关注解，建议阅读<a href="https://link.juejin.im/?target=http%3A%2F%2Fdocs.spring.io%2Fspring-boot%2Fdocs%2F1.5.2.RELEASE%2Freference%2Fhtmlsingle%2F%23boot-features-bean-conditions">官方文档部分</a></p>
+<p>最后一步，在resources/META-INF/下创建spring.factories文件，内容供参考下面:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.example.demospringbootstarter.DemoAutoConfigure</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>执行<code>mvn install</code> 打包安装。</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><h3 id="1、新建一个新的Spring-Boot项目"><a href="#1、新建一个新的Spring-Boot项目" class="headerlink" title="1、新建一个新的Spring Boot项目"></a>1、新建一个新的<code>Spring Boot</code>项目</h3><p>把<code>stater</code>的依赖加入项目中。</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.example<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>demo-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>0.0.1-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>创建<code>application.properties</code>，进行配置</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="meta">demo.service.enabled</span>=<span class="string">true</span></span><br><span class="line"><span class="meta">demo.service.prefix</span>=<span class="string">####</span></span><br><span class="line"><span class="meta">demo.service.suffix</span>=<span class="string">@@@@</span></span><br></pre></td></tr></table></figure>
+<p>使用</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">   <span class="meta">@Autowired</span></span><br><span class="line"><span class="keyword">private</span> DemoService demoService;</span><br><span class="line"></span><br><span class="line"><span class="meta">@GetMapping(&quot;/input/&#123;word&#125;&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">input</span><span class="params">(<span class="meta">@PathVariable(&quot;word&quot;)</span> String word)</span></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> demoService.wrap(word);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>总结下<code>Starter</code>的工作原理.</p>
+<ul>
+<li><code>Spring Boot</code>在启动时扫描项目所依赖的<code>JAR</code>包，寻找包含<code>spring.factories</code>文件的<code>JAR</code>包</li>
+<li>根据<code>spring.factories</code>配置加载<code>AutoConfigure</code>类</li>
+<li>根据 <code>@Conditional</code>注解的条件，进行自动配置并将<code>Bean</code>注入<code>Spring Context</code></li>
+</ul>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://juejin.im/entry/58d37630570c350058c2c15c">https://juejin.im/entry/58d37630570c350058c2c15c</a></li>
+<li><a href>官网文档</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>SpringBoot</category>
+      </categories>
+      <tags>
+        <tag>spring boot stater</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>mysql-install</title>
     <url>/2018/10/17/mysql-install/</url>
     <content><![CDATA[<h1 id="mysql-centos7-安装指南-Yum"><a href="#mysql-centos7-安装指南-Yum" class="headerlink" title="mysql centos7 安装指南(Yum)"></a>mysql centos7 安装指南(Yum)</h1><ul>
@@ -718,52 +764,6 @@ MySQL服务初始化(仅适用5.7)</li>
       <tags>
         <tag>install</tag>
         <tag>mysql</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>自定义 spring-boot-stater</title>
-    <url>/2018/10/17/new-spring-boot-stater/</url>
-    <content><![CDATA[<h1 id="spring-boot-stater"><a href="#spring-boot-stater" class="headerlink" title="spring boot stater"></a>spring boot stater</h1><p>通过使用<code>Spring Boot Starter</code>将一些层、组件拆分为模块来管理，以便相互依赖复用。</p>
-<h2 id="自定义"><a href="#自定义" class="headerlink" title="自定义"></a>自定义</h2><h3 id="1、创建一个Maven项目"><a href="#1、创建一个Maven项目" class="headerlink" title="1、创建一个Maven项目"></a>1、创建一个<code>Maven</code>项目</h3><p>首先自定义一个<code>Maven</code>项目，<code>pom.xml</code>中引入依赖。</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- Import dependency management from Spring Boot --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.5.2.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>这里说下<code>artifactId</code>的命名问题，<code>Spring</code> 官方 <code>Starter</code>通常命名为<code>spring-boot-starter-&#123;name&#125;</code>如 <code>spring-boot-starter-web</code>， <code>Spring</code><a href="https://link.juejin.im/?target=http%3A%2F%2Fdocs.spring.io%2Fspring-boot%2Fdocs%2F1.5.2.RELEASE%2Freference%2Fhtmlsingle%2F%23boot-features-custom-starter-naming">官方建议</a>非官方<code>Starter</code>命名应遵循<code>&#123;name&#125;-spring-boot-starter</code>的格式.</p>
-<h3 id="2、创建一个简单的Starter"><a href="#2、创建一个简单的Starter" class="headerlink" title="2、创建一个简单的Starter"></a>2、创建一个简单的<code>Starter</code></h3><p>提供一个简单的<code>Stater</code>,提供一个<code>Service</code>,包含一个能够将字符串加上前后缀的方法String wrap(String word)。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DemoService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> String prefix;</span><br><span class="line">	<span class="keyword">private</span> String suffix;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">DemoService</span><span class="params">(String prefix, String suffix)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.prefix = prefix;</span><br><span class="line">		<span class="keyword">this</span>.suffix = suffix;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> String <span class="title">wrap</span><span class="params">(String word)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> prefix + word + suffix;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>前缀、后缀通过读取application.properties(yml)内的参数获得。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@ConfigurationProperties(&quot;demo.service&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DemoServiceProperties</span> </span>&#123;</span><br><span class="line">	<span class="keyword">private</span> String prefix;</span><br><span class="line">	<span class="keyword">private</span> String suffix;</span><br><span class="line">	#省略 set 和 get</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>编写<code>AutoConfigure</code>类。<br><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@ConditionalOnClass(DemoService.class)</span></span><br><span class="line"><span class="meta">@EnableConfigurationProperties(DemoServiceProperties.class)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DemoAutoConfigure</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Autowired</span></span><br><span class="line">	<span class="keyword">private</span> DemoServiceProperties demoServiceProperties;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">	<span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line">	<span class="meta">@ConditionalOnProperty(prefix = &quot;demo.service&quot;,value = &quot;enabled&quot;,havingValue = &quot;true&quot;)</span></span><br><span class="line">	<span class="function">DemoService <span class="title">demoService</span><span class="params">()</span></span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">new</span> DemoService(demoServiceProperties.getPrefix(),demoServiceProperties.getSuffix());</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>解释下用到的几个和Starter相关的注解：</p>
-<ul>
-<li><code>@ConditionalOnClass</code>，当<code>classpath</code>下发现该类的情况下进行自动配置。</li>
-<li><code>@ConditionalOnMissingBean</code>，当<code>Spring Context</code>中不存在该<code>Bean</code>时。</li>
-<li><code>@ConditionalOnProperty(prefix = &quot;example.service&quot;,value = &quot;enabled&quot;,havingValue = &quot;true&quot;)</code>，当配置文件中<code>example.service.enabled=true</code>时</li>
-</ul>
-<p>更多相关注解，建议阅读<a href="https://link.juejin.im/?target=http%3A%2F%2Fdocs.spring.io%2Fspring-boot%2Fdocs%2F1.5.2.RELEASE%2Freference%2Fhtmlsingle%2F%23boot-features-bean-conditions">官方文档部分</a></p>
-<p>最后一步，在resources/META-INF/下创建spring.factories文件，内容供参考下面:</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.example.demospringbootstarter.DemoAutoConfigure</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>执行<code>mvn install</code> 打包安装。</p>
-<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><h3 id="1、新建一个新的Spring-Boot项目"><a href="#1、新建一个新的Spring-Boot项目" class="headerlink" title="1、新建一个新的Spring Boot项目"></a>1、新建一个新的<code>Spring Boot</code>项目</h3><p>把<code>stater</code>的依赖加入项目中。</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.example<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>demo-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>0.0.1-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>创建<code>application.properties</code>，进行配置</p>
-<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="meta">demo.service.enabled</span>=<span class="string">true</span></span><br><span class="line"><span class="meta">demo.service.prefix</span>=<span class="string">####</span></span><br><span class="line"><span class="meta">demo.service.suffix</span>=<span class="string">@@@@</span></span><br></pre></td></tr></table></figure>
-<p>使用</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">   <span class="meta">@Autowired</span></span><br><span class="line"><span class="keyword">private</span> DemoService demoService;</span><br><span class="line"></span><br><span class="line"><span class="meta">@GetMapping(&quot;/input/&#123;word&#125;&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">input</span><span class="params">(<span class="meta">@PathVariable(&quot;word&quot;)</span> String word)</span></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> demoService.wrap(word);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>总结下<code>Starter</code>的工作原理.</p>
-<ul>
-<li><code>Spring Boot</code>在启动时扫描项目所依赖的<code>JAR</code>包，寻找包含<code>spring.factories</code>文件的<code>JAR</code>包</li>
-<li>根据<code>spring.factories</code>配置加载<code>AutoConfigure</code>类</li>
-<li>根据 <code>@Conditional</code>注解的条件，进行自动配置并将<code>Bean</code>注入<code>Spring Context</code></li>
-</ul>
-<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
-<li><a href="https://juejin.im/entry/58d37630570c350058c2c15c">https://juejin.im/entry/58d37630570c350058c2c15c</a></li>
-<li><a href>官网文档</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>SpringBoot</category>
-      </categories>
-      <tags>
-        <tag>spring boot stater</tag>
       </tags>
   </entry>
   <entry>
@@ -1027,6 +1027,56 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
+    <title>docker 网络概念</title>
+    <url>/2018/11/25/docker-network-concept/</url>
+    <content><![CDATA[<h1 id="容器的网络模型"><a href="#容器的网络模型" class="headerlink" title="容器的网络模型"></a>容器的网络模型</h1><p><code>Docker</code>的网络架构是构建在一组称为容器网络模型(CNM)的接口之上的。这个CNM的原理是为了提供多种不同的基础系统架构的应用程可用性。<br>最初的容器网络设计只关注如何在单个主机上运行容器并使他们可以从网络访问；在<code>host</code>模式下，容器在主机的<code>Network Namespace</code>中运行并使用主机IP地址，暴露容器端口在主机外面，容器会使用主机的端口。<br>这个<code>bridge</code>模式对<code>host</code>模式进行了改进，在<code>Bridge</code>模式下，容器通过<code>IPAM</code>IP地址管理模块来提供IP，从它自己的网络空间中获取自己的网络IP，此时容器有自己的网络命名空间，不会出现端口冲突，但是容器如果要暴露服务在主机外部，仍然需要使用主机IP。该技术是使用的<code>NAT</code>网络地址转换实现的，在主机IP:主机端口和容器IP:容器端口之间进行映射，这些转换规则是使用<code>iptables</code>实现的，这种实现限制了解决方案的规模和性能。此方案并没有解决多主机的容器网络通信问题。</p>
+<p><img src="/2018/11/25/docker-network-concept/cnm.png" alt="cnm"></p>
+<h2 id="CNM-结构"><a href="#CNM-结构" class="headerlink" title="CNM 结构"></a>CNM 结构</h2><p>上图是<code>CNM</code>中的几个高级结构，他们都是和<code>&#39;OS</code>无关的。</p>
+<ul>
+<li>Sandbox：沙箱包含网络容器的配置，这包括管理容器的接口，路由表和<code>DNS</code>配置，沙箱是通过<code>Linux</code>的命名空间实现的。一个容器就是一个沙箱盒子。</li>
+<li>Endpoint：一个<code>Endpoint</code>连接一个沙箱和一个网络。</li>
+<li>Network：<code>CNM</code>没有根据<code>OSI</code>模型指定网络，</li>
+</ul>
+<h1 id="CNM-驱动接口"><a href="#CNM-驱动接口" class="headerlink" title="CNM 驱动接口"></a>CNM 驱动接口</h1><p>这个CNM模型提供了两个插件和开放接口提供给用户使用，可以使用他们它们来对网络的功能进行控制。</p>
+<h2 id="网络驱动的类型"><a href="#网络驱动的类型" class="headerlink" title="网络驱动的类型"></a>网络驱动的类型</h2><ul>
+<li>网络驱动程序：<code>Docker</code>网络驱动程序是网络功能的实现，它们是可拔插的，因此可以使用不同的驱动程序提供给不通的应用使用，在集群中可以使用多个网络驱动器，但是单个<code>Docker</code>网络只能通过单个网络驱动程序实现，有两种类型的CNM网络驱动程序。</li>
+<li><ul>
+<li>内置网络驱动程序：<code>Docker</code>引擎内置了几种网络驱动程序，比如，网络驱动，overlay 驱动。</li>
+</ul>
+</li>
+<li><ul>
+<li>插件网络驱动程序：是由社区或者其他供应商提供的，用于与现有软件和硬件的提成，用户还可以自己实现。</li>
+</ul>
+</li>
+<li>IPAM 驱动：<code>Docker</code>有内置的<code>IP</code>地址管理器，如果未指定，则使用默认的子网和网络，用户也可指定子网和网关。</li>
+</ul>
+<h2 id="Docker内置网络驱动程序"><a href="#Docker内置网络驱动程序" class="headerlink" title="Docker内置网络驱动程序"></a>Docker内置网络驱动程序</h2><p><code>Docker</code>内置网络驱动程序是引擎的一部分，不需要任何其他模块，通过使用<code>docker network</code>命令来创建和使用网络模块。</p>
+<ul>
+<li>Bridge：<code>Bridge</code>驱动程序在宿主机上创建<code>Linux</code>网桥，网桥上的容器默认可以通信，也可以配置对容器的外部访问。</li>
+<li>Overlay：<code>overlay</code>驱动程序在宿主机上创建一个覆盖网络，支持开箱即用的多主机网络，通过使用<code>linux</code>网桥和<code>VXLAN</code>让宿主机上物理网络来实现容器到容器的多主机通信。</li>
+<li>MACVLAN：<code>macvlan</code>驱动程序使用<code>macvlan</code>桥接模式在容器和宿主机之间建立连接。</li>
+<li>Host：使用<code>host</code>驱动程序，容器将使用宿主机的网络栈，主机上的所有接口都可以由容器使用。</li>
+<li>None：<code>none</code>驱动程序为容器提供自己的网络堆栈和命名空间，但不配置接口，如果没有其他配置，容器将于宿主机网络完全隔离。</li>
+</ul>
+<p>默认情况下一个<code>Docker</code>主机上有<code>none</code>,<code>bridge</code>,<code>host</code>三种网络驱动程序，这些网络程序不能被删除，当使用<code>Swarm</code>时，会添加两个网络，一个是叫<code>docker_gwbridge</code>的<code>bridge</code>网络，还有一个是叫<code>ingress</code>的<code>overlay</code>的网络程序，这两个网络是自动创建在整个集群中的。</p>
+<h1 id="Linux-网络原理"><a href="#Linux-网络原理" class="headerlink" title="Linux 网络原理"></a>Linux 网络原理</h1><h1 id="名词解释"><a href="#名词解释" class="headerlink" title="名词解释"></a>名词解释</h1><ul>
+<li><a href="https://cizixs.com/2017/02/10/network-virtualization-network-namespace/">Network Namespace</a><br>网络命名空间。</li>
+<li><a href="https://en.wikipedia.org/wiki/Network_address_translation">NAT</a><br>网络地址转换，这是一种网络虚拟化的技术，是为了解决IP不够用的问题。</li>
+<li><a href="https://en.wikipedia.org/wiki/IP_address_management">IPAM</a><br>IP地址管理,对应于CNM模型中的IPAM模块，提供IP管理和生成。</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><ul>
+<li><a href="https://github.com/docker/libnetwork/blob/master/docs/design.md">CNM 设计</a></li>
+<li><a href="https://docs.docker.com/engine/extend/legacy_plugins/#installing-a-plugin">Docker 引擎添加插件</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>学习</category>
+      </categories>
+      <tags>
+        <tag>Docker network</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>docker 多阶段构建</title>
     <url>/2018/11/27/docker-multi-stage-builds/</url>
     <content><![CDATA[<blockquote>
@@ -1078,53 +1128,20 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
-    <title>docker 网络概念</title>
-    <url>/2018/11/25/docker-network-concept/</url>
-    <content><![CDATA[<h1 id="容器的网络模型"><a href="#容器的网络模型" class="headerlink" title="容器的网络模型"></a>容器的网络模型</h1><p><code>Docker</code>的网络架构是构建在一组称为容器网络模型(CNM)的接口之上的。这个CNM的原理是为了提供多种不同的基础系统架构的应用程可用性。<br>最初的容器网络设计只关注如何在单个主机上运行容器并使他们可以从网络访问；在<code>host</code>模式下，容器在主机的<code>Network Namespace</code>中运行并使用主机IP地址，暴露容器端口在主机外面，容器会使用主机的端口。<br>这个<code>bridge</code>模式对<code>host</code>模式进行了改进，在<code>Bridge</code>模式下，容器通过<code>IPAM</code>IP地址管理模块来提供IP，从它自己的网络空间中获取自己的网络IP，此时容器有自己的网络命名空间，不会出现端口冲突，但是容器如果要暴露服务在主机外部，仍然需要使用主机IP。该技术是使用的<code>NAT</code>网络地址转换实现的，在主机IP:主机端口和容器IP:容器端口之间进行映射，这些转换规则是使用<code>iptables</code>实现的，这种实现限制了解决方案的规模和性能。此方案并没有解决多主机的容器网络通信问题。</p>
-<p><img src="/2018/11/25/docker-network-concept/cnm.png" alt="cnm"></p>
-<h2 id="CNM-结构"><a href="#CNM-结构" class="headerlink" title="CNM 结构"></a>CNM 结构</h2><p>上图是<code>CNM</code>中的几个高级结构，他们都是和<code>&#39;OS</code>无关的。</p>
-<ul>
-<li>Sandbox：沙箱包含网络容器的配置，这包括管理容器的接口，路由表和<code>DNS</code>配置，沙箱是通过<code>Linux</code>的命名空间实现的。一个容器就是一个沙箱盒子。</li>
-<li>Endpoint：一个<code>Endpoint</code>连接一个沙箱和一个网络。</li>
-<li>Network：<code>CNM</code>没有根据<code>OSI</code>模型指定网络，</li>
-</ul>
-<h1 id="CNM-驱动接口"><a href="#CNM-驱动接口" class="headerlink" title="CNM 驱动接口"></a>CNM 驱动接口</h1><p>这个CNM模型提供了两个插件和开放接口提供给用户使用，可以使用他们它们来对网络的功能进行控制。</p>
-<h2 id="网络驱动的类型"><a href="#网络驱动的类型" class="headerlink" title="网络驱动的类型"></a>网络驱动的类型</h2><ul>
-<li>网络驱动程序：<code>Docker</code>网络驱动程序是网络功能的实现，它们是可拔插的，因此可以使用不同的驱动程序提供给不通的应用使用，在集群中可以使用多个网络驱动器，但是单个<code>Docker</code>网络只能通过单个网络驱动程序实现，有两种类型的CNM网络驱动程序。</li>
-<li><ul>
-<li>内置网络驱动程序：<code>Docker</code>引擎内置了几种网络驱动程序，比如，网络驱动，overlay 驱动。</li>
-</ul>
-</li>
-<li><ul>
-<li>插件网络驱动程序：是由社区或者其他供应商提供的，用于与现有软件和硬件的提成，用户还可以自己实现。</li>
-</ul>
-</li>
-<li>IPAM 驱动：<code>Docker</code>有内置的<code>IP</code>地址管理器，如果未指定，则使用默认的子网和网络，用户也可指定子网和网关。</li>
-</ul>
-<h2 id="Docker内置网络驱动程序"><a href="#Docker内置网络驱动程序" class="headerlink" title="Docker内置网络驱动程序"></a>Docker内置网络驱动程序</h2><p><code>Docker</code>内置网络驱动程序是引擎的一部分，不需要任何其他模块，通过使用<code>docker network</code>命令来创建和使用网络模块。</p>
-<ul>
-<li>Bridge：<code>Bridge</code>驱动程序在宿主机上创建<code>Linux</code>网桥，网桥上的容器默认可以通信，也可以配置对容器的外部访问。</li>
-<li>Overlay：<code>overlay</code>驱动程序在宿主机上创建一个覆盖网络，支持开箱即用的多主机网络，通过使用<code>linux</code>网桥和<code>VXLAN</code>让宿主机上物理网络来实现容器到容器的多主机通信。</li>
-<li>MACVLAN：<code>macvlan</code>驱动程序使用<code>macvlan</code>桥接模式在容器和宿主机之间建立连接。</li>
-<li>Host：使用<code>host</code>驱动程序，容器将使用宿主机的网络栈，主机上的所有接口都可以由容器使用。</li>
-<li>None：<code>none</code>驱动程序为容器提供自己的网络堆栈和命名空间，但不配置接口，如果没有其他配置，容器将于宿主机网络完全隔离。</li>
-</ul>
-<p>默认情况下一个<code>Docker</code>主机上有<code>none</code>,<code>bridge</code>,<code>host</code>三种网络驱动程序，这些网络程序不能被删除，当使用<code>Swarm</code>时，会添加两个网络，一个是叫<code>docker_gwbridge</code>的<code>bridge</code>网络，还有一个是叫<code>ingress</code>的<code>overlay</code>的网络程序，这两个网络是自动创建在整个集群中的。</p>
-<h1 id="Linux-网络原理"><a href="#Linux-网络原理" class="headerlink" title="Linux 网络原理"></a>Linux 网络原理</h1><h1 id="名词解释"><a href="#名词解释" class="headerlink" title="名词解释"></a>名词解释</h1><ul>
-<li><a href="https://cizixs.com/2017/02/10/network-virtualization-network-namespace/">Network Namespace</a><br>网络命名空间。</li>
-<li><a href="https://en.wikipedia.org/wiki/Network_address_translation">NAT</a><br>网络地址转换，这是一种网络虚拟化的技术，是为了解决IP不够用的问题。</li>
-<li><a href="https://en.wikipedia.org/wiki/IP_address_management">IPAM</a><br>IP地址管理,对应于CNM模型中的IPAM模块，提供IP管理和生成。</li>
-</ul>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><ul>
-<li><a href="https://github.com/docker/libnetwork/blob/master/docs/design.md">CNM 设计</a></li>
-<li><a href="https://docs.docker.com/engine/extend/legacy_plugins/#installing-a-plugin">Docker 引擎添加插件</a></li>
+    <title>Container Networking 标准</title>
+    <url>/2018/12/05/Container-Networking-Standards/</url>
+    <content><![CDATA[<h1 id="容器网络概括"><a href="#容器网络概括" class="headerlink" title="容器网络概括"></a>容器网络概括</h1><p>容器正在改变应用程序的开发方式以及应用程序连接网络的方式，大多数讨论容器都是在讨论容器编排，比如：<code>k8s</code>,<code>swarm</code>,这是因为开发首先能接触到的就是容器的编排，但是，网络对于生产部署至关重要，因为网络需要自动化，可扩展且安全，以适应于下一代的混合云的应用架构。</p>
+<h1 id="容器与虚拟机的网络连接"><a href="#容器与虚拟机的网络连接" class="headerlink" title="容器与虚拟机的网络连接"></a>容器与虚拟机的网络连接</h1><h1 id="参考指南"><a href="#参考指南" class="headerlink" title="参考指南"></a>参考指南</h1><ul>
+<li><a href="http://www.nuagenetworks.net/blog/container-networking-standards/">http://www.nuagenetworks.net/blog/container-networking-standards/</a></li>
 </ul>
 ]]></content>
       <categories>
         <category>学习</category>
       </categories>
       <tags>
-        <tag>Docker network</tag>
+        <tag>Container Networking</tag>
+        <tag>CNM</tag>
+        <tag>CNI</tag>
       </tags>
   </entry>
   <entry>
@@ -1141,23 +1158,6 @@ MySQL服务初始化(仅适用5.7)</li>
       <tags>
         <tag>Kubernetes</tag>
         <tag>云计算</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Container Networking 标准</title>
-    <url>/2018/12/05/Container-Networking-Standards/</url>
-    <content><![CDATA[<h1 id="容器网络概括"><a href="#容器网络概括" class="headerlink" title="容器网络概括"></a>容器网络概括</h1><p>容器正在改变应用程序的开发方式以及应用程序连接网络的方式，大多数讨论容器都是在讨论容器编排，比如：<code>k8s</code>,<code>swarm</code>,这是因为开发首先能接触到的就是容器的编排，但是，网络对于生产部署至关重要，因为网络需要自动化，可扩展且安全，以适应于下一代的混合云的应用架构。</p>
-<h1 id="容器与虚拟机的网络连接"><a href="#容器与虚拟机的网络连接" class="headerlink" title="容器与虚拟机的网络连接"></a>容器与虚拟机的网络连接</h1><h1 id="参考指南"><a href="#参考指南" class="headerlink" title="参考指南"></a>参考指南</h1><ul>
-<li><a href="http://www.nuagenetworks.net/blog/container-networking-standards/">http://www.nuagenetworks.net/blog/container-networking-standards/</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>学习</category>
-      </categories>
-      <tags>
-        <tag>Container Networking</tag>
-        <tag>CNM</tag>
-        <tag>CNI</tag>
       </tags>
   </entry>
   <entry>
@@ -1282,35 +1282,6 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
-    <title>ES cluster reroute</title>
-    <url>/2019/01/24/es-cluster-reroute/</url>
-    <content><![CDATA[<blockquote>
-<p><code>ES</code>集群重新路由命令可以显示的执行包括特定命令的集群重新路由分配命令。例如，可以显示地将分片从一个节点移动到另一个节点，可以取消分配。</p>
-</blockquote>
-<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><h2 id="支持的命令如下"><a href="#支持的命令如下" class="headerlink" title="支持的命令如下"></a>支持的命令如下</h2><ul>
-<li><code>move</code><br>  将现有的分片迁移到其他节点。接受 <code>index</code>和<code>shard</code>索引名称和分片编号，<code>from_node</code>节点移动分片<code>from</code>，以及<code>to_node</code>节点将分片移动到。</li>
-<li><code>cancel</code><br>  取消分享碎片（或恢复）。接受<code>index</code>和<code>shard</code>索引名称和分片编号，以及<code>node</code>取消分片分配的节点。它还接受<code>allow_primary</code>标志以明确指定允许取消主分片的分配。这可以用于强制从主分片重新同步现有副本，方法是取消它们并允许它们通过标准重新分配过程重新初始化。</li>
-<li><p><code>allocate_replica</code><br>  将未分配的副本分片分配给节点。接受<code>index</code>和<code>shard</code>索引名称和分片编号，并将分片分配给<code>node</code>。</p>
-<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2></li>
-<li><p><code>move</code><br>  主要是想要手动控制分片分配到某台固定的机器上。把<code>node_1</code>上的<code>index_name</code>移动到<code>node_2</code>节点上，可能会有各种原因需要进行迁移，比如<code>node_1</code>机器的磁盘不够了或者是其他原因等。</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST _cluster/reroute</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;commands&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;move&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;index&quot;</span>: <span class="string">&quot;index_name&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;shard&quot;</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="attr">&quot;from_node&quot;</span>: <span class="string">&quot;node_1&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;to_node&quot;</span>: <span class="string">&quot;node_2&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><code>cancel</code><br>  主要是把移动中的分片取消，这个是因为其他原因导致分片重新分配了，但是又不想让它重新分配，所以只能取消分片分配的过程。如下是<code>node_1</code>这台机器上的<code>index_name</code>的分片号<code>0</code>进行了移动，所以取消它。</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST _cluster/reroute</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;commands&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;cancel&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;index&quot;</span>: <span class="string">&quot;index_name&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;shard&quot;</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="attr">&quot;node&quot;</span>: <span class="string">&quot;node_1&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><ul>
-<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.4/cluster-reroute.html">https://www.elastic.co/guide/en/elasticsearch/reference/5.4/cluster-reroute.html</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>es</category>
-      </categories>
-      <tags>
-        <tag>es cluster manage</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>18年的回顾,19年的展望</title>
     <url>/2019/01/04/2018-2019/</url>
     <content><![CDATA[<h1 id="18年的计划"><a href="#18年的计划" class="headerlink" title="18年的计划"></a>18年的计划</h1><ul>
@@ -1341,43 +1312,32 @@ MySQL服务初始化(仅适用5.7)</li>
       </categories>
   </entry>
   <entry>
-    <title>go1.12 发行说明</title>
-    <url>/2019/02/27/go1-12/</url>
-    <content><![CDATA[<h1 id="Go1-12-概述"><a href="#Go1-12-概述" class="headerlink" title="Go1.12 概述"></a>Go1.12 概述</h1><p><code>Go1.12</code>是目前最新的<code>Go</code>版本，在<code>Go1.11</code>发行之后的六个月到来，大多数的改变是工具链、运行时和包，总的来说，该版本依然保持了<code>Go1</code>的<a href="https://golang.org/doc/go1compat">兼容性承诺</a>,希望大多数的程序还能和以前一样继续的编译和运行。</p>
-<h1 id="语言上的改变"><a href="#语言上的改变" class="headerlink" title="语言上的改变"></a>语言上的改变</h1><pre><code>语言规范上是没有改变的。
-</code></pre><h1 id="部分"><a href="#部分" class="headerlink" title="部分"></a>部分</h1><ul>
-<li>竞争检测现在是支持在<code>linux/arm64</code></li>
-<li><code>Go1.12</code>是最后一个支持<code>FreeBSD 10.x</code>的版本，<code>Go1.13</code>将开始支持<code>FreeBSD 11.2+ or FreeBSD 12.0+</code>,<code>FreeBSD 12.0+</code>要求设置一个<code>COMPAT_FREEBSD11</code>的变量，这是默认设置的。</li>
-<li>在<code>linux/ppc64</code>上支持<code>cgo</code></li>
+    <title>ES cluster reroute</title>
+    <url>/2019/01/24/es-cluster-reroute/</url>
+    <content><![CDATA[<blockquote>
+<p><code>ES</code>集群重新路由命令可以显示的执行包括特定命令的集群重新路由分配命令。例如，可以显示地将分片从一个节点移动到另一个节点，可以取消分配。</p>
+</blockquote>
+<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><h2 id="支持的命令如下"><a href="#支持的命令如下" class="headerlink" title="支持的命令如下"></a>支持的命令如下</h2><ul>
+<li><code>move</code><br>  将现有的分片迁移到其他节点。接受 <code>index</code>和<code>shard</code>索引名称和分片编号，<code>from_node</code>节点移动分片<code>from</code>，以及<code>to_node</code>节点将分片移动到。</li>
+<li><code>cancel</code><br>  取消分享碎片（或恢复）。接受<code>index</code>和<code>shard</code>索引名称和分片编号，以及<code>node</code>取消分片分配的节点。它还接受<code>allow_primary</code>标志以明确指定允许取消主分片的分配。这可以用于强制从主分片重新同步现有副本，方法是取消它们并允许它们通过标准重新分配过程重新初始化。</li>
+<li><p><code>allocate_replica</code><br>  将未分配的副本分片分配给节点。接受<code>index</code>和<code>shard</code>索引名称和分片编号，并将分片分配给<code>node</code>。</p>
+<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2></li>
+<li><p><code>move</code><br>  主要是想要手动控制分片分配到某台固定的机器上。把<code>node_1</code>上的<code>index_name</code>移动到<code>node_2</code>节点上，可能会有各种原因需要进行迁移，比如<code>node_1</code>机器的磁盘不够了或者是其他原因等。</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST _cluster/reroute</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;commands&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;move&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;index&quot;</span>: <span class="string">&quot;index_name&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;shard&quot;</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="attr">&quot;from_node&quot;</span>: <span class="string">&quot;node_1&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;to_node&quot;</span>: <span class="string">&quot;node_2&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>cancel</code><br>  主要是把移动中的分片取消，这个是因为其他原因导致分片重新分配了，但是又不想让它重新分配，所以只能取消分片分配的过程。如下是<code>node_1</code>这台机器上的<code>index_name</code>的分片号<code>0</code>进行了移动，所以取消它。</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST _cluster/reroute</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;commands&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;cancel&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;index&quot;</span>: <span class="string">&quot;index_name&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;shard&quot;</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="attr">&quot;node&quot;</span>: <span class="string">&quot;node_1&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
 </ul>
-<h2 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h2><p><code>windows/arm</code>的部分支持<code>go</code>在<code>windows10 lot</code>的32位物联网<code>arm</code>芯片上，比如树莓派3.</p>
-<h2 id="AIX"><a href="#AIX" class="headerlink" title="AIX"></a>AIX</h2><p>Go现在支持AIX 7.2及更高版本的POWER8体系结构（aix / ppc64）。尚不支持外部链接，cgo，pprof和竞赛检测器</p>
-<h2 id="Darwin"><a href="#Darwin" class="headerlink" title="Darwin"></a>Darwin</h2><p><code>Go 1.12</code>是最后一个支持运行在<code>macOS 10.10</code>系统之上的版本，<code>Go1.13</code>将要求操作系统必须是<code>macOS 10.11</code>以上。</p>
-<h1 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h1><h2 id="go-tool-vet-不再支持"><a href="#go-tool-vet-不再支持" class="headerlink" title="go tool vet 不再支持"></a>go tool vet 不再支持</h2><p><code>go vet</code>命令将不在支持，关于这部分功能迁移到了<code>analysis</code>工具中，更多详情查看包<a href="https://godoc.org/golang.org/x/tools/go/analysis">golang.org/x/tools/go/analysis</a>,使用方式有所改变，不能再使用<code>go tool vet</code>此命令，需要更改为<code>go vet</code>命令，使用<code>go vet</code>可以支持所以的版本。<br><code>-shadow</code>将不再可用，需要替换。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">go</span> get -u golang.org/x/tools/<span class="keyword">go</span>/analysis/passes/shadow/cmd/shadow</span><br><span class="line"><span class="keyword">go</span> vet -vettool=$(which shadow)</span><br></pre></td></tr></table></figure></p>
-<h2 id="Tour将不在默认安装"><a href="#Tour将不在默认安装" class="headerlink" title="Tour将不在默认安装"></a>Tour将不在默认安装</h2><p><code>Go Tour</code>不会包含再主要的包中，如果需要使用需要自行安装。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">go</span> get -u golang.org/x/tour</span><br><span class="line">tour</span><br></pre></td></tr></table></figure></p>
-<h2 id="Build-cache-要求"><a href="#Build-cache-要求" class="headerlink" title="Build cache 要求"></a>Build cache 要求</h2><p>如果设置了<code>GOCACHE=off</code>将导致<code>go</code>命令行写缓存失败。</p>
-<h2 id="二进制包"><a href="#二进制包" class="headerlink" title="二进制包"></a>二进制包</h2><p><code>Go 1.12</code>是最后一个支持二进制包的版本.</p>
-<h2 id="Cgo"><a href="#Cgo" class="headerlink" title="Cgo"></a>Cgo</h2><p><code>Go1.12</code>将<code>C</code>语言的<code>EGLDisplay</code>类型翻译为<code>go</code>的<code>uintptr</code>类型。更多信息请参考<a href="https://golang.org/cmd/cgo/#hdr-Special_cases">cgo 文档</a></p>
-<h1 id="核心库"><a href="#核心库" class="headerlink" title="核心库"></a>核心库</h1><h2 id="TLS1-3"><a href="#TLS1-3" class="headerlink" title="TLS1.3"></a>TLS1.3</h2><p><code>Go1.12</code>添加了对<code>TLS 1.3</code>的支持，可以通过设置环境变量<code>tls13=1GODEBUG</code>来启用，在<code>Go1.13</code>版本中将默认开启。</p>
-<h2 id="bufio"><a href="#bufio" class="headerlink" title="bufio"></a>bufio</h2><p>如果在调用完<code>Peek</code>方法之后调用<code>UnreadRune and UnreadByte</code>将会返回一个错误。</p>
-<h2 id="bytes"><a href="#bytes" class="headerlink" title="bytes"></a>bytes</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ReplaceAll</span><span class="params">(s, old, <span class="built_in">new</span> []<span class="keyword">byte</span>)</span> []<span class="title">byte</span></span></span><br></pre></td></tr></table></figure>
-<p>新函数<code>ReplaceAll</code>将返回一个字节切片的副本。<code>s</code>是原字节，<code>old</code>是匹配字节，<code>new</code>是替换为新的字符。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;bytes&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;%s\n&quot;</span>, bytes.ReplaceAll([]<span class="keyword">byte</span>(<span class="string">&quot;oink oink oink&quot;</span>), []<span class="keyword">byte</span>(<span class="string">&quot;oink&quot;</span>), []<span class="keyword">byte</span>(<span class="string">&quot;moo&quot;</span>)))</span><br><span class="line">	fmt.Printf(<span class="string">&quot;%s\n&quot;</span>,bytes.ReplaceAll([]<span class="keyword">byte</span>(<span class="string">&quot;this is a demo,place open the demo file&quot;</span>),[]<span class="keyword">byte</span>(<span class="string">&quot;demo&quot;</span>),[]<span class="keyword">byte</span>(<span class="string">&quot;test&quot;</span>)))</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//输出</span></span><br><span class="line">moo moo moo</span><br><span class="line">this is a test,place open the test file</span><br></pre></td></tr></table></figure></p>
-<h2 id="crypto-rand"><a href="#crypto-rand" class="headerlink" title="crypto/rand"></a>crypto/rand</h2><p><code>Reader.Read</code>如果超过60s还没有读取到熵，那么将会打印输出。</p>
-<h2 id="crypto-rc4"><a href="#crypto-rc4" class="headerlink" title="crypto/rc4"></a>crypto/rc4</h2><p>这个版本移除了其他版本的实现，只保留了<code>Go</code>版本。<br><code>RC4</code>是一种流<a href="https://zh.wikipedia.org/wiki/RC4">加密算法</a></p>
-<h2 id="crypto-tls"><a href="#crypto-tls" class="headerlink" title="crypto/tls"></a>crypto/tls</h2><p>如果客户端发送的初始消息看起来不像TLS，则服务器将不再使用警报进行回复,当TLS记录头无效时，返回<code>RecordHeaderError</code>.<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> RecordHeaderError <span class="keyword">struct</span> &#123;</span><br><span class="line">        <span class="comment">// Msg contains a human readable string that describes the error.</span></span><br><span class="line">        Msg <span class="keyword">string</span></span><br><span class="line">        <span class="comment">// RecordHeader contains the five bytes of TLS record header that</span></span><br><span class="line">        <span class="comment">// triggered the error.</span></span><br><span class="line">        RecordHeader [<span class="number">5</span>]<span class="keyword">byte</span></span><br><span class="line">        <span class="comment">// Conn provides the underlying net.Conn in the case that a client</span></span><br><span class="line">        <span class="comment">// sent an initial handshake that didn&#x27;t look like TLS.</span></span><br><span class="line">        <span class="comment">// It is nil if there&#x27;s already been a handshake or a TLS alert has</span></span><br><span class="line">        <span class="comment">// been written to the connection.</span></span><br><span class="line">        Conn net.Conn <span class="comment">// Go 1.12</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h2 id="database-sql"><a href="#database-sql" class="headerlink" title="database/sql"></a>database/sql</h2><p>现在可以通过将<code>*Rows</code>值传递给<code>Row.Scan</code>方法来获取查询光标.</p>
-<h2 id="expvar"><a href="#expvar" class="headerlink" title="expvar"></a>expvar</h2><p><code>Delete</code>方法运行删除一个<code>Map</code>类型的的<code>key</code>.<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(v *Map)</span> <span class="title">Delete</span><span class="params">(key <span class="keyword">string</span>)</span></span></span><br></pre></td></tr></table></figure></p>
-<h2 id="lib-time"><a href="#lib-time" class="headerlink" title="lib/time"></a>lib/time</h2><p>当操作系统未提供时区数据时，将会使用配置的<code>$GOROOT/lib/time/zoneinfo.zip</code>数据。</p>
-<h1 id="参考官方"><a href="#参考官方" class="headerlink" title="参考官方"></a>参考官方</h1><ul>
-<li><a href="https://golang.org/doc/go1.12">https://golang.org/doc/go1.12</a></li>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><ul>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.4/cluster-reroute.html">https://www.elastic.co/guide/en/elasticsearch/reference/5.4/cluster-reroute.html</a></li>
 </ul>
 ]]></content>
       <categories>
-        <category>golang</category>
+        <category>es</category>
       </categories>
       <tags>
-        <tag>golang</tag>
-        <tag>go1.12</tag>
+        <tag>es cluster manage</tag>
       </tags>
   </entry>
   <entry>
@@ -1699,6 +1659,77 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
+    <title>go1.12 发行说明</title>
+    <url>/2019/02/27/go1-12/</url>
+    <content><![CDATA[<h1 id="Go1-12-概述"><a href="#Go1-12-概述" class="headerlink" title="Go1.12 概述"></a>Go1.12 概述</h1><p><code>Go1.12</code>是目前最新的<code>Go</code>版本，在<code>Go1.11</code>发行之后的六个月到来，大多数的改变是工具链、运行时和包，总的来说，该版本依然保持了<code>Go1</code>的<a href="https://golang.org/doc/go1compat">兼容性承诺</a>,希望大多数的程序还能和以前一样继续的编译和运行。</p>
+<h1 id="语言上的改变"><a href="#语言上的改变" class="headerlink" title="语言上的改变"></a>语言上的改变</h1><pre><code>语言规范上是没有改变的。
+</code></pre><h1 id="部分"><a href="#部分" class="headerlink" title="部分"></a>部分</h1><ul>
+<li>竞争检测现在是支持在<code>linux/arm64</code></li>
+<li><code>Go1.12</code>是最后一个支持<code>FreeBSD 10.x</code>的版本，<code>Go1.13</code>将开始支持<code>FreeBSD 11.2+ or FreeBSD 12.0+</code>,<code>FreeBSD 12.0+</code>要求设置一个<code>COMPAT_FREEBSD11</code>的变量，这是默认设置的。</li>
+<li>在<code>linux/ppc64</code>上支持<code>cgo</code></li>
+</ul>
+<h2 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h2><p><code>windows/arm</code>的部分支持<code>go</code>在<code>windows10 lot</code>的32位物联网<code>arm</code>芯片上，比如树莓派3.</p>
+<h2 id="AIX"><a href="#AIX" class="headerlink" title="AIX"></a>AIX</h2><p>Go现在支持AIX 7.2及更高版本的POWER8体系结构（aix / ppc64）。尚不支持外部链接，cgo，pprof和竞赛检测器</p>
+<h2 id="Darwin"><a href="#Darwin" class="headerlink" title="Darwin"></a>Darwin</h2><p><code>Go 1.12</code>是最后一个支持运行在<code>macOS 10.10</code>系统之上的版本，<code>Go1.13</code>将要求操作系统必须是<code>macOS 10.11</code>以上。</p>
+<h1 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h1><h2 id="go-tool-vet-不再支持"><a href="#go-tool-vet-不再支持" class="headerlink" title="go tool vet 不再支持"></a>go tool vet 不再支持</h2><p><code>go vet</code>命令将不在支持，关于这部分功能迁移到了<code>analysis</code>工具中，更多详情查看包<a href="https://godoc.org/golang.org/x/tools/go/analysis">golang.org/x/tools/go/analysis</a>,使用方式有所改变，不能再使用<code>go tool vet</code>此命令，需要更改为<code>go vet</code>命令，使用<code>go vet</code>可以支持所以的版本。<br><code>-shadow</code>将不再可用，需要替换。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">go</span> get -u golang.org/x/tools/<span class="keyword">go</span>/analysis/passes/shadow/cmd/shadow</span><br><span class="line"><span class="keyword">go</span> vet -vettool=$(which shadow)</span><br></pre></td></tr></table></figure></p>
+<h2 id="Tour将不在默认安装"><a href="#Tour将不在默认安装" class="headerlink" title="Tour将不在默认安装"></a>Tour将不在默认安装</h2><p><code>Go Tour</code>不会包含再主要的包中，如果需要使用需要自行安装。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">go</span> get -u golang.org/x/tour</span><br><span class="line">tour</span><br></pre></td></tr></table></figure></p>
+<h2 id="Build-cache-要求"><a href="#Build-cache-要求" class="headerlink" title="Build cache 要求"></a>Build cache 要求</h2><p>如果设置了<code>GOCACHE=off</code>将导致<code>go</code>命令行写缓存失败。</p>
+<h2 id="二进制包"><a href="#二进制包" class="headerlink" title="二进制包"></a>二进制包</h2><p><code>Go 1.12</code>是最后一个支持二进制包的版本.</p>
+<h2 id="Cgo"><a href="#Cgo" class="headerlink" title="Cgo"></a>Cgo</h2><p><code>Go1.12</code>将<code>C</code>语言的<code>EGLDisplay</code>类型翻译为<code>go</code>的<code>uintptr</code>类型。更多信息请参考<a href="https://golang.org/cmd/cgo/#hdr-Special_cases">cgo 文档</a></p>
+<h1 id="核心库"><a href="#核心库" class="headerlink" title="核心库"></a>核心库</h1><h2 id="TLS1-3"><a href="#TLS1-3" class="headerlink" title="TLS1.3"></a>TLS1.3</h2><p><code>Go1.12</code>添加了对<code>TLS 1.3</code>的支持，可以通过设置环境变量<code>tls13=1GODEBUG</code>来启用，在<code>Go1.13</code>版本中将默认开启。</p>
+<h2 id="bufio"><a href="#bufio" class="headerlink" title="bufio"></a>bufio</h2><p>如果在调用完<code>Peek</code>方法之后调用<code>UnreadRune and UnreadByte</code>将会返回一个错误。</p>
+<h2 id="bytes"><a href="#bytes" class="headerlink" title="bytes"></a>bytes</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ReplaceAll</span><span class="params">(s, old, <span class="built_in">new</span> []<span class="keyword">byte</span>)</span> []<span class="title">byte</span></span></span><br></pre></td></tr></table></figure>
+<p>新函数<code>ReplaceAll</code>将返回一个字节切片的副本。<code>s</code>是原字节，<code>old</code>是匹配字节，<code>new</code>是替换为新的字符。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;bytes&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;%s\n&quot;</span>, bytes.ReplaceAll([]<span class="keyword">byte</span>(<span class="string">&quot;oink oink oink&quot;</span>), []<span class="keyword">byte</span>(<span class="string">&quot;oink&quot;</span>), []<span class="keyword">byte</span>(<span class="string">&quot;moo&quot;</span>)))</span><br><span class="line">	fmt.Printf(<span class="string">&quot;%s\n&quot;</span>,bytes.ReplaceAll([]<span class="keyword">byte</span>(<span class="string">&quot;this is a demo,place open the demo file&quot;</span>),[]<span class="keyword">byte</span>(<span class="string">&quot;demo&quot;</span>),[]<span class="keyword">byte</span>(<span class="string">&quot;test&quot;</span>)))</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//输出</span></span><br><span class="line">moo moo moo</span><br><span class="line">this is a test,place open the test file</span><br></pre></td></tr></table></figure></p>
+<h2 id="crypto-rand"><a href="#crypto-rand" class="headerlink" title="crypto/rand"></a>crypto/rand</h2><p><code>Reader.Read</code>如果超过60s还没有读取到熵，那么将会打印输出。</p>
+<h2 id="crypto-rc4"><a href="#crypto-rc4" class="headerlink" title="crypto/rc4"></a>crypto/rc4</h2><p>这个版本移除了其他版本的实现，只保留了<code>Go</code>版本。<br><code>RC4</code>是一种流<a href="https://zh.wikipedia.org/wiki/RC4">加密算法</a></p>
+<h2 id="crypto-tls"><a href="#crypto-tls" class="headerlink" title="crypto/tls"></a>crypto/tls</h2><p>如果客户端发送的初始消息看起来不像TLS，则服务器将不再使用警报进行回复,当TLS记录头无效时，返回<code>RecordHeaderError</code>.<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> RecordHeaderError <span class="keyword">struct</span> &#123;</span><br><span class="line">        <span class="comment">// Msg contains a human readable string that describes the error.</span></span><br><span class="line">        Msg <span class="keyword">string</span></span><br><span class="line">        <span class="comment">// RecordHeader contains the five bytes of TLS record header that</span></span><br><span class="line">        <span class="comment">// triggered the error.</span></span><br><span class="line">        RecordHeader [<span class="number">5</span>]<span class="keyword">byte</span></span><br><span class="line">        <span class="comment">// Conn provides the underlying net.Conn in the case that a client</span></span><br><span class="line">        <span class="comment">// sent an initial handshake that didn&#x27;t look like TLS.</span></span><br><span class="line">        <span class="comment">// It is nil if there&#x27;s already been a handshake or a TLS alert has</span></span><br><span class="line">        <span class="comment">// been written to the connection.</span></span><br><span class="line">        Conn net.Conn <span class="comment">// Go 1.12</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="database-sql"><a href="#database-sql" class="headerlink" title="database/sql"></a>database/sql</h2><p>现在可以通过将<code>*Rows</code>值传递给<code>Row.Scan</code>方法来获取查询光标.</p>
+<h2 id="expvar"><a href="#expvar" class="headerlink" title="expvar"></a>expvar</h2><p><code>Delete</code>方法运行删除一个<code>Map</code>类型的的<code>key</code>.<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(v *Map)</span> <span class="title">Delete</span><span class="params">(key <span class="keyword">string</span>)</span></span></span><br></pre></td></tr></table></figure></p>
+<h2 id="lib-time"><a href="#lib-time" class="headerlink" title="lib/time"></a>lib/time</h2><p>当操作系统未提供时区数据时，将会使用配置的<code>$GOROOT/lib/time/zoneinfo.zip</code>数据。</p>
+<h1 id="参考官方"><a href="#参考官方" class="headerlink" title="参考官方"></a>参考官方</h1><ul>
+<li><a href="https://golang.org/doc/go1.12">https://golang.org/doc/go1.12</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>golang</category>
+      </categories>
+      <tags>
+        <tag>golang</tag>
+        <tag>go1.12</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>渐进符号、替换、递归树、主方法</title>
+    <url>/2019/04/05/Introduction-to-Algorithms-lecture-2/</url>
+    <content><![CDATA[<p>这节课的主要知识就是讲诉了使用三种方法去求解递归式。</p>
+<h1 id="渐进记号"><a href="#渐进记号" class="headerlink" title="渐进记号"></a>渐进记号</h1><p>渐进记号主要有三种，具体定义参考课本。把渐进记号用来描述算法的运行时间。</p>
+<h2 id="Θ-记号-上界"><a href="#Θ-记号-上界" class="headerlink" title="Θ 记号(上界)"></a>Θ 记号(上界)</h2><p><code>f(n) = Θ(g(n))</code>使得存在正数常量<code>c1、c2、n0</code>,使得对所有 <code>n≥n0</code>,有<code>0≤c1g(n) ≤ f(n)≤ c2g(n)</code></p>
+<h2 id="Ω-记号（下界）"><a href="#Ω-记号（下界）" class="headerlink" title="Ω 记号（下界）"></a>Ω 记号（下界）</h2><p><code>f(n)=Ω(g(n))</code> 使得存在正数常量<code>c</code>和<code>n0</code>,使得对所有<code>n≥n0</code>有 <code>0 ≤ cg(n) ≤ f(n)</code>.</p>
+<h2 id="O-记号"><a href="#O-记号" class="headerlink" title="O 记号"></a>O 记号</h2><p><code>Θ</code>记号渐进的给出一个函数的上界和下界，当只有一个渐进上界时，使用<code>O</code>记号。<br><code>f(n) = O(g(n))</code> 使得存在正数常量<code>c,n0</code>，使得对所有<code>n≥n0</code>,有<code>0≤f(n)≤cg(n)</code></p>
+<h1 id="求解递归式"><a href="#求解递归式" class="headerlink" title="求解递归式"></a>求解递归式</h1><p>使用递归式来刻画分治算法的运行时间，如下三种方法便是学习如何求解递归式。<br>递归式如下：<br><img src="/2019/04/05/Introduction-to-Algorithms-lecture-2/1557153490587.jpg" alt="递归式"></p>
+<h2 id="替换法求解递归式"><a href="#替换法求解递归式" class="headerlink" title="替换法求解递归式"></a>替换法求解递归式</h2><p>代入法求解递归式分两步：<br>1、猜测解的形式。需要靠经验，或者借助递归树来得出好的猜测。<br>2、归纳验证，求解常量。</p>
+<h2 id="递归树求解递归式"><a href="#递归树求解递归式" class="headerlink" title="递归树求解递归式"></a>递归树求解递归式</h2><p>此方法参考课本内容。</p>
+<h2 id="主方法求解递归式"><a href="#主方法求解递归式" class="headerlink" title="主方法求解递归式"></a>主方法求解递归式</h2><p>主方法定义了一个通用的递归式求解方法，如下</p>
+<p><code>T(n) = aT(n/b) + f(n)</code></p>
+<p>含义：它将规模为<code>n</code>的问题分解为<code>a</code>个子问题，每个子问题规模为<code>n/b</code>，其中<code>a</code>和<code>b</code>都是正常数，<code>a</code>个子问题递归地进行求解，每个话费时间<code>T(n/b)</code>。函数<code>fn</code>包含了问题分解和子问题解合并的代价。</p>
+<p>主方法依赖下面的定理：令<code>a&gt;= 1</code>和<code>b&gt;1</code>是常数，<code>fn</code>是一个函数，<code>Tn</code>是定义在非负整数上的递归式：<br><code>T(n) = aT(n/b) + f(n)</code><br><code>Tn</code>有如下渐进界：</p>
+<ul>
+<li>1、若对某个常数<code>ε&gt;0</code>有<code>f(n)=O(nlogba–ε)</code>则<code>T(n) = Θ(nlogba) .</code></li>
+<li>2、若<code>f(n) = Θ(nlogba)</code>则<code>T(n) = Θ(nlogba lgk+1n) .</code></li>
+<li>3、若某个常数<code>ε&gt;0</code>有<code>f(n)=Ω(nlogba+ε)</code>且对某个常数<code>c&lt;1</code>和所有足够大的<code>n</code>有<code>af(n/b) &lt; cf(n)</code>,则<code>T(n) = Θ( f (n) )</code></li>
+</ul>
+<p>递归树的高度：<code>h = logbn</code><br>叶子结点个数：<code>l =  nlogba</code></p>
+]]></content>
+      <categories>
+        <category>Algorithms and Datastructure</category>
+      </categories>
+      <tags>
+        <tag>course 学习</tag>
+        <tag>Introduction to Algorithms</tag>
+        <tag>lecture2</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Inverted-index</title>
     <url>/2019/03/24/Inverted-index/</url>
     <content><![CDATA[<h1 id="倒排索引-Inverted-index"><a href="#倒排索引-Inverted-index" class="headerlink" title="倒排索引(Inverted index)"></a>倒排索引(Inverted index)</h1><p>文章写的有点粗糙，都是只描述了思想，没有去抠具体的细节部分，对这些项目的作者刚到敬仰，把一个理论上的技术用在工程上会遇到很多问题。如果文章中有不妥之处，欢迎去我的<code>github</code>提交 <a href="https://github.com/lengrongfu/lengrongfu.github.io/issues">issues</a>.</p>
@@ -1817,37 +1848,6 @@ MySQL服务初始化(仅适用5.7)</li>
         <tag>course 学习</tag>
         <tag>Introduction to Algorithms</tag>
         <tag>lecture1</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>渐进符号、替换、递归树、主方法</title>
-    <url>/2019/04/05/Introduction-to-Algorithms-lecture-2/</url>
-    <content><![CDATA[<p>这节课的主要知识就是讲诉了使用三种方法去求解递归式。</p>
-<h1 id="渐进记号"><a href="#渐进记号" class="headerlink" title="渐进记号"></a>渐进记号</h1><p>渐进记号主要有三种，具体定义参考课本。把渐进记号用来描述算法的运行时间。</p>
-<h2 id="Θ-记号-上界"><a href="#Θ-记号-上界" class="headerlink" title="Θ 记号(上界)"></a>Θ 记号(上界)</h2><p><code>f(n) = Θ(g(n))</code>使得存在正数常量<code>c1、c2、n0</code>,使得对所有 <code>n≥n0</code>,有<code>0≤c1g(n) ≤ f(n)≤ c2g(n)</code></p>
-<h2 id="Ω-记号（下界）"><a href="#Ω-记号（下界）" class="headerlink" title="Ω 记号（下界）"></a>Ω 记号（下界）</h2><p><code>f(n)=Ω(g(n))</code> 使得存在正数常量<code>c</code>和<code>n0</code>,使得对所有<code>n≥n0</code>有 <code>0 ≤ cg(n) ≤ f(n)</code>.</p>
-<h2 id="O-记号"><a href="#O-记号" class="headerlink" title="O 记号"></a>O 记号</h2><p><code>Θ</code>记号渐进的给出一个函数的上界和下界，当只有一个渐进上界时，使用<code>O</code>记号。<br><code>f(n) = O(g(n))</code> 使得存在正数常量<code>c,n0</code>，使得对所有<code>n≥n0</code>,有<code>0≤f(n)≤cg(n)</code></p>
-<h1 id="求解递归式"><a href="#求解递归式" class="headerlink" title="求解递归式"></a>求解递归式</h1><p>使用递归式来刻画分治算法的运行时间，如下三种方法便是学习如何求解递归式。<br>递归式如下：<br><img src="/2019/04/05/Introduction-to-Algorithms-lecture-2/1557153490587.jpg" alt="递归式"></p>
-<h2 id="替换法求解递归式"><a href="#替换法求解递归式" class="headerlink" title="替换法求解递归式"></a>替换法求解递归式</h2><p>代入法求解递归式分两步：<br>1、猜测解的形式。需要靠经验，或者借助递归树来得出好的猜测。<br>2、归纳验证，求解常量。</p>
-<h2 id="递归树求解递归式"><a href="#递归树求解递归式" class="headerlink" title="递归树求解递归式"></a>递归树求解递归式</h2><p>此方法参考课本内容。</p>
-<h2 id="主方法求解递归式"><a href="#主方法求解递归式" class="headerlink" title="主方法求解递归式"></a>主方法求解递归式</h2><p>主方法定义了一个通用的递归式求解方法，如下</p>
-<p><code>T(n) = aT(n/b) + f(n)</code></p>
-<p>含义：它将规模为<code>n</code>的问题分解为<code>a</code>个子问题，每个子问题规模为<code>n/b</code>，其中<code>a</code>和<code>b</code>都是正常数，<code>a</code>个子问题递归地进行求解，每个话费时间<code>T(n/b)</code>。函数<code>fn</code>包含了问题分解和子问题解合并的代价。</p>
-<p>主方法依赖下面的定理：令<code>a&gt;= 1</code>和<code>b&gt;1</code>是常数，<code>fn</code>是一个函数，<code>Tn</code>是定义在非负整数上的递归式：<br><code>T(n) = aT(n/b) + f(n)</code><br><code>Tn</code>有如下渐进界：</p>
-<ul>
-<li>1、若对某个常数<code>ε&gt;0</code>有<code>f(n)=O(nlogba–ε)</code>则<code>T(n) = Θ(nlogba) .</code></li>
-<li>2、若<code>f(n) = Θ(nlogba)</code>则<code>T(n) = Θ(nlogba lgk+1n) .</code></li>
-<li>3、若某个常数<code>ε&gt;0</code>有<code>f(n)=Ω(nlogba+ε)</code>且对某个常数<code>c&lt;1</code>和所有足够大的<code>n</code>有<code>af(n/b) &lt; cf(n)</code>,则<code>T(n) = Θ( f (n) )</code></li>
-</ul>
-<p>递归树的高度：<code>h = logbn</code><br>叶子结点个数：<code>l =  nlogba</code></p>
-]]></content>
-      <categories>
-        <category>Algorithms and Datastructure</category>
-      </categories>
-      <tags>
-        <tag>course 学习</tag>
-        <tag>Introduction to Algorithms</tag>
-        <tag>lecture2</tag>
       </tags>
   </entry>
   <entry>
@@ -2035,39 +2035,6 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
-    <title>Go 并发编程测试分析</title>
-    <url>/2019/06/14/Go%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E6%B5%8B%E8%AF%95%E5%88%86%E8%A7%A3/</url>
-    <content><![CDATA[<h1 id="Go-并发编程测试分析"><a href="#Go-并发编程测试分析" class="headerlink" title="Go 并发编程测试分析"></a>Go 并发编程测试分析</h1><p>本文是对<code>https://colobu.com/2019/04/28/go-concurrency-quizzes/</code>晁岳攀老师博客中提到的并发测试例子的讲解。</p>
-<p>我按问题类型来分类说明错误原因。</p>
-<h2 id="所以P中没有可以调度的G时就会出现死锁"><a href="#所以P中没有可以调度的G时就会出现死锁" class="headerlink" title="所以P中没有可以调度的G时就会出现死锁"></a>所以P中没有可以调度的G时就会出现死锁</h2><p>这个问题涉及到的题目为:<code>1、Mutex</code>，<code>2、RWMutex</code>.</p>
-<h3 id="1、Mutex"><a href="#1、Mutex" class="headerlink" title="1、Mutex"></a>1、Mutex</h3><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;sync&quot;</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">var</span> mu sync.Mutex</span><br><span class="line"><span class="keyword">var</span> chain <span class="keyword">string</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	chain = <span class="string">&quot;main&quot;</span></span><br><span class="line">	A()</span><br><span class="line">	fmt.Println(chain)</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">A</span><span class="params">()</span></span> &#123;</span><br><span class="line">	mu.Lock()</span><br><span class="line">	<span class="keyword">defer</span> mu.Unlock()</span><br><span class="line">	chain = chain + <span class="string">&quot; --&gt; A&quot;</span></span><br><span class="line">	B()</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">B</span><span class="params">()</span></span> &#123;</span><br><span class="line">	chain = chain + <span class="string">&quot; --&gt; B&quot;</span></span><br><span class="line">	C()</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">C</span><span class="params">()</span></span> &#123;</span><br><span class="line">	mu.Lock()</span><br><span class="line">	<span class="keyword">defer</span> mu.Unlock()</span><br><span class="line">	chain = chain + <span class="string">&quot; --&gt; C&quot;</span></span><br><span class="line">&#125;</span><br><span class="line">$ <span class="keyword">go</span> run main.<span class="keyword">go</span></span><br><span class="line">fatal error: all goroutines are asleep - deadlock!</span><br></pre></td></tr></table></figure>
-<p>这一题的问题是<code>runtime</code>中只有一个<code>G</code>，但是当运行到<code>A()</code>方法是以及加锁，后面的<code>C()</code>方法接着去加锁，就会出现拿不到锁，于是这个<code>G</code>的状态就变为不可运行，所以就出现了<code>deadlock!</code>.</p>
-<h3 id="2、RWMutex"><a href="#2、RWMutex" class="headerlink" title="2、RWMutex"></a>2、RWMutex</h3><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;sync&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">var</span> mu sync.RWMutex</span><br><span class="line"><span class="keyword">var</span> count <span class="keyword">int</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">go</span> A()</span><br><span class="line">	time.Sleep(<span class="number">2</span> * time.Second)</span><br><span class="line">	mu.Lock()</span><br><span class="line">	<span class="keyword">defer</span> mu.Unlock()</span><br><span class="line">	count++</span><br><span class="line">	fmt.Println(count)</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">A</span><span class="params">()</span></span> &#123;</span><br><span class="line">	mu.RLock()</span><br><span class="line">	<span class="keyword">defer</span> mu.RUnlock()</span><br><span class="line">	B()</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">B</span><span class="params">()</span></span> &#123;</span><br><span class="line">	time.Sleep(<span class="number">5</span> * time.Second)</span><br><span class="line">	C()</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">C</span><span class="params">()</span></span> &#123;</span><br><span class="line">	mu.RLock()</span><br><span class="line">	<span class="keyword">defer</span> mu.RUnlock()</span><br><span class="line">&#125;</span><br><span class="line">$ <span class="keyword">go</span> run main.<span class="keyword">go</span></span><br><span class="line">fatal error: all goroutines are asleep - deadlock!</span><br></pre></td></tr></table></figure>
-<p>这一题的原因也是一样的，<code>G</code>A休眠之后状态就会变为等待，此时,主<code>G</code>去那锁也没有那到，就会变为不可运行状态，并让出<code>cpu</code>,此时所有的<code>G</code>都不可运行就出现死锁了。</p>
-<h2 id="WaitGroup-使用问题"><a href="#WaitGroup-使用问题" class="headerlink" title="WaitGroup 使用问题"></a>WaitGroup 使用问题</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;sync&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> wg sync.WaitGroup</span><br><span class="line">	wg.Add(<span class="number">1</span>)</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		time.Sleep(time.Millisecond)</span><br><span class="line">		wg.Done()</span><br><span class="line">		wg.Add(<span class="number">1</span>)</span><br><span class="line">	&#125;()</span><br><span class="line">	wg.Wait()</span><br><span class="line">&#125;</span><br><span class="line">$ <span class="keyword">go</span> run main.<span class="keyword">go</span></span><br><span class="line"><span class="built_in">panic</span>: sync: WaitGroup is reused before previous Wait has returned</span><br></pre></td></tr></table></figure>
-<p>原因是多调用了一个<code>wg.Add(1)</code>。</p>
-<h2 id="4、双检查实现单例"><a href="#4、双检查实现单例" class="headerlink" title="4、双检查实现单例"></a>4、双检查实现单例</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> doublecheck</span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;sync&quot;</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">type</span> Once <span class="keyword">struct</span> &#123;</span><br><span class="line">	m    sync.Mutex</span><br><span class="line">	done <span class="keyword">uint32</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(o *Once)</span> <span class="title">Do</span><span class="params">(f <span class="keyword">func</span>()</span>)</span> &#123;</span><br><span class="line">	<span class="keyword">if</span> o.done == <span class="number">1</span> &#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	o.m.Lock()</span><br><span class="line">	<span class="keyword">defer</span> o.m.Unlock()</span><br><span class="line">	<span class="keyword">if</span> o.done == <span class="number">0</span> &#123;</span><br><span class="line">		o.done = <span class="number">1</span></span><br><span class="line">		f()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这一题争议最大，博主是想告诉我们类似于<code>Java</code>里面缓存变量的问题，我觉得这里是不会出现问题的，因为对象是指针调用；运行本身没有问题，但是会出现数据竞争。使用<code>go run -race main.go</code>运行就会发现有数据竞争。</p>
-<h2 id="5、同步对象使用后不能被拷贝"><a href="#5、同步对象使用后不能被拷贝" class="headerlink" title="5、同步对象使用后不能被拷贝"></a>5、同步对象使用后不能被拷贝</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;sync&quot;</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">type</span> MyMutex <span class="keyword">struct</span> &#123;</span><br><span class="line">	count <span class="keyword">int</span></span><br><span class="line">	sync.Mutex</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> mu MyMutex</span><br><span class="line">	mu.Lock()</span><br><span class="line">	<span class="keyword">var</span> mu2 = mu</span><br><span class="line">	mu.count++</span><br><span class="line">	mu.Unlock()</span><br><span class="line">	mu2.Lock()</span><br><span class="line">	mu2.count++</span><br><span class="line">	mu2.Unlock()</span><br><span class="line">	fmt.Println(mu.count, mu2.count)</span><br><span class="line">&#125;</span><br><span class="line">$ <span class="keyword">go</span> run main.<span class="keyword">go</span></span><br><span class="line">fatal error: all goroutines are asleep - deadlock!</span><br></pre></td></tr></table></figure>
-<p>这个原因就是同步对象使用过之后不能再被拷贝，如果上面把<code>mu.Lock()</code>和<code>var mu2 = mu</code>这两行进行交换一下就可以了。<br>使用过后不可以复制的对象有：<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// A Cond must not be copied after first use.</span></span><br><span class="line"><span class="keyword">type</span> Cond <span class="keyword">struct</span> </span><br><span class="line"><span class="comment">// A Map must not be copied after first use.</span></span><br><span class="line"><span class="keyword">type</span> Map <span class="keyword">struct</span></span><br><span class="line"><span class="comment">// A Mutex must not be copied after first use.</span></span><br><span class="line"><span class="keyword">type</span> Mutex <span class="keyword">struct</span></span><br><span class="line"><span class="comment">// A Pool must not be copied after first use.</span></span><br><span class="line"><span class="keyword">type</span> Pool <span class="keyword">struct</span></span><br><span class="line"><span class="comment">// A RWMutex must not be copied after first use.</span></span><br><span class="line"><span class="keyword">type</span> RWMutex <span class="keyword">struct</span></span><br><span class="line"><span class="comment">// A WaitGroup must not be copied after first use.</span></span><br><span class="line"><span class="keyword">type</span> WaitGroup <span class="keyword">struct</span></span><br></pre></td></tr></table></figure></p>
-<p><code>sync</code>包下的<code>struct</code>除了<code>Once</code>这个结构体其他的使用过后都不能被复制。不能被复制也包括函数传递参数，比如如下的使用是错误的:</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span></span>&#123;</span><br><span class="line">    <span class="keyword">var</span> wa sync.WaitGroup</span><br><span class="line">    <span class="keyword">for</span> i:=<span class="number">0</span> ;i &lt; <span class="number">10</span> ;i++ &#123;</span><br><span class="line">        wa.Add(<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">(wa sync.WaitGroup)</span></span>&#123;</span><br><span class="line">            fmt.Println(<span class="string">&quot;wa.Down()&quot;</span>)</span><br><span class="line">            wa.Down()</span><br><span class="line">        &#125;(wa)</span><br><span class="line">    &#125;</span><br><span class="line">    wa.Wait()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>上面的代码就有问题，首先<code>wa</code>对象以及使用了<code>wa.Add(1)</code>,后面开启一个<code>go</code>时确做参数传入，此时传入的是一个副本，就会出现不能正确的执行<code>wa.Down()</code>；此处可以修改为传递指针<code>go func(wa *sync.WaitGroup)</code>或者使用闭包的方式使用<code>WaitGroup</code>对象。</p>
-<h2 id="7、channel"><a href="#7、channel" class="headerlink" title="7、channel"></a>7、channel</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;runtime&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> ch <span class="keyword">chan</span> <span class="keyword">int</span></span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		ch = <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>, <span class="number">1</span>)</span><br><span class="line">		ch &lt;- <span class="number">1</span></span><br><span class="line">	&#125;()</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">(ch <span class="keyword">chan</span> <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">		time.Sleep(time.Second)</span><br><span class="line">		&lt;-ch</span><br><span class="line">	&#125;(ch)</span><br><span class="line">	c := time.Tick(<span class="number">1</span> * time.Second)</span><br><span class="line">	<span class="keyword">for</span> <span class="keyword">range</span> c &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;#goroutines: %d\n&quot;</span>, runtime.NumGoroutine())</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">$ <span class="keyword">go</span> run main.<span class="keyword">go</span></span><br><span class="line">#goroutines: <span class="number">2</span></span><br><span class="line">#goroutines: <span class="number">2</span></span><br><span class="line">#goroutines: <span class="number">2</span></span><br></pre></td></tr></table></figure>
-<p>这一题比较简单，但是我还是忽略了一个关键点，最后运行中有两个<code>g</code>，原因就是<code>time.Tick</code>其实是开启了一个<code>G</code>来计时的，然后通过<code>Channel</code>来通知。</p>
-<p>我们来看一下<code>time.Tick</code>里面的实现:<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line">time 包</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewTicker</span><span class="params">(d Duration)</span> *<span class="title">Ticker</span></span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    startTimer(&amp;t.r)<span class="comment">// 这个方法对应到runtime.startTimer()方法上</span></span><br><span class="line">&#125;</span><br><span class="line">runtime 包 </span><br><span class="line"><span class="comment">// startTimer adds t to the timer heap.</span></span><br><span class="line"><span class="comment">//go:linkname startTimer time.startTimer</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">startTimer</span><span class="params">(t *timer)</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> raceenabled &#123;</span><br><span class="line">		racerelease(unsafe.Pointer(t))</span><br><span class="line">	&#125;</span><br><span class="line">	addtimer(t)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//在addtimer()方法中启动了一个`G`。</span></span><br></pre></td></tr></table></figure></p>
-<h2 id="13、for-range-问题"><a href="#13、for-range-问题" class="headerlink" title="13、for range 问题"></a>13、for range 问题</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;sync&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">type</span> T <span class="keyword">struct</span> &#123;</span><br><span class="line">	V <span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *T)</span> <span class="title">Incr</span><span class="params">(wg *sync.WaitGroup)</span></span> &#123;</span><br><span class="line">	t.V++</span><br><span class="line">	wg.Done()</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *T)</span> <span class="title">Print</span><span class="params">()</span></span> &#123;</span><br><span class="line">	time.Sleep(<span class="number">1e9</span>)</span><br><span class="line">	fmt.Print(t.V)</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> wg sync.WaitGroup</span><br><span class="line">	wg.Add(<span class="number">10</span>)</span><br><span class="line">	<span class="keyword">var</span> ts = <span class="built_in">make</span>([]T, <span class="number">10</span>)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line">		ts[i] = T&#123;i&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span> _, t := <span class="keyword">range</span> ts &#123;</span><br><span class="line">		<span class="keyword">go</span> t.Incr(&amp;wg)</span><br><span class="line">	&#125;</span><br><span class="line">	wg.Wait()</span><br><span class="line">	<span class="keyword">for</span> _, t := <span class="keyword">range</span> ts &#123;</span><br><span class="line">		<span class="keyword">go</span> t.Print()</span><br><span class="line">	&#125;</span><br><span class="line">	time.Sleep(<span class="number">5</span> * time.Second)</span><br><span class="line">&#125;</span><br><span class="line">$ <span class="keyword">go</span> run main.<span class="keyword">go</span></span><br><span class="line"><span class="number">999999999</span></span><br></pre></td></tr></table></figure>
-<p>这一题可以是因为使用了<code>for range</code>的方式，这种方式中的<code>t</code>只是一个变量，会一直在边，当使用<code>go t.Incr()</code>的时候，此时的<code>t</code>已经变为了最后一个值，所以输出都是<code>9</code>，这个在使用<code>map</code>时也有这个问题，得到 的<code>k/v</code>只是值的一个拷贝。</p>
-]]></content>
-      <categories>
-        <category>golang</category>
-      </categories>
-      <tags>
-        <tag>编程题</tag>
-        <tag>并发学习</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Go sync package</title>
     <url>/2019/06/18/Go-sync-package/</url>
     <content><![CDATA[<h1 id="Go-sync-package"><a href="#Go-sync-package" class="headerlink" title="Go sync package"></a>Go sync package</h1><p><code>sync</code>包提供了基本的同步原语，比如同步锁，还有其他的<code>Once</code>和<code>WaitGroup</code>，大多数都用于低级别的库，高级别的同步控制最好用<code>channels</code>。</p>
@@ -2144,6 +2111,39 @@ MySQL服务初始化(仅适用5.7)</li>
       <tags>
         <tag>golang 源码</tag>
         <tag>并发学习</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Go 并发编程测试分析</title>
+    <url>/2019/06/14/Go%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E6%B5%8B%E8%AF%95%E5%88%86%E8%A7%A3/</url>
+    <content><![CDATA[<h1 id="Go-并发编程测试分析"><a href="#Go-并发编程测试分析" class="headerlink" title="Go 并发编程测试分析"></a>Go 并发编程测试分析</h1><p>本文是对<code>https://colobu.com/2019/04/28/go-concurrency-quizzes/</code>晁岳攀老师博客中提到的并发测试例子的讲解。</p>
+<p>我按问题类型来分类说明错误原因。</p>
+<h2 id="所以P中没有可以调度的G时就会出现死锁"><a href="#所以P中没有可以调度的G时就会出现死锁" class="headerlink" title="所以P中没有可以调度的G时就会出现死锁"></a>所以P中没有可以调度的G时就会出现死锁</h2><p>这个问题涉及到的题目为:<code>1、Mutex</code>，<code>2、RWMutex</code>.</p>
+<h3 id="1、Mutex"><a href="#1、Mutex" class="headerlink" title="1、Mutex"></a>1、Mutex</h3><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;sync&quot;</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">var</span> mu sync.Mutex</span><br><span class="line"><span class="keyword">var</span> chain <span class="keyword">string</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	chain = <span class="string">&quot;main&quot;</span></span><br><span class="line">	A()</span><br><span class="line">	fmt.Println(chain)</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">A</span><span class="params">()</span></span> &#123;</span><br><span class="line">	mu.Lock()</span><br><span class="line">	<span class="keyword">defer</span> mu.Unlock()</span><br><span class="line">	chain = chain + <span class="string">&quot; --&gt; A&quot;</span></span><br><span class="line">	B()</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">B</span><span class="params">()</span></span> &#123;</span><br><span class="line">	chain = chain + <span class="string">&quot; --&gt; B&quot;</span></span><br><span class="line">	C()</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">C</span><span class="params">()</span></span> &#123;</span><br><span class="line">	mu.Lock()</span><br><span class="line">	<span class="keyword">defer</span> mu.Unlock()</span><br><span class="line">	chain = chain + <span class="string">&quot; --&gt; C&quot;</span></span><br><span class="line">&#125;</span><br><span class="line">$ <span class="keyword">go</span> run main.<span class="keyword">go</span></span><br><span class="line">fatal error: all goroutines are asleep - deadlock!</span><br></pre></td></tr></table></figure>
+<p>这一题的问题是<code>runtime</code>中只有一个<code>G</code>，但是当运行到<code>A()</code>方法是以及加锁，后面的<code>C()</code>方法接着去加锁，就会出现拿不到锁，于是这个<code>G</code>的状态就变为不可运行，所以就出现了<code>deadlock!</code>.</p>
+<h3 id="2、RWMutex"><a href="#2、RWMutex" class="headerlink" title="2、RWMutex"></a>2、RWMutex</h3><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;sync&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">var</span> mu sync.RWMutex</span><br><span class="line"><span class="keyword">var</span> count <span class="keyword">int</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">go</span> A()</span><br><span class="line">	time.Sleep(<span class="number">2</span> * time.Second)</span><br><span class="line">	mu.Lock()</span><br><span class="line">	<span class="keyword">defer</span> mu.Unlock()</span><br><span class="line">	count++</span><br><span class="line">	fmt.Println(count)</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">A</span><span class="params">()</span></span> &#123;</span><br><span class="line">	mu.RLock()</span><br><span class="line">	<span class="keyword">defer</span> mu.RUnlock()</span><br><span class="line">	B()</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">B</span><span class="params">()</span></span> &#123;</span><br><span class="line">	time.Sleep(<span class="number">5</span> * time.Second)</span><br><span class="line">	C()</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">C</span><span class="params">()</span></span> &#123;</span><br><span class="line">	mu.RLock()</span><br><span class="line">	<span class="keyword">defer</span> mu.RUnlock()</span><br><span class="line">&#125;</span><br><span class="line">$ <span class="keyword">go</span> run main.<span class="keyword">go</span></span><br><span class="line">fatal error: all goroutines are asleep - deadlock!</span><br></pre></td></tr></table></figure>
+<p>这一题的原因也是一样的，<code>G</code>A休眠之后状态就会变为等待，此时,主<code>G</code>去那锁也没有那到，就会变为不可运行状态，并让出<code>cpu</code>,此时所有的<code>G</code>都不可运行就出现死锁了。</p>
+<h2 id="WaitGroup-使用问题"><a href="#WaitGroup-使用问题" class="headerlink" title="WaitGroup 使用问题"></a>WaitGroup 使用问题</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;sync&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> wg sync.WaitGroup</span><br><span class="line">	wg.Add(<span class="number">1</span>)</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		time.Sleep(time.Millisecond)</span><br><span class="line">		wg.Done()</span><br><span class="line">		wg.Add(<span class="number">1</span>)</span><br><span class="line">	&#125;()</span><br><span class="line">	wg.Wait()</span><br><span class="line">&#125;</span><br><span class="line">$ <span class="keyword">go</span> run main.<span class="keyword">go</span></span><br><span class="line"><span class="built_in">panic</span>: sync: WaitGroup is reused before previous Wait has returned</span><br></pre></td></tr></table></figure>
+<p>原因是多调用了一个<code>wg.Add(1)</code>。</p>
+<h2 id="4、双检查实现单例"><a href="#4、双检查实现单例" class="headerlink" title="4、双检查实现单例"></a>4、双检查实现单例</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> doublecheck</span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;sync&quot;</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">type</span> Once <span class="keyword">struct</span> &#123;</span><br><span class="line">	m    sync.Mutex</span><br><span class="line">	done <span class="keyword">uint32</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(o *Once)</span> <span class="title">Do</span><span class="params">(f <span class="keyword">func</span>()</span>)</span> &#123;</span><br><span class="line">	<span class="keyword">if</span> o.done == <span class="number">1</span> &#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	o.m.Lock()</span><br><span class="line">	<span class="keyword">defer</span> o.m.Unlock()</span><br><span class="line">	<span class="keyword">if</span> o.done == <span class="number">0</span> &#123;</span><br><span class="line">		o.done = <span class="number">1</span></span><br><span class="line">		f()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这一题争议最大，博主是想告诉我们类似于<code>Java</code>里面缓存变量的问题，我觉得这里是不会出现问题的，因为对象是指针调用；运行本身没有问题，但是会出现数据竞争。使用<code>go run -race main.go</code>运行就会发现有数据竞争。</p>
+<h2 id="5、同步对象使用后不能被拷贝"><a href="#5、同步对象使用后不能被拷贝" class="headerlink" title="5、同步对象使用后不能被拷贝"></a>5、同步对象使用后不能被拷贝</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;sync&quot;</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">type</span> MyMutex <span class="keyword">struct</span> &#123;</span><br><span class="line">	count <span class="keyword">int</span></span><br><span class="line">	sync.Mutex</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> mu MyMutex</span><br><span class="line">	mu.Lock()</span><br><span class="line">	<span class="keyword">var</span> mu2 = mu</span><br><span class="line">	mu.count++</span><br><span class="line">	mu.Unlock()</span><br><span class="line">	mu2.Lock()</span><br><span class="line">	mu2.count++</span><br><span class="line">	mu2.Unlock()</span><br><span class="line">	fmt.Println(mu.count, mu2.count)</span><br><span class="line">&#125;</span><br><span class="line">$ <span class="keyword">go</span> run main.<span class="keyword">go</span></span><br><span class="line">fatal error: all goroutines are asleep - deadlock!</span><br></pre></td></tr></table></figure>
+<p>这个原因就是同步对象使用过之后不能再被拷贝，如果上面把<code>mu.Lock()</code>和<code>var mu2 = mu</code>这两行进行交换一下就可以了。<br>使用过后不可以复制的对象有：<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// A Cond must not be copied after first use.</span></span><br><span class="line"><span class="keyword">type</span> Cond <span class="keyword">struct</span> </span><br><span class="line"><span class="comment">// A Map must not be copied after first use.</span></span><br><span class="line"><span class="keyword">type</span> Map <span class="keyword">struct</span></span><br><span class="line"><span class="comment">// A Mutex must not be copied after first use.</span></span><br><span class="line"><span class="keyword">type</span> Mutex <span class="keyword">struct</span></span><br><span class="line"><span class="comment">// A Pool must not be copied after first use.</span></span><br><span class="line"><span class="keyword">type</span> Pool <span class="keyword">struct</span></span><br><span class="line"><span class="comment">// A RWMutex must not be copied after first use.</span></span><br><span class="line"><span class="keyword">type</span> RWMutex <span class="keyword">struct</span></span><br><span class="line"><span class="comment">// A WaitGroup must not be copied after first use.</span></span><br><span class="line"><span class="keyword">type</span> WaitGroup <span class="keyword">struct</span></span><br></pre></td></tr></table></figure></p>
+<p><code>sync</code>包下的<code>struct</code>除了<code>Once</code>这个结构体其他的使用过后都不能被复制。不能被复制也包括函数传递参数，比如如下的使用是错误的:</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span></span>&#123;</span><br><span class="line">    <span class="keyword">var</span> wa sync.WaitGroup</span><br><span class="line">    <span class="keyword">for</span> i:=<span class="number">0</span> ;i &lt; <span class="number">10</span> ;i++ &#123;</span><br><span class="line">        wa.Add(<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">(wa sync.WaitGroup)</span></span>&#123;</span><br><span class="line">            fmt.Println(<span class="string">&quot;wa.Down()&quot;</span>)</span><br><span class="line">            wa.Down()</span><br><span class="line">        &#125;(wa)</span><br><span class="line">    &#125;</span><br><span class="line">    wa.Wait()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的代码就有问题，首先<code>wa</code>对象以及使用了<code>wa.Add(1)</code>,后面开启一个<code>go</code>时确做参数传入，此时传入的是一个副本，就会出现不能正确的执行<code>wa.Down()</code>；此处可以修改为传递指针<code>go func(wa *sync.WaitGroup)</code>或者使用闭包的方式使用<code>WaitGroup</code>对象。</p>
+<h2 id="7、channel"><a href="#7、channel" class="headerlink" title="7、channel"></a>7、channel</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;runtime&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> ch <span class="keyword">chan</span> <span class="keyword">int</span></span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		ch = <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>, <span class="number">1</span>)</span><br><span class="line">		ch &lt;- <span class="number">1</span></span><br><span class="line">	&#125;()</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">(ch <span class="keyword">chan</span> <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">		time.Sleep(time.Second)</span><br><span class="line">		&lt;-ch</span><br><span class="line">	&#125;(ch)</span><br><span class="line">	c := time.Tick(<span class="number">1</span> * time.Second)</span><br><span class="line">	<span class="keyword">for</span> <span class="keyword">range</span> c &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;#goroutines: %d\n&quot;</span>, runtime.NumGoroutine())</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">$ <span class="keyword">go</span> run main.<span class="keyword">go</span></span><br><span class="line">#goroutines: <span class="number">2</span></span><br><span class="line">#goroutines: <span class="number">2</span></span><br><span class="line">#goroutines: <span class="number">2</span></span><br></pre></td></tr></table></figure>
+<p>这一题比较简单，但是我还是忽略了一个关键点，最后运行中有两个<code>g</code>，原因就是<code>time.Tick</code>其实是开启了一个<code>G</code>来计时的，然后通过<code>Channel</code>来通知。</p>
+<p>我们来看一下<code>time.Tick</code>里面的实现:<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line">time 包</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewTicker</span><span class="params">(d Duration)</span> *<span class="title">Ticker</span></span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    startTimer(&amp;t.r)<span class="comment">// 这个方法对应到runtime.startTimer()方法上</span></span><br><span class="line">&#125;</span><br><span class="line">runtime 包 </span><br><span class="line"><span class="comment">// startTimer adds t to the timer heap.</span></span><br><span class="line"><span class="comment">//go:linkname startTimer time.startTimer</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">startTimer</span><span class="params">(t *timer)</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> raceenabled &#123;</span><br><span class="line">		racerelease(unsafe.Pointer(t))</span><br><span class="line">	&#125;</span><br><span class="line">	addtimer(t)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//在addtimer()方法中启动了一个`G`。</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="13、for-range-问题"><a href="#13、for-range-问题" class="headerlink" title="13、for range 问题"></a>13、for range 问题</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;sync&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">type</span> T <span class="keyword">struct</span> &#123;</span><br><span class="line">	V <span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *T)</span> <span class="title">Incr</span><span class="params">(wg *sync.WaitGroup)</span></span> &#123;</span><br><span class="line">	t.V++</span><br><span class="line">	wg.Done()</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *T)</span> <span class="title">Print</span><span class="params">()</span></span> &#123;</span><br><span class="line">	time.Sleep(<span class="number">1e9</span>)</span><br><span class="line">	fmt.Print(t.V)</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> wg sync.WaitGroup</span><br><span class="line">	wg.Add(<span class="number">10</span>)</span><br><span class="line">	<span class="keyword">var</span> ts = <span class="built_in">make</span>([]T, <span class="number">10</span>)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line">		ts[i] = T&#123;i&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span> _, t := <span class="keyword">range</span> ts &#123;</span><br><span class="line">		<span class="keyword">go</span> t.Incr(&amp;wg)</span><br><span class="line">	&#125;</span><br><span class="line">	wg.Wait()</span><br><span class="line">	<span class="keyword">for</span> _, t := <span class="keyword">range</span> ts &#123;</span><br><span class="line">		<span class="keyword">go</span> t.Print()</span><br><span class="line">	&#125;</span><br><span class="line">	time.Sleep(<span class="number">5</span> * time.Second)</span><br><span class="line">&#125;</span><br><span class="line">$ <span class="keyword">go</span> run main.<span class="keyword">go</span></span><br><span class="line"><span class="number">999999999</span></span><br></pre></td></tr></table></figure>
+<p>这一题可以是因为使用了<code>for range</code>的方式，这种方式中的<code>t</code>只是一个变量，会一直在边，当使用<code>go t.Incr()</code>的时候，此时的<code>t</code>已经变为了最后一个值，所以输出都是<code>9</code>，这个在使用<code>map</code>时也有这个问题，得到 的<code>k/v</code>只是值的一个拷贝。</p>
+]]></content>
+      <categories>
+        <category>golang</category>
+      </categories>
+      <tags>
+        <tag>并发学习</tag>
+        <tag>编程题</tag>
       </tags>
   </entry>
   <entry>
@@ -2273,7 +2273,7 @@ MySQL服务初始化(仅适用5.7)</li>
   <entry>
     <title>文章全平台发布</title>
     <url>/2021/05/12/%E6%96%87%E7%AB%A0%E5%85%A8%E5%B9%B3%E5%8F%B0%E5%8F%91%E5%B8%83/</url>
-    <content><![CDATA[<p>这篇文章主要是记录如何构建一个可以把文章发布到各平台的环境。<br><span id="more"></span></p>
+    <content><![CDATA[<p>这篇文章主要是记录如何构建一个可以把文章发布到各平台的环境。</p>
 <h3 id="平台"><a href="#平台" class="headerlink" title="平台"></a>平台</h3><p>之所以把文章发布到多平台有如下几点原因：</p>
 <ul>
 <li>扩大阅读的受众，让各个平台的用户都能共同学习，变得更好。</li>
