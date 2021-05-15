@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>读大数据时代</title>
+    <url>/2018/09/04/%E8%AF%BB%E5%A4%A7%E6%95%B0%E6%8D%AE%E6%97%B6%E4%BB%A3/</url>
+    <content><![CDATA[<!--
+
+-->
+]]></content>
+  </entry>
+  <entry>
     <title>搭建一个自己的blog</title>
     <url>/2018/09/03/%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84blog/</url>
     <content><![CDATA[<span id="more"></span>
@@ -45,14 +53,6 @@
         <tag>github-pages</tag>
         <tag>安装教程</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>读大数据时代</title>
-    <url>/2018/09/04/%E8%AF%BB%E5%A4%A7%E6%95%B0%E6%8D%AE%E6%97%B6%E4%BB%A3/</url>
-    <content><![CDATA[<!--
-
--->
-]]></content>
   </entry>
   <entry>
     <title>cloudera hadoop 安装</title>
@@ -110,6 +110,37 @@
       </tags>
   </entry>
   <entry>
+    <title>cloudera 问题解决</title>
+    <url>/2018/10/16/cloudera-problem/</url>
+    <content><![CDATA[<blockquote>
+<p>如下为记录<code>cloudera</code> 使用过程中的一些常见问题。</p>
+</blockquote>
+<h1 id="1、服务没有设置-opt这个挂载点"><a href="#1、服务没有设置-opt这个挂载点" class="headerlink" title="1、服务没有设置/opt这个挂载点"></a>1、服务没有设置<code>/opt</code>这个挂载点</h1><ul>
+<li><code>cloudera</code>所有的数据都是存储在<code>/opt</code>这个根目录下的，所以服务器在安装系统的时候最好让运维同事挂载一个大空间到这个目录下。</li>
+<li>如果安装的时候不知道，安装软件的时候可以选择存储空间,如果安装的时候也不知道，没有设置的话那就很悲催了。</li>
+<li>如果没有设置就回存到根目录的<code>/opt</code>下，这里面的存储空间一般都很小。说一下解决办法。<br>1、重装（我没这精力）<br>2、把<code>/opt</code>这个目录移动到一个大的挂载点上去，然后使用软连接，本人就是这么做的。</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 步骤</span></span><br><span class="line"><span class="meta">#</span><span class="bash">1、先停掉集群。</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv cloudera cloudera.bak</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv cloudera.bak /data/cloudera</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ln -sv /data/cloudera cloudera</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 经过上面的步骤之后再重启集群就可以了。</span></span><br></pre></td></tr></table></figure>
+<h1 id="2、Error-creating-LevelDB-timeseries-store-in-directory-var-lib-cloudera-service-monitor-ts"><a href="#2、Error-creating-LevelDB-timeseries-store-in-directory-var-lib-cloudera-service-monitor-ts" class="headerlink" title="2、Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts"></a>2、Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts</h1><blockquote>
+<p>具体现象如下，报找不到一个文件。解释一下出现这个问题的原因，还是由于根目录下的空间不够了，因此我移动了一个占有很<br>大空间的包，就是错误中的 <code>/var/lib/cloudera-service-monitor</code> 这个目录，然后通过软连接进行访问的。</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2018-10-16 16:24:25,993 INFO com.cloudera.cmon.firehose.Main: Cluster size: SMALL</span><br><span class="line">2018-10-16 16:24:26,056 INFO com.cloudera.cmon.tstore.leveldb.LDBResourceManager: Max file descriptors: 32768</span><br><span class="line">2018-10-16 16:24:26,057 INFO com.cloudera.cmon.tstore.leveldb.LDBResourceManager: Setting maximum open fds to: 768</span><br><span class="line">2018-10-16 16:24:26,181 ERROR com.cloudera.cmon.firehose.Main: Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts</span><br><span class="line">org.fusesource.leveldbjni.internal.NativeDB$DBException: Corruption: 3 missing files; e.g.: /data/lib/ts/ts_entity_metadata/000072.sst</span><br><span class="line">        at org.fusesource.leveldbjni.internal.NativeDB.checkStatus(NativeDB.java:194)</span><br><span class="line">        at org.fusesource.leveldbjni.internal.NativeDB.open(NativeDB.java:212)</span><br><span class="line">        at org.fusesource.leveldbjni.JniDBFactory.open(JniDBFactory.java:168)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBUtils.openVersionedDB(LDBUtils.java:264)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBUtils.openVersionedDB(LDBUtils.java:212)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBTimeSeriesMetadataStore.openMetadataDB(LDBTimeSeriesMetadataStore.java:148)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBTimeSeriesMetadataStore.&lt;init&gt;(LDBTimeSeriesMetadataStore.java:138)</span><br><span class="line">        at com.cloudera.cmon.firehose.Main.main(Main.java:453)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>说一下解决办法：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进行如下的操作，再重启就可以了。亲测可以</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv /var/lib/cloudera-service-monitor /var/lib/cloudera-service-monitor.moved</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv /var/lib/cloudera-host-monitor /var/lib/cloudera-host-monitor.moved</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>参考：<a href="https://community.cloudera.com/t5/Security-Apache-Sentry/Host-Monitor-and-Service-Monitor-is-not-starting-after/td-p/49207">https://community.cloudera.com/t5/Security-Apache-Sentry/Host-Monitor-and-Service-Monitor-is-not-starting-after/td-p/49207</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Hadoop</category>
+      </categories>
+      <tags>
+        <tag>cloudera</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Sqoop User Guide(Sqoop使用指南)</title>
     <url>/2018/09/11/Sqoop/</url>
     <content><![CDATA[<h1 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h1><blockquote>
@@ -152,37 +183,6 @@
       <tags>
         <tag>Sqoop</tag>
         <tag>Hadoop</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>cloudera 问题解决</title>
-    <url>/2018/10/16/cloudera-problem/</url>
-    <content><![CDATA[<blockquote>
-<p>如下为记录<code>cloudera</code> 使用过程中的一些常见问题。</p>
-</blockquote>
-<h1 id="1、服务没有设置-opt这个挂载点"><a href="#1、服务没有设置-opt这个挂载点" class="headerlink" title="1、服务没有设置/opt这个挂载点"></a>1、服务没有设置<code>/opt</code>这个挂载点</h1><ul>
-<li><code>cloudera</code>所有的数据都是存储在<code>/opt</code>这个根目录下的，所以服务器在安装系统的时候最好让运维同事挂载一个大空间到这个目录下。</li>
-<li>如果安装的时候不知道，安装软件的时候可以选择存储空间,如果安装的时候也不知道，没有设置的话那就很悲催了。</li>
-<li>如果没有设置就回存到根目录的<code>/opt</code>下，这里面的存储空间一般都很小。说一下解决办法。<br>1、重装（我没这精力）<br>2、把<code>/opt</code>这个目录移动到一个大的挂载点上去，然后使用软连接，本人就是这么做的。</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 步骤</span></span><br><span class="line"><span class="meta">#</span><span class="bash">1、先停掉集群。</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv cloudera cloudera.bak</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv cloudera.bak /data/cloudera</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ln -sv /data/cloudera cloudera</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 经过上面的步骤之后再重启集群就可以了。</span></span><br></pre></td></tr></table></figure>
-<h1 id="2、Error-creating-LevelDB-timeseries-store-in-directory-var-lib-cloudera-service-monitor-ts"><a href="#2、Error-creating-LevelDB-timeseries-store-in-directory-var-lib-cloudera-service-monitor-ts" class="headerlink" title="2、Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts"></a>2、Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts</h1><blockquote>
-<p>具体现象如下，报找不到一个文件。解释一下出现这个问题的原因，还是由于根目录下的空间不够了，因此我移动了一个占有很<br>大空间的包，就是错误中的 <code>/var/lib/cloudera-service-monitor</code> 这个目录，然后通过软连接进行访问的。</p>
-</blockquote>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2018-10-16 16:24:25,993 INFO com.cloudera.cmon.firehose.Main: Cluster size: SMALL</span><br><span class="line">2018-10-16 16:24:26,056 INFO com.cloudera.cmon.tstore.leveldb.LDBResourceManager: Max file descriptors: 32768</span><br><span class="line">2018-10-16 16:24:26,057 INFO com.cloudera.cmon.tstore.leveldb.LDBResourceManager: Setting maximum open fds to: 768</span><br><span class="line">2018-10-16 16:24:26,181 ERROR com.cloudera.cmon.firehose.Main: Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts</span><br><span class="line">org.fusesource.leveldbjni.internal.NativeDB$DBException: Corruption: 3 missing files; e.g.: /data/lib/ts/ts_entity_metadata/000072.sst</span><br><span class="line">        at org.fusesource.leveldbjni.internal.NativeDB.checkStatus(NativeDB.java:194)</span><br><span class="line">        at org.fusesource.leveldbjni.internal.NativeDB.open(NativeDB.java:212)</span><br><span class="line">        at org.fusesource.leveldbjni.JniDBFactory.open(JniDBFactory.java:168)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBUtils.openVersionedDB(LDBUtils.java:264)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBUtils.openVersionedDB(LDBUtils.java:212)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBTimeSeriesMetadataStore.openMetadataDB(LDBTimeSeriesMetadataStore.java:148)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBTimeSeriesMetadataStore.&lt;init&gt;(LDBTimeSeriesMetadataStore.java:138)</span><br><span class="line">        at com.cloudera.cmon.firehose.Main.main(Main.java:453)</span><br></pre></td></tr></table></figure>
-<ul>
-<li>说一下解决办法：</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进行如下的操作，再重启就可以了。亲测可以</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv /var/lib/cloudera-service-monitor /var/lib/cloudera-service-monitor.moved</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv /var/lib/cloudera-host-monitor /var/lib/cloudera-host-monitor.moved</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>参考：<a href="https://community.cloudera.com/t5/Security-Apache-Sentry/Host-Monitor-and-Service-Monitor-is-not-starting-after/td-p/49207">https://community.cloudera.com/t5/Security-Apache-Sentry/Host-Monitor-and-Service-Monitor-is-not-starting-after/td-p/49207</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Hadoop</category>
-      </categories>
-      <tags>
-        <tag>cloudera</tag>
       </tags>
   </entry>
   <entry>
@@ -918,6 +918,23 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
+    <title>es-xpack-machinelean</title>
+    <url>/2018/11/16/es-xpack-machinelean/</url>
+    <content><![CDATA[<ul>
+<li>加载数据到<code>Elasticsearch</code>中</li>
+<li>创建一个机器学习<code>job</code></li>
+<li>使用结果来识别数据中可能存储的异常</li>
+</ul>
+]]></content>
+      <categories>
+        <category>es</category>
+      </categories>
+      <tags>
+        <tag>xpack</tag>
+        <tag>machinelean</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>docker Compose 使用</title>
     <url>/2018/11/24/docker-Compose-user/</url>
     <content><![CDATA[<h1 id="Docker-Compose-是什么"><a href="#Docker-Compose-是什么" class="headerlink" title="Docker Compose 是什么"></a>Docker Compose 是什么</h1><blockquote>
@@ -1010,20 +1027,54 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
-    <title>es-xpack-machinelean</title>
-    <url>/2018/11/16/es-xpack-machinelean/</url>
-    <content><![CDATA[<ul>
-<li>加载数据到<code>Elasticsearch</code>中</li>
-<li>创建一个机器学习<code>job</code></li>
-<li>使用结果来识别数据中可能存储的异常</li>
+    <title>docker 多阶段构建</title>
+    <url>/2018/11/27/docker-multi-stage-builds/</url>
+    <content><![CDATA[<blockquote>
+<p><code>docker</code>多阶段构建出现主要是为了解决一些在容器中进行编译工作，然后运行时容器只需要编译时容器的结果，不需要整个编译环境被依赖，减少镜像的大小。<br>多阶段构建是从<code>docker</code>的<code>17.3</code>之后开始的，以前一个<code>Dockerfile</code>中只能有一个<code>FROM</code>指令，从多阶段构建出现之后就可以在一个<code>Dockerfile</code>中进行多个<code>FROM</code>的引用。</p>
+</blockquote>
+<h1 id="多阶段构建出现以前"><a href="#多阶段构建出现以前" class="headerlink" title="多阶段构建出现以前"></a>多阶段构建出现以前</h1><blockquote>
+<p>在多阶段构建出现以前，需要单独写一个<code>Dockerfile</code>出来进行构建，然后再写一个<code>Dockerfile</code>来做运行时的镜像，再通过写一个脚步来把两个镜像的结果拼接起来。</p>
+</blockquote>
+<ul>
+<li><p>vim Dockerfile.build</p>
+<figure class="highlight dockerfile"><table><tr><td class="code"><pre><span class="line"><span class="keyword">FROM</span> golang:<span class="number">1.7</span>.<span class="number">3</span></span><br><span class="line"><span class="keyword">WORKDIR</span><span class="bash"> /go/src/<span class="built_in">test</span>/multi-stage-demo</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> . .</span></span><br><span class="line"><span class="comment">#RUN cd /test/multi-stage-demo</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>vim Dockerfile.run</p>
+<figure class="highlight dockerfile"><table><tr><td class="code"><pre><span class="line"><span class="keyword">FROM</span> scratch</span><br><span class="line"><span class="comment"># 多个文件copy</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> main \</span></span><br><span class="line"><span class="bash">     config.json \</span></span><br><span class="line"><span class="bash">     /root/</span></span><br><span class="line"><span class="comment"># 暴露端口    </span></span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">80</span></span><br><span class="line"><span class="comment"># 运行</span></span><br><span class="line"><span class="keyword">ENTRYPOINT</span><span class="bash"> [ <span class="string">&quot;/root/main&quot;</span>,<span class="string">&quot;-conf=/root/config.json&quot;</span> ]</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>vim build.sh</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">! /bin/bash</span></span><br><span class="line">echo Building main:build</span><br><span class="line"><span class="meta">#</span><span class="bash"> 开始构建构建镜像</span></span><br><span class="line">docker build -t main:build -f Dockerfile.build .</span><br><span class="line"><span class="meta">#</span><span class="bash"> 创建构建容器，但是不运行，不能用run，run是包含了create和start两个命令</span></span><br><span class="line">docker container create --name extract main:build</span><br><span class="line"><span class="meta">#</span><span class="bash"> 复制容器中的两个文件</span></span><br><span class="line">docker container cp extract:/go/src/test/multi-stage-demo/main ./main</span><br><span class="line">docker container cp extract:/go/src/test/multi-stage-demo/config.json ./config-run.json</span><br><span class="line"><span class="meta">#</span><span class="bash"> 删除创建的容器</span></span><br><span class="line">docker container rm -f extract</span><br><span class="line"><span class="meta">#</span><span class="bash"> 删除构建镜像</span></span><br><span class="line">docker rmi main:build</span><br><span class="line">echo Building main:latest</span><br><span class="line"><span class="meta">#</span><span class="bash"> 开始构建运行时镜像</span></span><br><span class="line">docker build --no-cache -t main:latest .</span><br><span class="line"><span class="meta">#</span><span class="bash"> 删除拷贝到本地的文件</span></span><br><span class="line">rm ./main ./config-run.json</span><br><span class="line">echo Building Success.</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>通过上面的三个步骤就可以进行自动化的构建和打包运行时，但是这样比较麻烦，需要写<code>Dockerfile.build</code>和<code>Dockerfile.run</code>两个<code>Dockerfile</code>文件，还需要写一个构建脚本<code>build.sh</code>,最后通过运行脚本来打包镜像，这样比较麻烦，每个项目都需要维护多个文件。</p>
+<h1 id="多阶段构建出现以后"><a href="#多阶段构建出现以后" class="headerlink" title="多阶段构建出现以后"></a>多阶段构建出现以后</h1><blockquote>
+<p>使用多阶段构建如上的步骤就非常简单</p>
+<ul>
+<li>vim Dockerfile<figure class="highlight dockerfile"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 第一步，构建</span></span><br><span class="line"><span class="keyword">FROM</span> golang:<span class="number">1.7</span>.<span class="number">3</span> as build</span><br><span class="line"><span class="keyword">WORKDIR</span><span class="bash"> /go/src/<span class="built_in">test</span>/multi-stage-demo</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> . .</span></span><br><span class="line"><span class="comment">#RUN cd /test/multi-stage-demo</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .</span></span><br><span class="line"><span class="comment"># 第二部，运行</span></span><br><span class="line"><span class="keyword">FROM</span> scratch</span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> --from=build /go/src/<span class="built_in">test</span>/multi-stage-demo/main \</span></span><br><span class="line"><span class="bash">                 /go/src/<span class="built_in">test</span>/multi-stage-demo/config.json \</span></span><br><span class="line"><span class="bash">                 /go/src/<span class="built_in">test</span>/multi-stage-demo/docker-entrypoint.sh \</span></span><br><span class="line"><span class="bash">                /root/</span></span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">80</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">ENTRYPOINT</span><span class="bash"> [ <span class="string">&quot;/root/main&quot;</span>,<span class="string">&quot;-conf=/root/config.json&quot;</span> ]</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</blockquote>
+<p>上面主要是第二步比较陌生，<code>COPY</code>命令中的<code>--from=build</code>是指从构建阶段中复制文件。而不是当前的上下文中，所以复制的路径需要指定为第一个阶段构建结果存储的路径。<code>--from=0</code>也可以这样写，这样就不需要给第一步一个别名，直接这样写就行了，<code>FROM golang:1.7.3</code>。其他的都是和正常的<code>Dockerfile</code>没有区别的。</p>
+<p>通过<code>docker build -t main .</code>就可以进行如上的打包。</p>
+<h1 id="golang-项目中多阶段构建依赖问题"><a href="#golang-项目中多阶段构建依赖问题" class="headerlink" title="golang 项目中多阶段构建依赖问题"></a>golang 项目中多阶段构建依赖问题</h1><p><code>Golang</code>项目如果没有使用<code>vender</code>进行管理的话，使用多阶段构建就会出现问题，前提是有依赖其他第三方包，因为在<code>Copy</code>的时候只会把当前项目下的文件复制进构建容器中，而复制不到项目之外的文件，打包的时候就会因为找不到依赖包而打包不成功，比如一个项目使用了<code>uber</code>的日志包<code>&quot;go.uber.org/zap&quot;</code>,但是打包的时候会因为找不到依赖包构建不通过。不建议在构建时再去拉取这些依赖包，这样可能会出现开发和生产上使用的依赖包代码不一致的问题。<br>针对上述问题目前我想到的两个办法时：</p>
+<ul>
+<li>1、修改构建的上下文，改为<code>src</code>,把<code>Golang</code>的本地的<code>src</code>都复制进容器中去构建，这样能通过，但是只能用于个人，公司项目一般都是有单独的服务器进行构建。这样可能会比较大。</li>
+<li>2、使用<code>dep</code>管理，就是<code>Golang</code>的包管理工具，把依赖包都集成到项目的<code>vender</code>中来，这样打包的时候就能找到依赖包。我认为这样时比较好的办法，而且对开发也方便，便于依赖包的统一管理。</li>
+</ul>
+<h1 id="多阶段构建适用的场景"><a href="#多阶段构建适用的场景" class="headerlink" title="多阶段构建适用的场景"></a>多阶段构建适用的场景</h1><p>一般只有需要依赖有单独的编译环境的项目使用多阶段构建才比较适合，比如前端的项目，需要使用<code>node</code>进行编译，这样就可以写一个编译容器出来进行单独的编译。</p>
+<p><code>Golang</code>和<code>Docker</code>集成工具 <a href="https://github.com/drone/drone">drone</a>.</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li>项目源码路径：<a href="https://github.com/lengrongfu/multi-stage-demo/tree/master">https://github.com/lengrongfu/multi-stage-demo/tree/master</a></li>
+<li>use-multi-stage-builds：<a href="https://docs.docker.com/develop/develop-images/multistage-build/#use-multi-stage-builds">https://docs.docker.com/develop/develop-images/multistage-build/#use-multi-stage-builds</a></li>
 </ul>
 ]]></content>
       <categories>
-        <category>es</category>
+        <category>学习</category>
       </categories>
       <tags>
-        <tag>xpack</tag>
-        <tag>machinelean</tag>
+        <tag>docker</tag>
+        <tag>multi-stage builds</tag>
+        <tag>减小镜像</tag>
       </tags>
   </entry>
   <entry>
@@ -1077,54 +1128,19 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
-    <title>docker 多阶段构建</title>
-    <url>/2018/11/27/docker-multi-stage-builds/</url>
-    <content><![CDATA[<blockquote>
-<p><code>docker</code>多阶段构建出现主要是为了解决一些在容器中进行编译工作，然后运行时容器只需要编译时容器的结果，不需要整个编译环境被依赖，减少镜像的大小。<br>多阶段构建是从<code>docker</code>的<code>17.3</code>之后开始的，以前一个<code>Dockerfile</code>中只能有一个<code>FROM</code>指令，从多阶段构建出现之后就可以在一个<code>Dockerfile</code>中进行多个<code>FROM</code>的引用。</p>
-</blockquote>
-<h1 id="多阶段构建出现以前"><a href="#多阶段构建出现以前" class="headerlink" title="多阶段构建出现以前"></a>多阶段构建出现以前</h1><blockquote>
-<p>在多阶段构建出现以前，需要单独写一个<code>Dockerfile</code>出来进行构建，然后再写一个<code>Dockerfile</code>来做运行时的镜像，再通过写一个脚步来把两个镜像的结果拼接起来。</p>
-</blockquote>
-<ul>
-<li><p>vim Dockerfile.build</p>
-<figure class="highlight dockerfile"><table><tr><td class="code"><pre><span class="line"><span class="keyword">FROM</span> golang:<span class="number">1.7</span>.<span class="number">3</span></span><br><span class="line"><span class="keyword">WORKDIR</span><span class="bash"> /go/src/<span class="built_in">test</span>/multi-stage-demo</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> . .</span></span><br><span class="line"><span class="comment">#RUN cd /test/multi-stage-demo</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>vim Dockerfile.run</p>
-<figure class="highlight dockerfile"><table><tr><td class="code"><pre><span class="line"><span class="keyword">FROM</span> scratch</span><br><span class="line"><span class="comment"># 多个文件copy</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> main \</span></span><br><span class="line"><span class="bash">     config.json \</span></span><br><span class="line"><span class="bash">     /root/</span></span><br><span class="line"><span class="comment"># 暴露端口    </span></span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">80</span></span><br><span class="line"><span class="comment"># 运行</span></span><br><span class="line"><span class="keyword">ENTRYPOINT</span><span class="bash"> [ <span class="string">&quot;/root/main&quot;</span>,<span class="string">&quot;-conf=/root/config.json&quot;</span> ]</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>vim build.sh</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">! /bin/bash</span></span><br><span class="line">echo Building main:build</span><br><span class="line"><span class="meta">#</span><span class="bash"> 开始构建构建镜像</span></span><br><span class="line">docker build -t main:build -f Dockerfile.build .</span><br><span class="line"><span class="meta">#</span><span class="bash"> 创建构建容器，但是不运行，不能用run，run是包含了create和start两个命令</span></span><br><span class="line">docker container create --name extract main:build</span><br><span class="line"><span class="meta">#</span><span class="bash"> 复制容器中的两个文件</span></span><br><span class="line">docker container cp extract:/go/src/test/multi-stage-demo/main ./main</span><br><span class="line">docker container cp extract:/go/src/test/multi-stage-demo/config.json ./config-run.json</span><br><span class="line"><span class="meta">#</span><span class="bash"> 删除创建的容器</span></span><br><span class="line">docker container rm -f extract</span><br><span class="line"><span class="meta">#</span><span class="bash"> 删除构建镜像</span></span><br><span class="line">docker rmi main:build</span><br><span class="line">echo Building main:latest</span><br><span class="line"><span class="meta">#</span><span class="bash"> 开始构建运行时镜像</span></span><br><span class="line">docker build --no-cache -t main:latest .</span><br><span class="line"><span class="meta">#</span><span class="bash"> 删除拷贝到本地的文件</span></span><br><span class="line">rm ./main ./config-run.json</span><br><span class="line">echo Building Success.</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>通过上面的三个步骤就可以进行自动化的构建和打包运行时，但是这样比较麻烦，需要写<code>Dockerfile.build</code>和<code>Dockerfile.run</code>两个<code>Dockerfile</code>文件，还需要写一个构建脚本<code>build.sh</code>,最后通过运行脚本来打包镜像，这样比较麻烦，每个项目都需要维护多个文件。</p>
-<h1 id="多阶段构建出现以后"><a href="#多阶段构建出现以后" class="headerlink" title="多阶段构建出现以后"></a>多阶段构建出现以后</h1><blockquote>
-<p>使用多阶段构建如上的步骤就非常简单</p>
-<ul>
-<li>vim Dockerfile<figure class="highlight dockerfile"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 第一步，构建</span></span><br><span class="line"><span class="keyword">FROM</span> golang:<span class="number">1.7</span>.<span class="number">3</span> as build</span><br><span class="line"><span class="keyword">WORKDIR</span><span class="bash"> /go/src/<span class="built_in">test</span>/multi-stage-demo</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> . .</span></span><br><span class="line"><span class="comment">#RUN cd /test/multi-stage-demo</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .</span></span><br><span class="line"><span class="comment"># 第二部，运行</span></span><br><span class="line"><span class="keyword">FROM</span> scratch</span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> --from=build /go/src/<span class="built_in">test</span>/multi-stage-demo/main \</span></span><br><span class="line"><span class="bash">                 /go/src/<span class="built_in">test</span>/multi-stage-demo/config.json \</span></span><br><span class="line"><span class="bash">                 /go/src/<span class="built_in">test</span>/multi-stage-demo/docker-entrypoint.sh \</span></span><br><span class="line"><span class="bash">                /root/</span></span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">80</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">ENTRYPOINT</span><span class="bash"> [ <span class="string">&quot;/root/main&quot;</span>,<span class="string">&quot;-conf=/root/config.json&quot;</span> ]</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</blockquote>
-<p>上面主要是第二步比较陌生，<code>COPY</code>命令中的<code>--from=build</code>是指从构建阶段中复制文件。而不是当前的上下文中，所以复制的路径需要指定为第一个阶段构建结果存储的路径。<code>--from=0</code>也可以这样写，这样就不需要给第一步一个别名，直接这样写就行了，<code>FROM golang:1.7.3</code>。其他的都是和正常的<code>Dockerfile</code>没有区别的。</p>
-<p>通过<code>docker build -t main .</code>就可以进行如上的打包。</p>
-<h1 id="golang-项目中多阶段构建依赖问题"><a href="#golang-项目中多阶段构建依赖问题" class="headerlink" title="golang 项目中多阶段构建依赖问题"></a>golang 项目中多阶段构建依赖问题</h1><p><code>Golang</code>项目如果没有使用<code>vender</code>进行管理的话，使用多阶段构建就会出现问题，前提是有依赖其他第三方包，因为在<code>Copy</code>的时候只会把当前项目下的文件复制进构建容器中，而复制不到项目之外的文件，打包的时候就会因为找不到依赖包而打包不成功，比如一个项目使用了<code>uber</code>的日志包<code>&quot;go.uber.org/zap&quot;</code>,但是打包的时候会因为找不到依赖包构建不通过。不建议在构建时再去拉取这些依赖包，这样可能会出现开发和生产上使用的依赖包代码不一致的问题。<br>针对上述问题目前我想到的两个办法时：</p>
-<ul>
-<li>1、修改构建的上下文，改为<code>src</code>,把<code>Golang</code>的本地的<code>src</code>都复制进容器中去构建，这样能通过，但是只能用于个人，公司项目一般都是有单独的服务器进行构建。这样可能会比较大。</li>
-<li>2、使用<code>dep</code>管理，就是<code>Golang</code>的包管理工具，把依赖包都集成到项目的<code>vender</code>中来，这样打包的时候就能找到依赖包。我认为这样时比较好的办法，而且对开发也方便，便于依赖包的统一管理。</li>
-</ul>
-<h1 id="多阶段构建适用的场景"><a href="#多阶段构建适用的场景" class="headerlink" title="多阶段构建适用的场景"></a>多阶段构建适用的场景</h1><p>一般只有需要依赖有单独的编译环境的项目使用多阶段构建才比较适合，比如前端的项目，需要使用<code>node</code>进行编译，这样就可以写一个编译容器出来进行单独的编译。</p>
-<p><code>Golang</code>和<code>Docker</code>集成工具 <a href="https://github.com/drone/drone">drone</a>.</p>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
-<li>项目源码路径：<a href="https://github.com/lengrongfu/multi-stage-demo/tree/master">https://github.com/lengrongfu/multi-stage-demo/tree/master</a></li>
-<li>use-multi-stage-builds：<a href="https://docs.docker.com/develop/develop-images/multistage-build/#use-multi-stage-builds">https://docs.docker.com/develop/develop-images/multistage-build/#use-multi-stage-builds</a></li>
-</ul>
-]]></content>
+    <title>Kubernetes 入门学习</title>
+    <url>/2018/12/12/Kubernetes-Setup/</url>
+    <content><![CDATA[<h1 id="Kubernetes创建一个集群"><a href="#Kubernetes创建一个集群" class="headerlink" title="Kubernetes创建一个集群"></a>Kubernetes创建一个集群</h1><h3 id="Kubernetes-集群"><a href="#Kubernetes-集群" class="headerlink" title="Kubernetes 集群"></a>Kubernetes 集群</h3><p><code>Kubernetes</code>是一个计算机资源的协调器，将这些计算机连接起来作为一个工作单元。<code>Kubernetes</code>以更有效的方式自动化跨集群分发和调度应用程序容器。<code>Kubernetes</code>主要由两部分组成，<code>Master</code>协调集群，<code>Nodes</code>是应用程序的工作节点。</p>
+<p><img src="/2018/12/12/Kubernetes-Setup/module_01_cluster.svg" alt="module_01_cluster"></p>
+<p><code>Master</code>是负责管理集群的，<code>Noes</code>是虚拟机或者是物理机，用作<code>Kubernetes</code>中的工作节点。每一个<code>Node</code>节点都有一个<code>Kubelet</code>。<br><code>Minikube</code>是一种轻量级<code>Kubernetes</code>实现，可在本地计算机上创建VM并部署仅包含一个节点的简单集群.可以在<code>Linux</code>或者<code>Macos</code>上通过<a href="https://kubernetes.io/docs/tasks/tools/install-minikube/">Minikube</a>部署一个只有单节点的<code>k8s</code>集群。</p>
+<h3 id="使用minikube创建一个k8s集群"><a href="#使用minikube创建一个k8s集群" class="headerlink" title="使用minikube创建一个k8s集群"></a>使用minikube创建一个k8s集群</h3><p>1、先查看本地是否安装<code>minikube</code>,执行命令:<code>minikube version</code>,如果本地安装就能看到结果。<br>2、启动集群，使用命令<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 执行启动之后就能看到如下的日志</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> minikube start</span></span><br><span class="line">Starting local Kubernetes v1.10.0 cluster...</span><br><span class="line">Starting VM...</span><br><span class="line">Getting VM IP address...</span><br><span class="line">Moving files into cluster...</span><br><span class="line">Setting up certs...</span><br><span class="line">Connecting to cluster...</span><br><span class="line">Setting up kubeconfig...</span><br><span class="line">Starting cluster components...</span><br><span class="line">Kubectl is now configured to use the cluster.</span><br><span class="line">Loading cached images from config file.</span><br></pre></td></tr></table></figure><br>3、查看启动的<code>k8s</code>集群：<code>kubectl version</code>,执行这条命令之后会看到客户端和服务端的版本，客户端版本是<code>kubectl</code>的，服务端版本是<code>Kubernetes</code>的版本，<br>4、查看集群详细信息：<code>kubectl cluster-info</code><br>5、查看拥有节点：<code>kubectl get nodes</code>，即可得出所有的可用节点，状态为<code>Ready</code>,标示已经准备好可以处理应用。</p>
+<h1 id="使用kubectl去部署一个应用"><a href="#使用kubectl去部署一个应用" class="headerlink" title="使用kubectl去部署一个应用"></a>使用kubectl去部署一个应用</h1>]]></content>
       <categories>
         <category>学习</category>
       </categories>
       <tags>
-        <tag>docker</tag>
-        <tag>multi-stage builds</tag>
-        <tag>减小镜像</tag>
+        <tag>Kubernetes</tag>
+        <tag>云计算</tag>
       </tags>
   </entry>
   <entry>
@@ -1142,22 +1158,6 @@ MySQL服务初始化(仅适用5.7)</li>
         <tag>Container Networking</tag>
         <tag>CNM</tag>
         <tag>CNI</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Kubernetes 入门学习</title>
-    <url>/2018/12/12/Kubernetes-Setup/</url>
-    <content><![CDATA[<h1 id="Kubernetes创建一个集群"><a href="#Kubernetes创建一个集群" class="headerlink" title="Kubernetes创建一个集群"></a>Kubernetes创建一个集群</h1><h3 id="Kubernetes-集群"><a href="#Kubernetes-集群" class="headerlink" title="Kubernetes 集群"></a>Kubernetes 集群</h3><p><code>Kubernetes</code>是一个计算机资源的协调器，将这些计算机连接起来作为一个工作单元。<code>Kubernetes</code>以更有效的方式自动化跨集群分发和调度应用程序容器。<code>Kubernetes</code>主要由两部分组成，<code>Master</code>协调集群，<code>Nodes</code>是应用程序的工作节点。</p>
-<p><img src="/2018/12/12/Kubernetes-Setup/module_01_cluster.svg" alt="module_01_cluster"></p>
-<p><code>Master</code>是负责管理集群的，<code>Noes</code>是虚拟机或者是物理机，用作<code>Kubernetes</code>中的工作节点。每一个<code>Node</code>节点都有一个<code>Kubelet</code>。<br><code>Minikube</code>是一种轻量级<code>Kubernetes</code>实现，可在本地计算机上创建VM并部署仅包含一个节点的简单集群.可以在<code>Linux</code>或者<code>Macos</code>上通过<a href="https://kubernetes.io/docs/tasks/tools/install-minikube/">Minikube</a>部署一个只有单节点的<code>k8s</code>集群。</p>
-<h3 id="使用minikube创建一个k8s集群"><a href="#使用minikube创建一个k8s集群" class="headerlink" title="使用minikube创建一个k8s集群"></a>使用minikube创建一个k8s集群</h3><p>1、先查看本地是否安装<code>minikube</code>,执行命令:<code>minikube version</code>,如果本地安装就能看到结果。<br>2、启动集群，使用命令<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 执行启动之后就能看到如下的日志</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> minikube start</span></span><br><span class="line">Starting local Kubernetes v1.10.0 cluster...</span><br><span class="line">Starting VM...</span><br><span class="line">Getting VM IP address...</span><br><span class="line">Moving files into cluster...</span><br><span class="line">Setting up certs...</span><br><span class="line">Connecting to cluster...</span><br><span class="line">Setting up kubeconfig...</span><br><span class="line">Starting cluster components...</span><br><span class="line">Kubectl is now configured to use the cluster.</span><br><span class="line">Loading cached images from config file.</span><br></pre></td></tr></table></figure><br>3、查看启动的<code>k8s</code>集群：<code>kubectl version</code>,执行这条命令之后会看到客户端和服务端的版本，客户端版本是<code>kubectl</code>的，服务端版本是<code>Kubernetes</code>的版本，<br>4、查看集群详细信息：<code>kubectl cluster-info</code><br>5、查看拥有节点：<code>kubectl get nodes</code>，即可得出所有的可用节点，状态为<code>Ready</code>,标示已经准备好可以处理应用。</p>
-<h1 id="使用kubectl去部署一个应用"><a href="#使用kubectl去部署一个应用" class="headerlink" title="使用kubectl去部署一个应用"></a>使用kubectl去部署一个应用</h1>]]></content>
-      <categories>
-        <category>学习</category>
-      </categories>
-      <tags>
-        <tag>Kubernetes</tag>
-        <tag>云计算</tag>
       </tags>
   </entry>
   <entry>
@@ -1282,6 +1282,35 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
+    <title>ES cluster reroute</title>
+    <url>/2019/01/24/es-cluster-reroute/</url>
+    <content><![CDATA[<blockquote>
+<p><code>ES</code>集群重新路由命令可以显示的执行包括特定命令的集群重新路由分配命令。例如，可以显示地将分片从一个节点移动到另一个节点，可以取消分配。</p>
+</blockquote>
+<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><h2 id="支持的命令如下"><a href="#支持的命令如下" class="headerlink" title="支持的命令如下"></a>支持的命令如下</h2><ul>
+<li><code>move</code><br>  将现有的分片迁移到其他节点。接受 <code>index</code>和<code>shard</code>索引名称和分片编号，<code>from_node</code>节点移动分片<code>from</code>，以及<code>to_node</code>节点将分片移动到。</li>
+<li><code>cancel</code><br>  取消分享碎片（或恢复）。接受<code>index</code>和<code>shard</code>索引名称和分片编号，以及<code>node</code>取消分片分配的节点。它还接受<code>allow_primary</code>标志以明确指定允许取消主分片的分配。这可以用于强制从主分片重新同步现有副本，方法是取消它们并允许它们通过标准重新分配过程重新初始化。</li>
+<li><p><code>allocate_replica</code><br>  将未分配的副本分片分配给节点。接受<code>index</code>和<code>shard</code>索引名称和分片编号，并将分片分配给<code>node</code>。</p>
+<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2></li>
+<li><p><code>move</code><br>  主要是想要手动控制分片分配到某台固定的机器上。把<code>node_1</code>上的<code>index_name</code>移动到<code>node_2</code>节点上，可能会有各种原因需要进行迁移，比如<code>node_1</code>机器的磁盘不够了或者是其他原因等。</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST _cluster/reroute</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;commands&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;move&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;index&quot;</span>: <span class="string">&quot;index_name&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;shard&quot;</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="attr">&quot;from_node&quot;</span>: <span class="string">&quot;node_1&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;to_node&quot;</span>: <span class="string">&quot;node_2&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>cancel</code><br>  主要是把移动中的分片取消，这个是因为其他原因导致分片重新分配了，但是又不想让它重新分配，所以只能取消分片分配的过程。如下是<code>node_1</code>这台机器上的<code>index_name</code>的分片号<code>0</code>进行了移动，所以取消它。</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST _cluster/reroute</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;commands&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;cancel&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;index&quot;</span>: <span class="string">&quot;index_name&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;shard&quot;</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="attr">&quot;node&quot;</span>: <span class="string">&quot;node_1&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><ul>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.4/cluster-reroute.html">https://www.elastic.co/guide/en/elasticsearch/reference/5.4/cluster-reroute.html</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>es</category>
+      </categories>
+      <tags>
+        <tag>es cluster manage</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>18年的回顾,19年的展望</title>
     <url>/2019/01/04/2018-2019/</url>
     <content><![CDATA[<h1 id="18年的计划"><a href="#18年的计划" class="headerlink" title="18年的计划"></a>18年的计划</h1><ul>
@@ -1310,35 +1339,6 @@ MySQL服务初始化(仅适用5.7)</li>
       <categories>
         <category>生活</category>
       </categories>
-  </entry>
-  <entry>
-    <title>ES cluster reroute</title>
-    <url>/2019/01/24/es-cluster-reroute/</url>
-    <content><![CDATA[<blockquote>
-<p><code>ES</code>集群重新路由命令可以显示的执行包括特定命令的集群重新路由分配命令。例如，可以显示地将分片从一个节点移动到另一个节点，可以取消分配。</p>
-</blockquote>
-<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><h2 id="支持的命令如下"><a href="#支持的命令如下" class="headerlink" title="支持的命令如下"></a>支持的命令如下</h2><ul>
-<li><code>move</code><br>  将现有的分片迁移到其他节点。接受 <code>index</code>和<code>shard</code>索引名称和分片编号，<code>from_node</code>节点移动分片<code>from</code>，以及<code>to_node</code>节点将分片移动到。</li>
-<li><code>cancel</code><br>  取消分享碎片（或恢复）。接受<code>index</code>和<code>shard</code>索引名称和分片编号，以及<code>node</code>取消分片分配的节点。它还接受<code>allow_primary</code>标志以明确指定允许取消主分片的分配。这可以用于强制从主分片重新同步现有副本，方法是取消它们并允许它们通过标准重新分配过程重新初始化。</li>
-<li><p><code>allocate_replica</code><br>  将未分配的副本分片分配给节点。接受<code>index</code>和<code>shard</code>索引名称和分片编号，并将分片分配给<code>node</code>。</p>
-<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2></li>
-<li><p><code>move</code><br>  主要是想要手动控制分片分配到某台固定的机器上。把<code>node_1</code>上的<code>index_name</code>移动到<code>node_2</code>节点上，可能会有各种原因需要进行迁移，比如<code>node_1</code>机器的磁盘不够了或者是其他原因等。</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST _cluster/reroute</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;commands&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;move&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;index&quot;</span>: <span class="string">&quot;index_name&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;shard&quot;</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="attr">&quot;from_node&quot;</span>: <span class="string">&quot;node_1&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;to_node&quot;</span>: <span class="string">&quot;node_2&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><code>cancel</code><br>  主要是把移动中的分片取消，这个是因为其他原因导致分片重新分配了，但是又不想让它重新分配，所以只能取消分片分配的过程。如下是<code>node_1</code>这台机器上的<code>index_name</code>的分片号<code>0</code>进行了移动，所以取消它。</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST _cluster/reroute</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;commands&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;cancel&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;index&quot;</span>: <span class="string">&quot;index_name&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;shard&quot;</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="attr">&quot;node&quot;</span>: <span class="string">&quot;node_1&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><ul>
-<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.4/cluster-reroute.html">https://www.elastic.co/guide/en/elasticsearch/reference/5.4/cluster-reroute.html</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>es</category>
-      </categories>
-      <tags>
-        <tag>es cluster manage</tag>
-      </tags>
   </entry>
   <entry>
     <title>go1.12 发行说明</title>
@@ -1881,32 +1881,6 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
-    <title>orange原理以及使用</title>
-    <url>/2019/05/21/orange-%E5%8E%9F%E7%90%86/</url>
-    <content><![CDATA[<h1 id="Orange-工具介绍"><a href="#Orange-工具介绍" class="headerlink" title="Orange 工具介绍"></a>Orange 工具介绍</h1><pre><code>`Orange`是一个基于`OpenResty`的页面化的网关,提供了页面化的分流规则配置和权限配置。工具更多的信息参考设计文档和源代码。
-</code></pre><ul>
-<li><a href="https://github.com/sumory/orange/blob/master/README_zh.md">orange github</a></li>
-<li><a href="http://resty.b0.upaiyun.com/orange.pdf">设计文档</a></li>
-</ul>
-<h1 id="Orange-使用"><a href="#Orange-使用" class="headerlink" title="Orange 使用"></a>Orange 使用</h1><pre><code>使用文档参考官方文档 [http://orange.sumory.com/docs/](http://orange.sumory.com/docs/).
-</code></pre><h1 id="Orange-原理"><a href="#Orange-原理" class="headerlink" title="Orange 原理"></a>Orange 原理</h1><p><code>orange</code>运行时更具<code>nginx.conf</code>文件内容中的<code>location</code>来进行匹配规则，通过<code>nginx</code>的执行顺序可知，在<code>access_by_lua_block</code>阶段就是为了通过分流规则来设置<code>upstream_url</code>这个变量的值。<br><img src="/2019/05/21/orange-%E5%8E%9F%E7%90%86/location.png" alt="location"><br>通过规则匹配来赋值给<code>ngx.upstream_url</code>这个变量，然后通过执行<code>proxy_pass $upstream_url;</code>这个方法就可以实现页面配置来进行转发。<br><img src="/2019/05/21/orange-%E5%8E%9F%E7%90%86/code.png" alt="code"><br><img src="/2019/05/21/orange-%E5%8E%9F%E7%90%86/arch.png" alt="arch"></p>
-<h1 id="Orange-扩展"><a href="#Orange-扩展" class="headerlink" title="Orange 扩展"></a>Orange 扩展</h1><ul>
-<li><a href="https://github.com/linger1216/understanding-orange">插件开发</a></li>
-</ul>
-<h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h1><p>再生产中遇到的问题</p>
-<ul>
-<li>容器部署多个<code>orange</code>，共用一个数据库时会出现节点缓存问题,基于<code>swarm</code>编排容器。</li>
-<li>添加规则出现<code>uuid</code>重复，这是因为<code>uuid</code>这个库在容器中生成了冲突，所以需要提花一个包，这个问题在<code>issues</code>中提到过。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>工具</category>
-      </categories>
-      <tags>
-        <tag>orange</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>散列表数据结构</title>
     <url>/2019/05/11/Introduction-to-Algorithms-lecture-7/</url>
     <content><![CDATA[<p>在实际应用中我们需要用到一种动态集合结构。散列表是普通数组的推广，可以对数组直接寻址，故可以在<code>O(1)</code>时间内访问数组的任意元素。散列表中的思想是把关键字映射到数组下标，是通过计算出来的，散列计算过程中容器出现碰撞，解决碰撞也是散列的一个难点，根本问题是哈希计算的问题。</p>
@@ -1936,6 +1910,32 @@ MySQL服务初始化(仅适用5.7)</li>
       <tags>
         <tag>service</tag>
         <tag>k8s 源码</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>orange原理以及使用</title>
+    <url>/2019/05/21/orange-%E5%8E%9F%E7%90%86/</url>
+    <content><![CDATA[<h1 id="Orange-工具介绍"><a href="#Orange-工具介绍" class="headerlink" title="Orange 工具介绍"></a>Orange 工具介绍</h1><pre><code>`Orange`是一个基于`OpenResty`的页面化的网关,提供了页面化的分流规则配置和权限配置。工具更多的信息参考设计文档和源代码。
+</code></pre><ul>
+<li><a href="https://github.com/sumory/orange/blob/master/README_zh.md">orange github</a></li>
+<li><a href="http://resty.b0.upaiyun.com/orange.pdf">设计文档</a></li>
+</ul>
+<h1 id="Orange-使用"><a href="#Orange-使用" class="headerlink" title="Orange 使用"></a>Orange 使用</h1><pre><code>使用文档参考官方文档 [http://orange.sumory.com/docs/](http://orange.sumory.com/docs/).
+</code></pre><h1 id="Orange-原理"><a href="#Orange-原理" class="headerlink" title="Orange 原理"></a>Orange 原理</h1><p><code>orange</code>运行时更具<code>nginx.conf</code>文件内容中的<code>location</code>来进行匹配规则，通过<code>nginx</code>的执行顺序可知，在<code>access_by_lua_block</code>阶段就是为了通过分流规则来设置<code>upstream_url</code>这个变量的值。<br><img src="/2019/05/21/orange-%E5%8E%9F%E7%90%86/location.png" alt="location"><br>通过规则匹配来赋值给<code>ngx.upstream_url</code>这个变量，然后通过执行<code>proxy_pass $upstream_url;</code>这个方法就可以实现页面配置来进行转发。<br><img src="/2019/05/21/orange-%E5%8E%9F%E7%90%86/code.png" alt="code"><br><img src="/2019/05/21/orange-%E5%8E%9F%E7%90%86/arch.png" alt="arch"></p>
+<h1 id="Orange-扩展"><a href="#Orange-扩展" class="headerlink" title="Orange 扩展"></a>Orange 扩展</h1><ul>
+<li><a href="https://github.com/linger1216/understanding-orange">插件开发</a></li>
+</ul>
+<h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h1><p>再生产中遇到的问题</p>
+<ul>
+<li>容器部署多个<code>orange</code>，共用一个数据库时会出现节点缓存问题,基于<code>swarm</code>编排容器。</li>
+<li>添加规则出现<code>uuid</code>重复，这是因为<code>uuid</code>这个库在容器中生成了冲突，所以需要提花一个包，这个问题在<code>issues</code>中提到过。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>工具</category>
+      </categories>
+      <tags>
+        <tag>orange</tag>
       </tags>
   </entry>
   <entry>
@@ -2068,72 +2068,6 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
-    <title>linux sed</title>
-    <url>/2019/06/19/linux-sed/</url>
-    <content><![CDATA[<h1 id="Sed-Command"><a href="#Sed-Command" class="headerlink" title="Sed Command"></a>Sed Command</h1><p><code>sed</code>是一种流编辑器，它是文本处理中非常中的工具，能够完美的配合正则表达式使用，功能不同凡响。处理时，把当前处理的行存储在临时缓冲区中，称为“模式空间”<code>（pattern space</code>），接着用<code>sed</code>命令处理缓冲区中的内容，处理完成后，把缓冲区的内容送往屏幕。接着处理下一行，这样不断重复，直到文件末尾。文件内容并没有 改变，除非你使用重定向存储输出。<code>Sed</code>主要用来自动编辑一个或多个文件；简化对文件的反复操作；编写转换程序等。</p>
-<p><code>Sed</code>命令我目前主要是用在编写<code>dockerfile</code>时用于执行替换配置使用的，如果是这样的话，就不能用最小的<code>scratch</code>镜像，因为<code>sed</code>命令需要在有<code>sh</code>环境中执行，最小的就是<code>alpine</code>。</p>
-<p>当遇到不会使用的时在<code>Linux</code>系统上查看操作手册<code>man sed</code>.</p>
-<h2 id="替换文件中的内容"><a href="#替换文件中的内容" class="headerlink" title="替换文件中的内容"></a>替换文件中的内容</h2><h3 id="文件内容如下"><a href="#文件内容如下" class="headerlink" title="文件内容如下"></a>文件内容如下</h3><p>比如文件中的内容是<code>mysql</code>的配置，功能就是替换<code>mysql</code>的的配置。如下就是一个典型的<code>java</code>使用<code>mysql</code>的配置。</p>
-<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="comment"># application.properties</span></span><br><span class="line"><span class="meta">spring.datasource.druid.url</span>=<span class="string">jdbc:mysql://127.0.0.1:3306/demo?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf8&amp;serverTimezone=GM    T&amp;allowMultiQueries=true&amp;useSSL=false</span></span><br><span class="line"><span class="meta">spring.datasource.druid.username</span>=<span class="string">test</span></span><br><span class="line"><span class="meta">spring.datasource.druid.password</span>=<span class="string">test</span></span><br></pre></td></tr></table></figure>
-<h3 id="替换脚本如下"><a href="#替换脚本如下" class="headerlink" title="替换脚本如下"></a>替换脚本如下</h3><p>脚本功能就是用于替换上述数据中的<code>host</code>、<code>port</code>、<code>username</code>、<code>password</code>、<code>dbname</code>这些配置。</p>
-<p>如下是<code>Dockerfiele</code>文件内容.<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">FROM alpine:3.9.4  </span><br><span class="line">ENV DB_USER=&quot;&quot; DB_HOST=&quot;&quot; DB_PASSWORD=&quot;&quot; DB_PORT=&quot;&quot; DB_NAME=&quot;&quot;</span><br><span class="line">ENTRYPOINT [&quot;/bin/sh&quot;,&quot;-c&quot;,&quot;sh /docker-entrypoint.sh&quot;]</span><br></pre></td></tr></table></figure></p>
-<p>如下就是执行的脚本<code>docker-entrypoint.sh</code>。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">! /bin/bash</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 指定文件目录</span></span><br><span class="line">APPLICATION_NAME = &quot;./application.properties&quot;</span><br><span class="line">sed -i &quot;s/&quot;</span><br><span class="line">sed -i &quot;s/127.0.0.1:3306\/demo/$&#123;DB_HOST&#125;:$&#123;DB_PORT&#125;\/$&#123;DB_NAME&#125;/g&quot; $&#123;APPLICATION_NAME&#125;</span><br><span class="line">sed -i &quot;s/spring.datasource.druid.username=test/spring.datasource.druid.username=$&#123;DB_USER&#125;/g&quot; $&#123;APPLICATION_NAME&#125;</span><br><span class="line">sed -i &quot;s/spring.datasource.druid.password=test/spring.datasource.druid.password=$&#123;DB_PASSWORD&#125;/g&quot; $&#123;APPLICATION_NAME&#125;</span><br><span class="line"></span><br><span class="line">java -jar demo.java</span><br></pre></td></tr></table></figure>
-<p>如上就可以执行替换一些配置了。</p>
-<h2 id="使用Tips"><a href="#使用Tips" class="headerlink" title="使用Tips"></a>使用Tips</h2><ul>
-<li><p>可以通过命令行先进行验证。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">echo</span> <span class="string">&quot;spring.datasource.druid.url=jdbc:mysql://127.0.0.1:3306/demo?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf8&amp;serverTimezone=GM&quot;</span> | sed <span class="string">&quot;s/127.0.0.1:3306\/demo/127.0.0.2:3307\/test/g&quot;</span></span></span><br><span class="line">spring.datasource.druid.url=jdbc:mysql://127.0.0.2:3307/test?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf8&amp;serverTimezone=GM</span><br></pre></td></tr></table></figure>
-<p>验证好了在修改一下，上面的命令少了<code>-i</code>命令选项和文件名,<code>-i</code>就是用于修改本地文件的一个选项。</p>
-</li>
-<li><p>匹配时尽量使用能唯一命中的</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sed <span class="string">&quot;s/spring.datasource.druid.password=test/spring.datasource.druid.password=<span class="variable">$&#123;DB_PASSWORD&#125;</span>/g&quot;</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sed <span class="string">&quot;s/test/<span class="variable">$&#123;DB_PASSWORD&#125;</span>/g&quot;</span></span></span><br></pre></td></tr></table></figure>
-<p>如上的两个匹配规则，第一个最好，第二个会把匹配到<code>test</code>的所有地方都更改调，所有最好使用唯一匹配规则。</p>
-</li>
-</ul>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
-<li><code>man sed</code></li>
-<li><a href="http://man.linuxde.net/sed">man.net</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>linux 命令</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Badger源码学习之-SkipList基础篇</title>
-    <url>/2019/06/29/Badger%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8B-SkipList%E5%9F%BA%E7%A1%80%E7%AF%87/</url>
-    <content><![CDATA[<h1 id="Badger源码学习之-SkipList基础篇"><a href="#Badger源码学习之-SkipList基础篇" class="headerlink" title="Badger源码学习之-SkipList基础篇"></a>Badger源码学习之-SkipList基础篇</h1><p><a href="https://en.wikipedia.org/wiki/Skip_list">SkipList</a> 全称跳跃表，具体定义可以查看维基百科的定义，或者<a href="http://homepage.cs.uiowa.edu/~ghosh/skip.pdf">论文</a>。<code>SkipList</code>是一个有序的高效的链表结构，数组数据结构的<code>search</code>的时间复杂度为<code>O(lgn)</code>，通过二分法搜索，但是插入和删除的时间复杂度为<code>O(n)</code>；链表的<code>search</code>的时间复杂度为<code>O(n)</code>，插入和删除的时间复杂度为<code>O(lg)</code>。<code>SkipList</code>这个数据结构很好的结合了这两种数据结构的特性，<code>search</code>、<code>insert</code>、<code>delete</code>的时间复杂度都是<code>O(lgn)</code>，但是空间复杂度比其他的高，利用了空间换取时间的做法。</p>
-<p><code>SkipList</code>是根据链表而来的，其数据结构类似与链表。</p>
-<h2 id="链表"><a href="#链表" class="headerlink" title="链表"></a>链表</h2><p><img src="https://note.youdao.com/yws/api/personal/file/WEBd674a10db06c67251c7f6fa7fdab6816?method=download&amp;shareKey=d5888342b4deb27fcaaabf4767cfe334" alt="singl-list.jpg"></p>
-<p>这就是一个简单的顺序链表，每次<code>search</code>、<code>insert</code>、<code>delete</code>的时间复杂度都是<code>O(n)</code>，都需要遍历整个链表。</p>
-<h2 id="SkipList"><a href="#SkipList" class="headerlink" title="SkipList"></a>SkipList</h2><p><img src="https://note.youdao.com/yws/api/personal/file/WEB2484842e529d992295f5918ed9f99767?method=download&amp;shareKey=0836909ea6857dd9b6ba2b13c5f81401" alt="skip list"><br><code>SkipList</code>和单链表的不同点就是相邻两层的节点比为<code>1/2</code>。查找的时间从最上层开始来查找，这就相对于建了一个索引。</p>
-<p>层级之间节点比为<code>1/2</code>实现起来有会边复杂，相当于需要固定维护相邻层级之间的关系。所以作者推荐使用一个随机高度，每个节点的高度随机产生，再去修改节点的前后关系。通过设置一个最大高度和相邻节点比来生成随机高度。如下设置的最大高度是<code>20</code>，相邻节点是<code>1/3</code>；算法作者推荐这个比最好为<code>1/2^n</code>次方,但是我不明白为啥<code>badger</code>选择<code>1/3</code>.<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 这事badger中的随机高度的实现方式，</span></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">	maxHeight      = <span class="number">20</span></span><br><span class="line">	heightIncrease = math.MaxUint32 / <span class="number">3</span></span><br><span class="line">)</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">randomHeight</span><span class="params">(heightIncrease <span class="keyword">uint32</span>)</span> <span class="title">int32</span></span> &#123;</span><br><span class="line">	h := <span class="number">1</span></span><br><span class="line">	<span class="keyword">for</span> h &lt; maxHeight &amp;&amp; rand.Uint32() &lt;= heightIncrease &#123;</span><br><span class="line">		h++</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">int32</span>(h)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>高度看似是随机产生的，但是是按比例划分的，官方是按照概率去计算的，我通过生成<code>10000000</code>个数字来查看数字的分布，基本是和上面的概率比一致的。</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Test_randomHeight1</span><span class="params">(t *testing.T)</span></span>  &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line">	num := <span class="number">10000000</span></span><br><span class="line">	data2 := <span class="built_in">make</span>([]<span class="keyword">int32</span>,num)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span> ; i &lt; num ; i++ &#123;</span><br><span class="line">		data2[i] = randomHeight(math.MaxUint32 / <span class="number">2</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	scatterData2 := randomPoints1(data2)</span><br><span class="line"></span><br><span class="line">	data3 := <span class="built_in">make</span>([]<span class="keyword">int32</span>,num)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span> ; i &lt; num ; i++ &#123;</span><br><span class="line">		data3[i] = randomHeight(math.MaxUint32 / <span class="number">3</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	scatterData3 := randomPoints1(data3)</span><br><span class="line"></span><br><span class="line">	data4 := <span class="built_in">make</span>([]<span class="keyword">int32</span>,num)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span> ; i &lt; num ; i++ &#123;</span><br><span class="line">		data4[i] = randomHeight(math.MaxUint32 / <span class="number">4</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	scatterData4  := randomPoints1(data4)</span><br><span class="line"></span><br><span class="line">	data5 := <span class="built_in">make</span>([]<span class="keyword">int32</span>,num)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span> ; i &lt; num ; i++ &#123;</span><br><span class="line">		data5[i] = randomHeight(math.MaxUint32 / <span class="number">5</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	scatterData5 := randomPoints1(data5)</span><br><span class="line">	<span class="comment">// Create a new plot, set its title and</span></span><br><span class="line">	<span class="comment">// axis labels.</span></span><br><span class="line">	p, err := plot.New()</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(err)</span><br><span class="line">	&#125;</span><br><span class="line">	p.Title.Text = <span class="string">&quot;Points Example&quot;</span></span><br><span class="line">	p.X.Label.Text = <span class="string">&quot;X&quot;</span></span><br><span class="line">	p.Y.Label.Text = <span class="string">&quot;Y&quot;</span></span><br><span class="line">	<span class="comment">// Draw a grid behind the data</span></span><br><span class="line">	<span class="comment">//p.Add(plotter.NewGrid())</span></span><br><span class="line">	<span class="comment">//</span></span><br><span class="line">	<span class="comment">//// Make a scatter plotter and set its style.</span></span><br><span class="line">	<span class="comment">//s, err := plotter.NewScatter(scatterData)</span></span><br><span class="line">	<span class="comment">//if err != nil &#123;</span></span><br><span class="line">	<span class="comment">//	panic(err)</span></span><br><span class="line">	<span class="comment">//&#125;</span></span><br><span class="line">	<span class="comment">//s.GlyphStyle.Color = color.RGBA&#123;R: 255, B: 128, A: 255&#125;</span></span><br><span class="line">	<span class="comment">//p.Add(s)</span></span><br><span class="line">	l2, s2, _ := plotter.NewLinePoints(scatterData2)</span><br><span class="line">	l2.Color = plotutil.Color(<span class="number">0</span>)</span><br><span class="line">	l2.Dashes = plotutil.Dashes(<span class="number">0</span>)</span><br><span class="line">	s2.Color = plotutil.Color(<span class="number">0</span>)</span><br><span class="line">	s2.Shape = plotutil.Shape(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">	l3, s3, _ := plotter.NewLinePoints(scatterData3)</span><br><span class="line">	l3.Color = plotutil.Color(<span class="number">1</span>)</span><br><span class="line">	l3.Dashes = plotutil.Dashes(<span class="number">1</span>)</span><br><span class="line">	s3.Color = plotutil.Color(<span class="number">1</span>)</span><br><span class="line">	s3.Shape = plotutil.Shape(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">	l4, s4, _ := plotter.NewLinePoints(scatterData4)</span><br><span class="line">	l4.Color = plotutil.Color(<span class="number">2</span>)</span><br><span class="line">	l4.Dashes = plotutil.Dashes(<span class="number">2</span>)</span><br><span class="line">	s4.Color = plotutil.Color(<span class="number">2</span>)</span><br><span class="line">	s4.Shape = plotutil.Shape(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">	l5, s5, _ := plotter.NewLinePoints(scatterData5)</span><br><span class="line">	l5.Color = plotutil.Color(<span class="number">3</span>)</span><br><span class="line">	l5.Dashes = plotutil.Dashes(<span class="number">3</span>)</span><br><span class="line">	s5.Color = plotutil.Color(<span class="number">3</span>)</span><br><span class="line">	s5.Shape = plotutil.Shape(<span class="number">3</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment">//plotutil.AddLinePoints(p, scatterData2,scatterData3,scatterData4,scatterData5)</span></span><br><span class="line">	p.Add(l2,s2,l3,s3,l4,s4,l5,s5)</span><br><span class="line">	p.Legend.Add(<span class="string">&quot;line points 2&quot;</span>, l2, s2)</span><br><span class="line">	p.Legend.Add(<span class="string">&quot;line points 3&quot;</span>, l3, s3)</span><br><span class="line">	p.Legend.Add(<span class="string">&quot;line points 4&quot;</span>, l4, s4)</span><br><span class="line">	p.Legend.Add(<span class="string">&quot;line points 5&quot;</span>, l5, s5)</span><br><span class="line">	<span class="comment">// Save the plot to a PNG file.</span></span><br><span class="line">	<span class="keyword">if</span> err := p.Save(<span class="number">8</span>*vg.Inch, <span class="number">8</span>*vg.Inch, <span class="string">&quot;4-points0.5.png&quot;</span>); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(err)</span><br><span class="line">	&#125;</span><br><span class="line">	t.Log(<span class="string">&quot;Test Pass&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// randomPoints returns some random x, y points.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">randomPoints1</span><span class="params">(n []<span class="keyword">int32</span>)</span> <span class="title">plotter</span>.<span class="title">XYs</span></span> &#123;</span><br><span class="line">	m := <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">int32</span>]<span class="keyword">int</span>)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> _,v := <span class="keyword">range</span> n &#123;</span><br><span class="line">		<span class="keyword">if</span> _,ok := m[v]; ok  &#123;</span><br><span class="line">			m[v] ++</span><br><span class="line">		&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">			m[v] = <span class="number">1</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	pts := <span class="built_in">make</span>(plotter.XYs, <span class="built_in">len</span>(m))</span><br><span class="line">	<span class="keyword">for</span> i:= <span class="number">0</span> ; i &lt; <span class="built_in">len</span>(m) ; &#123;</span><br><span class="line">		k := i+<span class="number">1</span></span><br><span class="line">		v := m[<span class="keyword">int32</span>(k)]</span><br><span class="line">		fmt.Println(k,v)</span><br><span class="line">		pts[i].X = <span class="keyword">float64</span>(k)</span><br><span class="line">		pts[i].Y = <span class="keyword">float64</span>(v)</span><br><span class="line">		i ++</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;map:%+v\n&quot;</span>,m)</span><br><span class="line">	<span class="keyword">return</span> pts</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>我写了如上的一个测试程序，并画出数据的分布情况。<br><img src="https://note.youdao.com/yws/api/personal/file/WEB3e6a78c1c7642b5eee88e6752c4ae91a?method=download&amp;shareKey=cab1b3a195affd9b3e24c9827a290495" alt="分布"></p>
-<p>横轴是最大高度，纵轴是分布在高度上的情况，从图上可以看出，<code>p</code>越小，衰变的速度越快，数据分布越集中，当<code>p</code>为<code>1/2</code>是数据基本是按层级间<code>1/2</code>的关系递减的。</p>
-<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>官方论文中有实现的伪代码，按照伪代码即可实现。</p>
-<h3 id="Search"><a href="#Search" class="headerlink" title="Search"></a>Search</h3><p>如下是查询时的一个伪代码，基本逻辑就是从头节点的最高层级开始变量查询，如果查询节点不为<code>nil</code>并且<code>key</code>大于当前节点的<code>key</code>，就往后查询，否则层级下降。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line">Search(list, searchKey)</span><br><span class="line">    x := list→header</span><br><span class="line">    -- loop invariant: x→key &lt; searchKey</span><br><span class="line">    <span class="keyword">for</span> i := list→level downto <span class="number">1</span> do</span><br><span class="line">        while x→forward[i] != <span class="literal">nil</span> &amp;&amp;&amp; x→forward[i]→key &lt; searchKey do</span><br><span class="line">            x := x→forward[i]</span><br><span class="line">    -- x→key &lt; searchKey ≤ x→forward[<span class="number">1</span>]→key</span><br><span class="line">    x := x→forward[<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">if</span> x→key = searchKey then </span><br><span class="line">        <span class="keyword">return</span> x→value</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">return</span> failure</span><br></pre></td></tr></table></figure></p>
-<h3 id="Insert"><a href="#Insert" class="headerlink" title="Insert"></a>Insert</h3><p>插入的不同点就是要记录下查找的路径，后面需要更新插入前后的元素;只记录阶梯变化的最后一个；下面的<code>update</code>数组就是记录变化的，然后查找到要插入的地方，如果<code>key</code>已经存在就更新值，不存在就插入。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line">Insert(list, searchKey, newValue)</span><br><span class="line">    local update[<span class="number">1.</span>.MaxLevel]</span><br><span class="line">    x := list→header</span><br><span class="line">    <span class="keyword">for</span> i := list→level downto <span class="number">1</span> do</span><br><span class="line">        while x→forward[i]→key &lt; searchKey do</span><br><span class="line">            x := x→forward[i]</span><br><span class="line">        update[i] := x</span><br><span class="line">    x := x→forward[<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">if</span> x→key = searchKey then x→value := newValue</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        newLevel := randomLevel()</span><br><span class="line">        <span class="keyword">if</span> newLevel &gt; list→level then</span><br><span class="line">            <span class="keyword">for</span> i := list→level + <span class="number">1</span> to newLevel do</span><br><span class="line">                update[i] := list→header</span><br><span class="line">            list→level := newLevel</span><br><span class="line">        x := makeNode(newLevel , searchKey, value)</span><br><span class="line">        <span class="keyword">for</span> i := <span class="number">1</span> to newLevel do</span><br><span class="line">            x→forward[i] := update[i]→forward[i]</span><br><span class="line">            update[i]→forward[i] := x</span><br></pre></td></tr></table></figure></p>
-<h3 id="Delete"><a href="#Delete" class="headerlink" title="Delete"></a>Delete</h3><p>删除是同样需要记录查找路径，后面需要更新前后的路径。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line">Delete(list, searchKey)</span><br><span class="line">    local update[<span class="number">1.</span>.MaxLevel]</span><br><span class="line">    x := list→header</span><br><span class="line">    <span class="keyword">for</span> i := list→level downto <span class="number">1</span> do</span><br><span class="line">        while x→forward[i]→key &lt; searchKey do</span><br><span class="line">            x := x→forward[i]</span><br><span class="line">        update[i] := x</span><br><span class="line">    x := x→forward[<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">if</span> x→key = searchKey then</span><br><span class="line">        <span class="keyword">for</span> i := <span class="number">1</span> to list→level do</span><br><span class="line">            <span class="keyword">if</span> update[i]→forward[i] ≠ x then <span class="keyword">break</span></span><br><span class="line">            update[i]→forward[i] := x→forward[i]</span><br><span class="line">        free(x)</span><br><span class="line">        while list→level &gt; <span class="number">1</span> and</span><br><span class="line">            list→header→forward[list→level] = NIL do</span><br><span class="line">            list→level := list→level – <span class="number">1</span></span><br></pre></td></tr></table></figure></p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
-<li><a href="http://zhangtielei.com/posts/blog-redis-skiplist.html">redis之Skiplist</a></li>
-<li><a href="http://homepage.cs.uiowa.edu/~ghosh/skip.pdf">论文</a></li>
-<li><a href="https://eugene-eeo.github.io/blog/skip-lists.html">https://eugene-eeo.github.io/blog/skip-lists.html</a></li>
-<li><a href="https://ticki.github.io/blog/skip-lists-done-right/">https://ticki.github.io/blog/skip-lists-done-right/</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Badger</category>
-      </categories>
-      <tags>
-        <tag>数据结构</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Go sync package</title>
     <url>/2019/06/18/Go-sync-package/</url>
     <content><![CDATA[<h1 id="Go-sync-package"><a href="#Go-sync-package" class="headerlink" title="Go sync package"></a>Go sync package</h1><p><code>sync</code>包提供了基本的同步原语，比如同步锁，还有其他的<code>Once</code>和<code>WaitGroup</code>，大多数都用于低级别的库，高级别的同步控制最好用<code>channels</code>。</p>
@@ -2213,26 +2147,69 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
-    <title>intellij-idea激活</title>
-    <url>/2019/10/20/intellij-idea%E6%BF%80%E6%B4%BB/</url>
-    <content><![CDATA[<h1 id="IntelliJ-IDEA-2019-2-1最新激活码"><a href="#IntelliJ-IDEA-2019-2-1最新激活码" class="headerlink" title="IntelliJ IDEA 2019.2.1最新激活码"></a>IntelliJ IDEA 2019.2.1最新激活码</h1><p>激活时间到<strong>2089年</strong>，足够任何人使用了。</p>
-<p><code>IDEA</code>2019以前的版本都可以使用<code>http://idea.lanyus.com/</code>这个注册码去破解，我相信大多数人都是使用的这个激活码，可是<code>2019</code>版的都不能在使用这个注册码了。</p>
-<p>新版注册码方法主要有如下几个步骤。<br>此处的<code>IDEA</code>包括所有软件，不止<code>intellij</code>还包括<code>goland</code>、<code>pychart</code>这些软件都是本人亲测激活并且有效的。</p>
-<h2 id="破解步骤"><a href="#破解步骤" class="headerlink" title="破解步骤"></a>破解步骤</h2><p>首先去官网下载最新版的<code>IDEA</code>，下载好之后安装并启动；<br>打开之后选择<strong>选择30天免费试用</strong>。</p>
-<p><img src="https://note.youdao.com/yws/api/personal/file/WEBd316f43d8ad3dc706fcaa6b9e110a19e?method=download&amp;shareKey=a55b461fcf4d04c652066aab8e17d042" alt="image"></p>
-<p>进入之后点击<code>Configure</code>-&gt;<code>Edit Custom VM Options</code> 进入编辑框中。<br><img src="https://note.youdao.com/yws/api/personal/file/WEBc74c7dcf05dc009df79d42983abd4c70?method=download&amp;shareKey=48344ed4c5cb22f28376497a1cb99533" alt="image"></p>
-<p>在<code>VM Options</code>中添加<code>-javaagent:绝对路径</code>的参数。添加完之后保存，并关闭软件再次重启。<br><img src="https://note.youdao.com/yws/api/personal/file/WEB291a77318ea22fedcc84ce9a90c15b59?method=download&amp;shareKey=45ea668d89c153e2b1bb78cd9576a1c7" alt="image"></p>
-<p>重启后点击<code>Configure</code>-&gt;<code>Manage License</code>进入如下的页面，首先如果有<code>Remove License</code>，那就点击删除这个<code>License</code>，其次再把<code>License</code>放入即可激活。<br><img src="https://note.youdao.com/yws/api/personal/file/WEB4118c5e452fe931f50648bc609cf0101?method=download&amp;shareKey=5b00317cdae7a5fbc2585997f32205a0" alt="image"></p>
-<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><p>1、上面添加<code>-javaagent</code>这一步一定要做，不然就会出现<code>key is invalid</code>的提示。</p>
-<p>2、上面的破解包和<code>License</code>要对应。</p>
-<h2 id="破解包和License"><a href="#破解包和License" class="headerlink" title="破解包和License"></a>破解包和License</h2><h3 id="agent-jar-包"><a href="#agent-jar-包" class="headerlink" title="agent jar 包"></a>agent jar 包</h3><p>下载地址：<a href="http://note.youdao.com/noteshare?id=027477dc925c299fa427f761301a3e2a">http://note.youdao.com/noteshare?id=027477dc925c299fa427f761301a3e2a</a></p>
-<p><img src="https://note.youdao.com/yws/api/personal/file/WEBa838e2c0131a7781033f2d5b7bcb226e?method=download&amp;shareKey=01a48f4594b587f3f736576b4663a6a2" alt="image"></p>
-<h3 id="License"><a href="#License" class="headerlink" title="License"></a>License</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">520E5894E2-eyJsaWNlbnNlSWQiOiI1MjBFNTg5NEUyIiwibGljZW5zZWVOYW1lIjoicGlnNiIsImFzc2lnbmVlTmFtZSI6IiIsImFzc2lnbmVlRW1haWwiOiIiLCJsaWNlbnNlUmVzdHJpY3Rpb24iOiJVbmxpbWl0ZWQgbGljZW5zZSB0aWxsIGVuZCBvZiB0aGUgY2VudHVyeS4iLCJjaGVja0NvbmN1cnJlbnRVc2UiOmZhbHNlLCJwcm9kdWN0cyI6W3siY29kZSI6IklJIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiUlMwIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiV1MiLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJSRCIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IlJDIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiREMiLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJEQiIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IlJNIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiRE0iLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJBQyIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IkRQTiIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IkdPIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiUFMiLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJDTCIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IlBDIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiUlNVIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In1dLCJoYXNoIjoiODkwNzA3MC8wIiwiZ3JhY2VQZXJpb2REYXlzIjowLCJhdXRvUHJvbG9uZ2F0ZWQiOmZhbHNlLCJpc0F1dG9Qcm9sb25nYXRlZCI6ZmFsc2V9-DZ/oNHBfyho0XrrCJJvAOKg5Q1tLBgOdbCmzCKwkuM+Yryce0RoOi3OOmH6Ba/uTcCh/L37meyD0FJdJIprv59y4+n+k2kIeF/XKrKqg0dEsDUQRw0lUqqMt99ohqa+zmbJ44Yufdwwx/F1CtoRGvEQ2Mn0QjuqRoZJZ3wiT5Am22JiJW8MaNUl3wg9YPj+OPGARKKJUdUJ0NGUDQBcBAv5ds8LhbSbJSbPkbkwH/a1QMz4nEdn6lRDKI1aFIn43QhBSCFqvUq6TPJlbIJ0ZjE+PyZjHFBKCgkry0DHPXU2BbtIZPsksQnN3fx240a9K6sN7peZnLpEoMoq23FEz4g==-MIIElTCCAn2gAwIBAgIBCTANBgkqhkiG9w0BAQsFADAYMRYwFAYDVQQDDA1KZXRQcm9maWxlIENBMB4XDTE4MTEwMTEyMjk0NloXDTIwMTEwMjEyMjk0NlowaDELMAkGA1UEBhMCQ1oxDjAMBgNVBAgMBU51c2xlMQ8wDQYDVQQHDAZQcmFndWUxGTAXBgNVBAoMEEpldEJyYWlucyBzLnIuby4xHTAbBgNVBAMMFHByb2QzeS1mcm9tLTIwMTgxMTAxMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5ndaik1GD0nyTdqkZgURQZGW+RGxCdBITPXIwpjhhaD0SXGa4XSZBEBoiPdY6XV6pOfUJeyfi9dXsY4MmT0D+sKoST3rSw96xaf9FXPvOjn4prMTdj3Ji3CyQrGWeQU2nzYqFrp1QYNLAbaViHRKuJrYHI6GCvqCbJe0LQ8qqUiVMA9wG/PQwScpNmTF9Kp2Iej+Z5OUxF33zzm+vg/nYV31HLF7fJUAplI/1nM+ZG8K+AXWgYKChtknl3sW9PCQa3a3imPL9GVToUNxc0wcuTil8mqveWcSQCHYxsIaUajWLpFzoO2AhK4mfYBSStAqEjoXRTuj17mo8Q6M2SHOcwIDAQABo4GZMIGWMAkGA1UdEwQCMAAwHQYDVR0OBBYEFGEpG9oZGcfLMGNBkY7SgHiMGgTcMEgGA1UdIwRBMD+AFKOetkhnQhI2Qb1t4Lm0oFKLl/GzoRykGjAYMRYwFAYDVQQDDA1KZXRQcm9maWxlIENBggkA0myxg7KDeeEwEwYDVR0lBAwwCgYIKwYBBQUHAwEwCwYDVR0PBAQDAgWgMA0GCSqGSIb3DQEBCwUAA4ICAQBonMu8oa3vmNAa4RQP8gPGlX3SQaA3WCRUAj6Zrlk8AesKV1YSkh5D2l+yUk6njysgzfr1bIR5xF8eup5xXc4/G7NtVYRSMvrd6rfQcHOyK5UFJLm+8utmyMIDrZOzLQuTsT8NxFpbCVCfV5wNRu4rChrCuArYVGaKbmp9ymkw1PU6+HoO5i2wU3ikTmRv8IRjrlSStyNzXpnPTwt7bja19ousk56r40SmlmC04GdDHErr0ei2UbjUua5kw71Qn9g02tL9fERI2sSRjQrvPbn9INwRWl5+k05mlKekbtbu2ev2woJFZK4WEXAd/GaAdeZZdumv8T2idDFL7cAirJwcrbfpawPeXr52oKTPnXfi0l5+g9Gnt/wfiXCrPElX6ycTR6iL3GC2VR4jTz6YatT4Ntz59/THOT7NJQhr6AyLkhhJCdkzE2cob/KouVp4ivV7Q3Fc6HX7eepHAAF/DpxwgOrg9smX6coXLgfp0b1RU2u/tUNID04rpNxTMueTtrT8WSskqvaJd3RH8r7cnRj6Y2hltkja82HlpDURDxDTRvv+krbwMr26SB/40BjpMUrDRCeKuiBahC0DCoU/4+ze1l94wVUhdkCfL0GpJrMSCDEK+XEurU18Hb7WT+ThXbkdl6VpFdHsRvqAnhR2g4b+Qzgidmuky5NUZVfEaZqV/g==</span><br></pre></td></tr></table></figure>]]></content>
+    <title>linux sed</title>
+    <url>/2019/06/19/linux-sed/</url>
+    <content><![CDATA[<h1 id="Sed-Command"><a href="#Sed-Command" class="headerlink" title="Sed Command"></a>Sed Command</h1><p><code>sed</code>是一种流编辑器，它是文本处理中非常中的工具，能够完美的配合正则表达式使用，功能不同凡响。处理时，把当前处理的行存储在临时缓冲区中，称为“模式空间”<code>（pattern space</code>），接着用<code>sed</code>命令处理缓冲区中的内容，处理完成后，把缓冲区的内容送往屏幕。接着处理下一行，这样不断重复，直到文件末尾。文件内容并没有 改变，除非你使用重定向存储输出。<code>Sed</code>主要用来自动编辑一个或多个文件；简化对文件的反复操作；编写转换程序等。</p>
+<p><code>Sed</code>命令我目前主要是用在编写<code>dockerfile</code>时用于执行替换配置使用的，如果是这样的话，就不能用最小的<code>scratch</code>镜像，因为<code>sed</code>命令需要在有<code>sh</code>环境中执行，最小的就是<code>alpine</code>。</p>
+<p>当遇到不会使用的时在<code>Linux</code>系统上查看操作手册<code>man sed</code>.</p>
+<h2 id="替换文件中的内容"><a href="#替换文件中的内容" class="headerlink" title="替换文件中的内容"></a>替换文件中的内容</h2><h3 id="文件内容如下"><a href="#文件内容如下" class="headerlink" title="文件内容如下"></a>文件内容如下</h3><p>比如文件中的内容是<code>mysql</code>的配置，功能就是替换<code>mysql</code>的的配置。如下就是一个典型的<code>java</code>使用<code>mysql</code>的配置。</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="comment"># application.properties</span></span><br><span class="line"><span class="meta">spring.datasource.druid.url</span>=<span class="string">jdbc:mysql://127.0.0.1:3306/demo?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf8&amp;serverTimezone=GM    T&amp;allowMultiQueries=true&amp;useSSL=false</span></span><br><span class="line"><span class="meta">spring.datasource.druid.username</span>=<span class="string">test</span></span><br><span class="line"><span class="meta">spring.datasource.druid.password</span>=<span class="string">test</span></span><br></pre></td></tr></table></figure>
+<h3 id="替换脚本如下"><a href="#替换脚本如下" class="headerlink" title="替换脚本如下"></a>替换脚本如下</h3><p>脚本功能就是用于替换上述数据中的<code>host</code>、<code>port</code>、<code>username</code>、<code>password</code>、<code>dbname</code>这些配置。</p>
+<p>如下是<code>Dockerfiele</code>文件内容.<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">FROM alpine:3.9.4  </span><br><span class="line">ENV DB_USER=&quot;&quot; DB_HOST=&quot;&quot; DB_PASSWORD=&quot;&quot; DB_PORT=&quot;&quot; DB_NAME=&quot;&quot;</span><br><span class="line">ENTRYPOINT [&quot;/bin/sh&quot;,&quot;-c&quot;,&quot;sh /docker-entrypoint.sh&quot;]</span><br></pre></td></tr></table></figure></p>
+<p>如下就是执行的脚本<code>docker-entrypoint.sh</code>。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">! /bin/bash</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 指定文件目录</span></span><br><span class="line">APPLICATION_NAME = &quot;./application.properties&quot;</span><br><span class="line">sed -i &quot;s/&quot;</span><br><span class="line">sed -i &quot;s/127.0.0.1:3306\/demo/$&#123;DB_HOST&#125;:$&#123;DB_PORT&#125;\/$&#123;DB_NAME&#125;/g&quot; $&#123;APPLICATION_NAME&#125;</span><br><span class="line">sed -i &quot;s/spring.datasource.druid.username=test/spring.datasource.druid.username=$&#123;DB_USER&#125;/g&quot; $&#123;APPLICATION_NAME&#125;</span><br><span class="line">sed -i &quot;s/spring.datasource.druid.password=test/spring.datasource.druid.password=$&#123;DB_PASSWORD&#125;/g&quot; $&#123;APPLICATION_NAME&#125;</span><br><span class="line"></span><br><span class="line">java -jar demo.java</span><br></pre></td></tr></table></figure>
+<p>如上就可以执行替换一些配置了。</p>
+<h2 id="使用Tips"><a href="#使用Tips" class="headerlink" title="使用Tips"></a>使用Tips</h2><ul>
+<li><p>可以通过命令行先进行验证。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">echo</span> <span class="string">&quot;spring.datasource.druid.url=jdbc:mysql://127.0.0.1:3306/demo?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf8&amp;serverTimezone=GM&quot;</span> | sed <span class="string">&quot;s/127.0.0.1:3306\/demo/127.0.0.2:3307\/test/g&quot;</span></span></span><br><span class="line">spring.datasource.druid.url=jdbc:mysql://127.0.0.2:3307/test?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf8&amp;serverTimezone=GM</span><br></pre></td></tr></table></figure>
+<p>验证好了在修改一下，上面的命令少了<code>-i</code>命令选项和文件名,<code>-i</code>就是用于修改本地文件的一个选项。</p>
+</li>
+<li><p>匹配时尽量使用能唯一命中的</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sed <span class="string">&quot;s/spring.datasource.druid.password=test/spring.datasource.druid.password=<span class="variable">$&#123;DB_PASSWORD&#125;</span>/g&quot;</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sed <span class="string">&quot;s/test/<span class="variable">$&#123;DB_PASSWORD&#125;</span>/g&quot;</span></span></span><br></pre></td></tr></table></figure>
+<p>如上的两个匹配规则，第一个最好，第二个会把匹配到<code>test</code>的所有地方都更改调，所有最好使用唯一匹配规则。</p>
+</li>
+</ul>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><code>man sed</code></li>
+<li><a href="http://man.linuxde.net/sed">man.net</a></li>
+</ul>
+]]></content>
       <categories>
-        <category>工具</category>
+        <category>Linux</category>
       </categories>
       <tags>
-        <tag>intellij</tag>
+        <tag>linux 命令</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Badger源码学习之-SkipList基础篇</title>
+    <url>/2019/06/29/Badger%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8B-SkipList%E5%9F%BA%E7%A1%80%E7%AF%87/</url>
+    <content><![CDATA[<h1 id="Badger源码学习之-SkipList基础篇"><a href="#Badger源码学习之-SkipList基础篇" class="headerlink" title="Badger源码学习之-SkipList基础篇"></a>Badger源码学习之-SkipList基础篇</h1><p><a href="https://en.wikipedia.org/wiki/Skip_list">SkipList</a> 全称跳跃表，具体定义可以查看维基百科的定义，或者<a href="http://homepage.cs.uiowa.edu/~ghosh/skip.pdf">论文</a>。<code>SkipList</code>是一个有序的高效的链表结构，数组数据结构的<code>search</code>的时间复杂度为<code>O(lgn)</code>，通过二分法搜索，但是插入和删除的时间复杂度为<code>O(n)</code>；链表的<code>search</code>的时间复杂度为<code>O(n)</code>，插入和删除的时间复杂度为<code>O(lg)</code>。<code>SkipList</code>这个数据结构很好的结合了这两种数据结构的特性，<code>search</code>、<code>insert</code>、<code>delete</code>的时间复杂度都是<code>O(lgn)</code>，但是空间复杂度比其他的高，利用了空间换取时间的做法。</p>
+<p><code>SkipList</code>是根据链表而来的，其数据结构类似与链表。</p>
+<h2 id="链表"><a href="#链表" class="headerlink" title="链表"></a>链表</h2><p><img src="https://note.youdao.com/yws/api/personal/file/WEBd674a10db06c67251c7f6fa7fdab6816?method=download&amp;shareKey=d5888342b4deb27fcaaabf4767cfe334" alt="singl-list.jpg"></p>
+<p>这就是一个简单的顺序链表，每次<code>search</code>、<code>insert</code>、<code>delete</code>的时间复杂度都是<code>O(n)</code>，都需要遍历整个链表。</p>
+<h2 id="SkipList"><a href="#SkipList" class="headerlink" title="SkipList"></a>SkipList</h2><p><img src="https://note.youdao.com/yws/api/personal/file/WEB2484842e529d992295f5918ed9f99767?method=download&amp;shareKey=0836909ea6857dd9b6ba2b13c5f81401" alt="skip list"><br><code>SkipList</code>和单链表的不同点就是相邻两层的节点比为<code>1/2</code>。查找的时间从最上层开始来查找，这就相对于建了一个索引。</p>
+<p>层级之间节点比为<code>1/2</code>实现起来有会边复杂，相当于需要固定维护相邻层级之间的关系。所以作者推荐使用一个随机高度，每个节点的高度随机产生，再去修改节点的前后关系。通过设置一个最大高度和相邻节点比来生成随机高度。如下设置的最大高度是<code>20</code>，相邻节点是<code>1/3</code>；算法作者推荐这个比最好为<code>1/2^n</code>次方,但是我不明白为啥<code>badger</code>选择<code>1/3</code>.<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 这事badger中的随机高度的实现方式，</span></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">	maxHeight      = <span class="number">20</span></span><br><span class="line">	heightIncrease = math.MaxUint32 / <span class="number">3</span></span><br><span class="line">)</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">randomHeight</span><span class="params">(heightIncrease <span class="keyword">uint32</span>)</span> <span class="title">int32</span></span> &#123;</span><br><span class="line">	h := <span class="number">1</span></span><br><span class="line">	<span class="keyword">for</span> h &lt; maxHeight &amp;&amp; rand.Uint32() &lt;= heightIncrease &#123;</span><br><span class="line">		h++</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">int32</span>(h)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>高度看似是随机产生的，但是是按比例划分的，官方是按照概率去计算的，我通过生成<code>10000000</code>个数字来查看数字的分布，基本是和上面的概率比一致的。</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Test_randomHeight1</span><span class="params">(t *testing.T)</span></span>  &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line">	num := <span class="number">10000000</span></span><br><span class="line">	data2 := <span class="built_in">make</span>([]<span class="keyword">int32</span>,num)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span> ; i &lt; num ; i++ &#123;</span><br><span class="line">		data2[i] = randomHeight(math.MaxUint32 / <span class="number">2</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	scatterData2 := randomPoints1(data2)</span><br><span class="line"></span><br><span class="line">	data3 := <span class="built_in">make</span>([]<span class="keyword">int32</span>,num)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span> ; i &lt; num ; i++ &#123;</span><br><span class="line">		data3[i] = randomHeight(math.MaxUint32 / <span class="number">3</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	scatterData3 := randomPoints1(data3)</span><br><span class="line"></span><br><span class="line">	data4 := <span class="built_in">make</span>([]<span class="keyword">int32</span>,num)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span> ; i &lt; num ; i++ &#123;</span><br><span class="line">		data4[i] = randomHeight(math.MaxUint32 / <span class="number">4</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	scatterData4  := randomPoints1(data4)</span><br><span class="line"></span><br><span class="line">	data5 := <span class="built_in">make</span>([]<span class="keyword">int32</span>,num)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span> ; i &lt; num ; i++ &#123;</span><br><span class="line">		data5[i] = randomHeight(math.MaxUint32 / <span class="number">5</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	scatterData5 := randomPoints1(data5)</span><br><span class="line">	<span class="comment">// Create a new plot, set its title and</span></span><br><span class="line">	<span class="comment">// axis labels.</span></span><br><span class="line">	p, err := plot.New()</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(err)</span><br><span class="line">	&#125;</span><br><span class="line">	p.Title.Text = <span class="string">&quot;Points Example&quot;</span></span><br><span class="line">	p.X.Label.Text = <span class="string">&quot;X&quot;</span></span><br><span class="line">	p.Y.Label.Text = <span class="string">&quot;Y&quot;</span></span><br><span class="line">	<span class="comment">// Draw a grid behind the data</span></span><br><span class="line">	<span class="comment">//p.Add(plotter.NewGrid())</span></span><br><span class="line">	<span class="comment">//</span></span><br><span class="line">	<span class="comment">//// Make a scatter plotter and set its style.</span></span><br><span class="line">	<span class="comment">//s, err := plotter.NewScatter(scatterData)</span></span><br><span class="line">	<span class="comment">//if err != nil &#123;</span></span><br><span class="line">	<span class="comment">//	panic(err)</span></span><br><span class="line">	<span class="comment">//&#125;</span></span><br><span class="line">	<span class="comment">//s.GlyphStyle.Color = color.RGBA&#123;R: 255, B: 128, A: 255&#125;</span></span><br><span class="line">	<span class="comment">//p.Add(s)</span></span><br><span class="line">	l2, s2, _ := plotter.NewLinePoints(scatterData2)</span><br><span class="line">	l2.Color = plotutil.Color(<span class="number">0</span>)</span><br><span class="line">	l2.Dashes = plotutil.Dashes(<span class="number">0</span>)</span><br><span class="line">	s2.Color = plotutil.Color(<span class="number">0</span>)</span><br><span class="line">	s2.Shape = plotutil.Shape(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">	l3, s3, _ := plotter.NewLinePoints(scatterData3)</span><br><span class="line">	l3.Color = plotutil.Color(<span class="number">1</span>)</span><br><span class="line">	l3.Dashes = plotutil.Dashes(<span class="number">1</span>)</span><br><span class="line">	s3.Color = plotutil.Color(<span class="number">1</span>)</span><br><span class="line">	s3.Shape = plotutil.Shape(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">	l4, s4, _ := plotter.NewLinePoints(scatterData4)</span><br><span class="line">	l4.Color = plotutil.Color(<span class="number">2</span>)</span><br><span class="line">	l4.Dashes = plotutil.Dashes(<span class="number">2</span>)</span><br><span class="line">	s4.Color = plotutil.Color(<span class="number">2</span>)</span><br><span class="line">	s4.Shape = plotutil.Shape(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">	l5, s5, _ := plotter.NewLinePoints(scatterData5)</span><br><span class="line">	l5.Color = plotutil.Color(<span class="number">3</span>)</span><br><span class="line">	l5.Dashes = plotutil.Dashes(<span class="number">3</span>)</span><br><span class="line">	s5.Color = plotutil.Color(<span class="number">3</span>)</span><br><span class="line">	s5.Shape = plotutil.Shape(<span class="number">3</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment">//plotutil.AddLinePoints(p, scatterData2,scatterData3,scatterData4,scatterData5)</span></span><br><span class="line">	p.Add(l2,s2,l3,s3,l4,s4,l5,s5)</span><br><span class="line">	p.Legend.Add(<span class="string">&quot;line points 2&quot;</span>, l2, s2)</span><br><span class="line">	p.Legend.Add(<span class="string">&quot;line points 3&quot;</span>, l3, s3)</span><br><span class="line">	p.Legend.Add(<span class="string">&quot;line points 4&quot;</span>, l4, s4)</span><br><span class="line">	p.Legend.Add(<span class="string">&quot;line points 5&quot;</span>, l5, s5)</span><br><span class="line">	<span class="comment">// Save the plot to a PNG file.</span></span><br><span class="line">	<span class="keyword">if</span> err := p.Save(<span class="number">8</span>*vg.Inch, <span class="number">8</span>*vg.Inch, <span class="string">&quot;4-points0.5.png&quot;</span>); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(err)</span><br><span class="line">	&#125;</span><br><span class="line">	t.Log(<span class="string">&quot;Test Pass&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// randomPoints returns some random x, y points.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">randomPoints1</span><span class="params">(n []<span class="keyword">int32</span>)</span> <span class="title">plotter</span>.<span class="title">XYs</span></span> &#123;</span><br><span class="line">	m := <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">int32</span>]<span class="keyword">int</span>)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> _,v := <span class="keyword">range</span> n &#123;</span><br><span class="line">		<span class="keyword">if</span> _,ok := m[v]; ok  &#123;</span><br><span class="line">			m[v] ++</span><br><span class="line">		&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">			m[v] = <span class="number">1</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	pts := <span class="built_in">make</span>(plotter.XYs, <span class="built_in">len</span>(m))</span><br><span class="line">	<span class="keyword">for</span> i:= <span class="number">0</span> ; i &lt; <span class="built_in">len</span>(m) ; &#123;</span><br><span class="line">		k := i+<span class="number">1</span></span><br><span class="line">		v := m[<span class="keyword">int32</span>(k)]</span><br><span class="line">		fmt.Println(k,v)</span><br><span class="line">		pts[i].X = <span class="keyword">float64</span>(k)</span><br><span class="line">		pts[i].Y = <span class="keyword">float64</span>(v)</span><br><span class="line">		i ++</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;map:%+v\n&quot;</span>,m)</span><br><span class="line">	<span class="keyword">return</span> pts</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我写了如上的一个测试程序，并画出数据的分布情况。<br><img src="https://note.youdao.com/yws/api/personal/file/WEB3e6a78c1c7642b5eee88e6752c4ae91a?method=download&amp;shareKey=cab1b3a195affd9b3e24c9827a290495" alt="分布"></p>
+<p>横轴是最大高度，纵轴是分布在高度上的情况，从图上可以看出，<code>p</code>越小，衰变的速度越快，数据分布越集中，当<code>p</code>为<code>1/2</code>是数据基本是按层级间<code>1/2</code>的关系递减的。</p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>官方论文中有实现的伪代码，按照伪代码即可实现。</p>
+<h3 id="Search"><a href="#Search" class="headerlink" title="Search"></a>Search</h3><p>如下是查询时的一个伪代码，基本逻辑就是从头节点的最高层级开始变量查询，如果查询节点不为<code>nil</code>并且<code>key</code>大于当前节点的<code>key</code>，就往后查询，否则层级下降。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line">Search(list, searchKey)</span><br><span class="line">    x := list→header</span><br><span class="line">    -- loop invariant: x→key &lt; searchKey</span><br><span class="line">    <span class="keyword">for</span> i := list→level downto <span class="number">1</span> do</span><br><span class="line">        while x→forward[i] != <span class="literal">nil</span> &amp;&amp;&amp; x→forward[i]→key &lt; searchKey do</span><br><span class="line">            x := x→forward[i]</span><br><span class="line">    -- x→key &lt; searchKey ≤ x→forward[<span class="number">1</span>]→key</span><br><span class="line">    x := x→forward[<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">if</span> x→key = searchKey then </span><br><span class="line">        <span class="keyword">return</span> x→value</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">return</span> failure</span><br></pre></td></tr></table></figure></p>
+<h3 id="Insert"><a href="#Insert" class="headerlink" title="Insert"></a>Insert</h3><p>插入的不同点就是要记录下查找的路径，后面需要更新插入前后的元素;只记录阶梯变化的最后一个；下面的<code>update</code>数组就是记录变化的，然后查找到要插入的地方，如果<code>key</code>已经存在就更新值，不存在就插入。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line">Insert(list, searchKey, newValue)</span><br><span class="line">    local update[<span class="number">1.</span>.MaxLevel]</span><br><span class="line">    x := list→header</span><br><span class="line">    <span class="keyword">for</span> i := list→level downto <span class="number">1</span> do</span><br><span class="line">        while x→forward[i]→key &lt; searchKey do</span><br><span class="line">            x := x→forward[i]</span><br><span class="line">        update[i] := x</span><br><span class="line">    x := x→forward[<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">if</span> x→key = searchKey then x→value := newValue</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        newLevel := randomLevel()</span><br><span class="line">        <span class="keyword">if</span> newLevel &gt; list→level then</span><br><span class="line">            <span class="keyword">for</span> i := list→level + <span class="number">1</span> to newLevel do</span><br><span class="line">                update[i] := list→header</span><br><span class="line">            list→level := newLevel</span><br><span class="line">        x := makeNode(newLevel , searchKey, value)</span><br><span class="line">        <span class="keyword">for</span> i := <span class="number">1</span> to newLevel do</span><br><span class="line">            x→forward[i] := update[i]→forward[i]</span><br><span class="line">            update[i]→forward[i] := x</span><br></pre></td></tr></table></figure></p>
+<h3 id="Delete"><a href="#Delete" class="headerlink" title="Delete"></a>Delete</h3><p>删除是同样需要记录查找路径，后面需要更新前后的路径。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line">Delete(list, searchKey)</span><br><span class="line">    local update[<span class="number">1.</span>.MaxLevel]</span><br><span class="line">    x := list→header</span><br><span class="line">    <span class="keyword">for</span> i := list→level downto <span class="number">1</span> do</span><br><span class="line">        while x→forward[i]→key &lt; searchKey do</span><br><span class="line">            x := x→forward[i]</span><br><span class="line">        update[i] := x</span><br><span class="line">    x := x→forward[<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">if</span> x→key = searchKey then</span><br><span class="line">        <span class="keyword">for</span> i := <span class="number">1</span> to list→level do</span><br><span class="line">            <span class="keyword">if</span> update[i]→forward[i] ≠ x then <span class="keyword">break</span></span><br><span class="line">            update[i]→forward[i] := x→forward[i]</span><br><span class="line">        free(x)</span><br><span class="line">        while list→level &gt; <span class="number">1</span> and</span><br><span class="line">            list→header→forward[list→level] = NIL do</span><br><span class="line">            list→level := list→level – <span class="number">1</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a href="http://zhangtielei.com/posts/blog-redis-skiplist.html">redis之Skiplist</a></li>
+<li><a href="http://homepage.cs.uiowa.edu/~ghosh/skip.pdf">论文</a></li>
+<li><a href="https://eugene-eeo.github.io/blog/skip-lists.html">https://eugene-eeo.github.io/blog/skip-lists.html</a></li>
+<li><a href="https://ticki.github.io/blog/skip-lists-done-right/">https://ticki.github.io/blog/skip-lists-done-right/</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Badger</category>
+      </categories>
+      <tags>
+        <tag>数据结构</tag>
       </tags>
   </entry>
   <entry>
@@ -2268,6 +2245,29 @@ MySQL服务初始化(仅适用5.7)</li>
       <tags>
         <tag>golang 源码</tag>
         <tag>channel</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>intellij-idea激活</title>
+    <url>/2019/10/20/intellij-idea%E6%BF%80%E6%B4%BB/</url>
+    <content><![CDATA[<h1 id="IntelliJ-IDEA-2019-2-1最新激活码"><a href="#IntelliJ-IDEA-2019-2-1最新激活码" class="headerlink" title="IntelliJ IDEA 2019.2.1最新激活码"></a>IntelliJ IDEA 2019.2.1最新激活码</h1><p>激活时间到<strong>2089年</strong>，足够任何人使用了。</p>
+<p><code>IDEA</code>2019以前的版本都可以使用<code>http://idea.lanyus.com/</code>这个注册码去破解，我相信大多数人都是使用的这个激活码，可是<code>2019</code>版的都不能在使用这个注册码了。</p>
+<p>新版注册码方法主要有如下几个步骤。<br>此处的<code>IDEA</code>包括所有软件，不止<code>intellij</code>还包括<code>goland</code>、<code>pychart</code>这些软件都是本人亲测激活并且有效的。</p>
+<h2 id="破解步骤"><a href="#破解步骤" class="headerlink" title="破解步骤"></a>破解步骤</h2><p>首先去官网下载最新版的<code>IDEA</code>，下载好之后安装并启动；<br>打开之后选择<strong>选择30天免费试用</strong>。</p>
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEBd316f43d8ad3dc706fcaa6b9e110a19e?method=download&amp;shareKey=a55b461fcf4d04c652066aab8e17d042" alt="image"></p>
+<p>进入之后点击<code>Configure</code>-&gt;<code>Edit Custom VM Options</code> 进入编辑框中。<br><img src="https://note.youdao.com/yws/api/personal/file/WEBc74c7dcf05dc009df79d42983abd4c70?method=download&amp;shareKey=48344ed4c5cb22f28376497a1cb99533" alt="image"></p>
+<p>在<code>VM Options</code>中添加<code>-javaagent:绝对路径</code>的参数。添加完之后保存，并关闭软件再次重启。<br><img src="https://note.youdao.com/yws/api/personal/file/WEB291a77318ea22fedcc84ce9a90c15b59?method=download&amp;shareKey=45ea668d89c153e2b1bb78cd9576a1c7" alt="image"></p>
+<p>重启后点击<code>Configure</code>-&gt;<code>Manage License</code>进入如下的页面，首先如果有<code>Remove License</code>，那就点击删除这个<code>License</code>，其次再把<code>License</code>放入即可激活。<br><img src="https://note.youdao.com/yws/api/personal/file/WEB4118c5e452fe931f50648bc609cf0101?method=download&amp;shareKey=5b00317cdae7a5fbc2585997f32205a0" alt="image"></p>
+<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><p>1、上面添加<code>-javaagent</code>这一步一定要做，不然就会出现<code>key is invalid</code>的提示。</p>
+<p>2、上面的破解包和<code>License</code>要对应。</p>
+<h2 id="破解包和License"><a href="#破解包和License" class="headerlink" title="破解包和License"></a>破解包和License</h2><h3 id="agent-jar-包"><a href="#agent-jar-包" class="headerlink" title="agent jar 包"></a>agent jar 包</h3><p>下载地址：<a href="http://note.youdao.com/noteshare?id=027477dc925c299fa427f761301a3e2a">http://note.youdao.com/noteshare?id=027477dc925c299fa427f761301a3e2a</a></p>
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEBa838e2c0131a7781033f2d5b7bcb226e?method=download&amp;shareKey=01a48f4594b587f3f736576b4663a6a2" alt="image"></p>
+<h3 id="License"><a href="#License" class="headerlink" title="License"></a>License</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">520E5894E2-eyJsaWNlbnNlSWQiOiI1MjBFNTg5NEUyIiwibGljZW5zZWVOYW1lIjoicGlnNiIsImFzc2lnbmVlTmFtZSI6IiIsImFzc2lnbmVlRW1haWwiOiIiLCJsaWNlbnNlUmVzdHJpY3Rpb24iOiJVbmxpbWl0ZWQgbGljZW5zZSB0aWxsIGVuZCBvZiB0aGUgY2VudHVyeS4iLCJjaGVja0NvbmN1cnJlbnRVc2UiOmZhbHNlLCJwcm9kdWN0cyI6W3siY29kZSI6IklJIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiUlMwIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiV1MiLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJSRCIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IlJDIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiREMiLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJEQiIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IlJNIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiRE0iLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJBQyIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IkRQTiIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IkdPIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiUFMiLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJDTCIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IlBDIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiUlNVIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In1dLCJoYXNoIjoiODkwNzA3MC8wIiwiZ3JhY2VQZXJpb2REYXlzIjowLCJhdXRvUHJvbG9uZ2F0ZWQiOmZhbHNlLCJpc0F1dG9Qcm9sb25nYXRlZCI6ZmFsc2V9-DZ/oNHBfyho0XrrCJJvAOKg5Q1tLBgOdbCmzCKwkuM+Yryce0RoOi3OOmH6Ba/uTcCh/L37meyD0FJdJIprv59y4+n+k2kIeF/XKrKqg0dEsDUQRw0lUqqMt99ohqa+zmbJ44Yufdwwx/F1CtoRGvEQ2Mn0QjuqRoZJZ3wiT5Am22JiJW8MaNUl3wg9YPj+OPGARKKJUdUJ0NGUDQBcBAv5ds8LhbSbJSbPkbkwH/a1QMz4nEdn6lRDKI1aFIn43QhBSCFqvUq6TPJlbIJ0ZjE+PyZjHFBKCgkry0DHPXU2BbtIZPsksQnN3fx240a9K6sN7peZnLpEoMoq23FEz4g==-MIIElTCCAn2gAwIBAgIBCTANBgkqhkiG9w0BAQsFADAYMRYwFAYDVQQDDA1KZXRQcm9maWxlIENBMB4XDTE4MTEwMTEyMjk0NloXDTIwMTEwMjEyMjk0NlowaDELMAkGA1UEBhMCQ1oxDjAMBgNVBAgMBU51c2xlMQ8wDQYDVQQHDAZQcmFndWUxGTAXBgNVBAoMEEpldEJyYWlucyBzLnIuby4xHTAbBgNVBAMMFHByb2QzeS1mcm9tLTIwMTgxMTAxMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5ndaik1GD0nyTdqkZgURQZGW+RGxCdBITPXIwpjhhaD0SXGa4XSZBEBoiPdY6XV6pOfUJeyfi9dXsY4MmT0D+sKoST3rSw96xaf9FXPvOjn4prMTdj3Ji3CyQrGWeQU2nzYqFrp1QYNLAbaViHRKuJrYHI6GCvqCbJe0LQ8qqUiVMA9wG/PQwScpNmTF9Kp2Iej+Z5OUxF33zzm+vg/nYV31HLF7fJUAplI/1nM+ZG8K+AXWgYKChtknl3sW9PCQa3a3imPL9GVToUNxc0wcuTil8mqveWcSQCHYxsIaUajWLpFzoO2AhK4mfYBSStAqEjoXRTuj17mo8Q6M2SHOcwIDAQABo4GZMIGWMAkGA1UdEwQCMAAwHQYDVR0OBBYEFGEpG9oZGcfLMGNBkY7SgHiMGgTcMEgGA1UdIwRBMD+AFKOetkhnQhI2Qb1t4Lm0oFKLl/GzoRykGjAYMRYwFAYDVQQDDA1KZXRQcm9maWxlIENBggkA0myxg7KDeeEwEwYDVR0lBAwwCgYIKwYBBQUHAwEwCwYDVR0PBAQDAgWgMA0GCSqGSIb3DQEBCwUAA4ICAQBonMu8oa3vmNAa4RQP8gPGlX3SQaA3WCRUAj6Zrlk8AesKV1YSkh5D2l+yUk6njysgzfr1bIR5xF8eup5xXc4/G7NtVYRSMvrd6rfQcHOyK5UFJLm+8utmyMIDrZOzLQuTsT8NxFpbCVCfV5wNRu4rChrCuArYVGaKbmp9ymkw1PU6+HoO5i2wU3ikTmRv8IRjrlSStyNzXpnPTwt7bja19ousk56r40SmlmC04GdDHErr0ei2UbjUua5kw71Qn9g02tL9fERI2sSRjQrvPbn9INwRWl5+k05mlKekbtbu2ev2woJFZK4WEXAd/GaAdeZZdumv8T2idDFL7cAirJwcrbfpawPeXr52oKTPnXfi0l5+g9Gnt/wfiXCrPElX6ycTR6iL3GC2VR4jTz6YatT4Ntz59/THOT7NJQhr6AyLkhhJCdkzE2cob/KouVp4ivV7Q3Fc6HX7eepHAAF/DpxwgOrg9smX6coXLgfp0b1RU2u/tUNID04rpNxTMueTtrT8WSskqvaJd3RH8r7cnRj6Y2hltkja82HlpDURDxDTRvv+krbwMr26SB/40BjpMUrDRCeKuiBahC0DCoU/4+ze1l94wVUhdkCfL0GpJrMSCDEK+XEurU18Hb7WT+ThXbkdl6VpFdHsRvqAnhR2g4b+Qzgidmuky5NUZVfEaZqV/g==</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>工具</category>
+      </categories>
+      <tags>
+        <tag>intellij</tag>
       </tags>
   </entry>
   <entry>
@@ -2338,8 +2338,7 @@ MySQL服务初始化(仅适用5.7)</li>
   <entry>
     <title>断更的这段时间我去哪了？</title>
     <url>/2021/05/15/%E6%96%AD%E6%9B%B4%E7%9A%84%E8%BF%99%E6%AE%B5%E6%97%B6%E9%97%B4%E6%88%91%E5%8E%BB%E5%93%AA%E4%BA%86/</url>
-    <content><![CDATA[<p>​        前几天一个朋友问，你写文章为什么断更了，然后就有了这篇文章，我来说下断更的这段时间都去做什么了？最后一次发文是在<code>2019-10</code>月，以及为什么现在又开始更新了。</p>
-<p>​        我先简短说一下，这一年半我换了两次工作、离开了之前生活以及工作了多年的城市<strong>成都</strong>，来到了<strong>北京</strong>，成为了北漂一族，来到北京之后工作任务繁重就没有再继续写<code>blog</code>了。</p>
+    <content><![CDATA[<p>​        前几天一个朋友问，你写文章为什么断更了，然后就有了这篇文章，我来说下断更的这段时间都去做什么了？最后一次发文是在<code>2019-10</code>月，以及为什么现在又开始更新了。<br>&lt; !–more–&gt;<br>​        我先简短说一下，这一年半我换了两次工作、离开了之前生活以及工作了多年的城市<strong>成都</strong>，来到了<strong>北京</strong>，成为了北漂一族，来到北京之后工作任务繁重就没有再继续写<code>blog</code>了。</p>
 <p>​       下面我会从为什么开始写<code>blog</code>、写作过程中的变化、为什么来北京、北漂的生活、入职、未来、找工作几个方面来描述今天的主题。</p>
 <h3 id="为什么想写blog"><a href="#为什么想写blog" class="headerlink" title="为什么想写blog"></a>为什么想写blog</h3><ul>
 <li>第一：在写<code>blog</code>之前，我看了不少优秀的的软件工程师写的<code>blog</code>，他们会写他们自己学习的东西、自己的读书见解、自己的思考（包括对过去的总结，对未来的规划）等一系列的知识，有时候我常常会把一个人的博客通读一遍，所以这些优秀的博客对我的影响是最大的。</li>
