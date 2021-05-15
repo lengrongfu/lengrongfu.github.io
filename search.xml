@@ -186,39 +186,6 @@
       </tags>
   </entry>
   <entry>
-    <title>es 索引按时间自动创建</title>
-    <url>/2018/10/17/es-dynamic-index-create/</url>
-    <content><![CDATA[<h1 id="index"><a href="#index" class="headerlink" title="index"></a>index</h1><p>通过创建<code>template</code>来进行动态模版的创建。</p>
-<ul>
-<li><p>创建模版</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT _template/template_1</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;template&quot;</span>: <span class="string">&quot;test-*&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;settings&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;number_of_shards&quot;</span>: <span class="number">1</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">&quot;mappings&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;type1&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;_source&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;enabled&quot;</span>: <span class="literal">false</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">&quot;properties&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;host_name&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;keyword&quot;</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">&quot;created_at&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;date&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;format&quot;</span>: <span class="string">&quot;EEE MMM dd HH:mm:ss Z YYYY&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>创建第一天的数据</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT test<span class="number">-2018.08</span><span class="number">.10</span>/type1</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;host_name&quot;</span>:<span class="string">&quot;&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;created_at&quot;</span>:<span class="string">&quot;&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>创建第二天的数据<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT test<span class="number">-2018.08</span><span class="number">.11</span>/type1</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;host_name&quot;</span>:<span class="string">&quot;&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;created_at&quot;</span>:<span class="string">&quot;&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>后面都是依次类推。</p>
-<h2 id="禁止自动创建索引"><a href="#禁止自动创建索引" class="headerlink" title="禁止自动创建索引"></a>禁止自动创建索引</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim config/elasticsearch.yml</span><br><span class="line">action.auto_create_index: false</span><br></pre></td></tr></table></figure>
-<h2 id="删除索引"><a href="#删除索引" class="headerlink" title="删除索引"></a>删除索引</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#用以下的请求来 删除索引:</span><br><span class="line">DELETE /my_index</span><br><span class="line">#你也可以这样删除多个索引：</span><br><span class="line"></span><br><span class="line">DELETE /index_one,index_two</span><br><span class="line">DELETE /index_*</span><br><span class="line">#你甚至可以这样删除 全部 索引：</span><br><span class="line">DELETE /_all</span><br><span class="line">DELETE /*</span><br></pre></td></tr></table></figure>
-<p>为了避免意外的执行了删除所有数据的命令，可加入如下的配置。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim config/elasticsearch.yml</span><br><span class="line">action.destructive_requires_name: true</span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置之后就不能再执行删除所有的数据的命令，只能指定索引的删除</span></span><br></pre></td></tr></table></figure></p>
-<h2 id="索引设置"><a href="#索引设置" class="headerlink" title="索引设置"></a>索引设置</h2><p>可以通过修改配置自定义索引行为，详细配置参照<a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/index-modules.html">索引模块</a>。</p>
-<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
-<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/_creating_an_index.html">https://www.elastic.co/guide/cn/elasticsearch/guide/current/_creating_an_index.html</a></li>
-<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/index-templates.html">https://www.elastic.co/guide/cn/elasticsearch/guide/current/index-templates.html</a></li>
-<li><a href="https://www.elastic.co/blog/managing-time-based-indices-efficiently">有效地管理Elasticsearch基于时间的指数</a></li>
-<li><a href="https://luyiisme.github.io/2017/04/13/es-rollover-index/">更高效的数据</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>es</category>
-      </categories>
-      <tags>
-        <tag>elasticsearch</tag>
-        <tag>es template</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>elk 搭建</title>
     <url>/2018/10/17/elk-install/</url>
     <content><![CDATA[<h1 id="ELK"><a href="#ELK" class="headerlink" title="ELK"></a>ELK</h1><h2 id="一、ElasticSearch"><a href="#一、ElasticSearch" class="headerlink" title="一、ElasticSearch"></a>一、ElasticSearch</h2><h3 id="1、安装"><a href="#1、安装" class="headerlink" title="1、安装"></a>1、安装</h3><ul>
@@ -318,6 +285,39 @@ system call filters failed to install; check the logs and fix your configuration
       </tags>
   </entry>
   <entry>
+    <title>es 索引按时间自动创建</title>
+    <url>/2018/10/17/es-dynamic-index-create/</url>
+    <content><![CDATA[<h1 id="index"><a href="#index" class="headerlink" title="index"></a>index</h1><p>通过创建<code>template</code>来进行动态模版的创建。</p>
+<ul>
+<li><p>创建模版</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT _template/template_1</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;template&quot;</span>: <span class="string">&quot;test-*&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;settings&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;number_of_shards&quot;</span>: <span class="number">1</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">&quot;mappings&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;type1&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;_source&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;enabled&quot;</span>: <span class="literal">false</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">&quot;properties&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;host_name&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;keyword&quot;</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">&quot;created_at&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;date&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;format&quot;</span>: <span class="string">&quot;EEE MMM dd HH:mm:ss Z YYYY&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建第一天的数据</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT test<span class="number">-2018.08</span><span class="number">.10</span>/type1</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;host_name&quot;</span>:<span class="string">&quot;&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;created_at&quot;</span>:<span class="string">&quot;&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>创建第二天的数据<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT test<span class="number">-2018.08</span><span class="number">.11</span>/type1</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;host_name&quot;</span>:<span class="string">&quot;&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;created_at&quot;</span>:<span class="string">&quot;&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>后面都是依次类推。</p>
+<h2 id="禁止自动创建索引"><a href="#禁止自动创建索引" class="headerlink" title="禁止自动创建索引"></a>禁止自动创建索引</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim config/elasticsearch.yml</span><br><span class="line">action.auto_create_index: false</span><br></pre></td></tr></table></figure>
+<h2 id="删除索引"><a href="#删除索引" class="headerlink" title="删除索引"></a>删除索引</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#用以下的请求来 删除索引:</span><br><span class="line">DELETE /my_index</span><br><span class="line">#你也可以这样删除多个索引：</span><br><span class="line"></span><br><span class="line">DELETE /index_one,index_two</span><br><span class="line">DELETE /index_*</span><br><span class="line">#你甚至可以这样删除 全部 索引：</span><br><span class="line">DELETE /_all</span><br><span class="line">DELETE /*</span><br></pre></td></tr></table></figure>
+<p>为了避免意外的执行了删除所有数据的命令，可加入如下的配置。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim config/elasticsearch.yml</span><br><span class="line">action.destructive_requires_name: true</span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置之后就不能再执行删除所有的数据的命令，只能指定索引的删除</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="索引设置"><a href="#索引设置" class="headerlink" title="索引设置"></a>索引设置</h2><p>可以通过修改配置自定义索引行为，详细配置参照<a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/index-modules.html">索引模块</a>。</p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/_creating_an_index.html">https://www.elastic.co/guide/cn/elasticsearch/guide/current/_creating_an_index.html</a></li>
+<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/index-templates.html">https://www.elastic.co/guide/cn/elasticsearch/guide/current/index-templates.html</a></li>
+<li><a href="https://www.elastic.co/blog/managing-time-based-indices-efficiently">有效地管理Elasticsearch基于时间的指数</a></li>
+<li><a href="https://luyiisme.github.io/2017/04/13/es-rollover-index/">更高效的数据</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>es</category>
+      </categories>
+      <tags>
+        <tag>elasticsearch</tag>
+        <tag>es template</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>ES 节点重启问题</title>
     <url>/2018/10/17/es-node-restart-problme/</url>
     <content><![CDATA[<p><strong>ES 节点离线并重启之后，发现本级上的分片已经再开始在平衡了，就会把本级上的所有分片删除，从新从其他集群上拉取，这样就会出现大量的数据迁移。占用超级多的网络资源。</strong></p>
@@ -340,48 +340,6 @@ system call filters failed to install; check the logs and fix your configuration
       </categories>
       <tags>
         <tag>elasticsearch</tag>
-        <tag>es 运维</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>es 单节点部署多个服务</title>
-    <url>/2018/10/17/es-single-node-install/</url>
-    <content><![CDATA[<h1 id="ElasticSearch单机双实例的配置方法"><a href="#ElasticSearch单机双实例的配置方法" class="headerlink" title="ElasticSearch单机双实例的配置方法"></a>ElasticSearch单机双实例的配置方法</h1><p>从ElasticSearch官方的多份文档中可以看到，官方并不建议部署ES时为实例指定超过32GB的内存，但是现在内存的价格非常便宜，一台实体机服务器仅用32G内存显然是非常浪费的。所以我们要尝试在一个服务器上开多个ES实例，以便达到充分利用资源的目的。本文提供了一些ES单机双实例的配置要点，可扩展至单机多实例，供大家来实际参考。</p>
-<h2 id="突破32G"><a href="#突破32G" class="headerlink" title="突破32G"></a>突破32G</h2><p>从ElasticSearch官方的多份文档中可以看到，官方并不建议部署ES时为实例指定超过32GB的内存，例如这些写着大字警告用户的文章： <a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/heap-sizing.html#compressed_oops">Don’t Cross 32 GB!</a></p>
-<p>但是现在内存的价格非常便宜，一台实体机服务器仅用32G内存显然是非常浪费的。所以我们要尝试在一个服务器上开多个ES实例，以便达到充分利用资源的目的。</p>
-<h2 id="配置变更"><a href="#配置变更" class="headerlink" title="配置变更"></a>配置变更</h2><p>要做到单机上开多个实例，需要修改ES的默认配置，以下是一些配置要点：</p>
-<h3 id="node-max-local-storage-nodes"><a href="#node-max-local-storage-nodes" class="headerlink" title="node.max_local_storage_nodes"></a>node.max_local_storage_nodes</h3><p>这个配置限制了单节点上可以开启的ES存储实例的个数，我们需要开多个实例，因此需要把这个配置写到配置文件中，并为这个配置赋值为2或者更高。</p>
-<h3 id="http-port"><a href="#http-port" class="headerlink" title="http.port"></a>http.port</h3><p>这个配置是elasticsearch对外提供服务的http端口配置，默认情况下ES会取用9200~9299之间的端口，如果9200被占用就会自动使用9201，在单机多实例的配置中这个配置实际是不需要修改的。</p>
-<p>但是为了更好地进行配置管理，以及和老的配置兼容，我们还是手动将第一个实例的http端口配置为9200，第二个实例配置为9201。</p>
-<h3 id="transport-tcp-port"><a href="#transport-tcp-port" class="headerlink" title="transport.tcp.port"></a>transport.tcp.port</h3><p>这个配置指定了elasticsearch集群内数据通讯使用的端口，默认情况下为9300，与上面的http.port配置类似，ES也会自动为已占用的端口选择下一个端口号。我们可以将第一个实例的tcp传输端口配置为9300，第二实例配置为9301。<br>discovery.zen.ping.unicast.hosts</p>
-<p>由于到了2.x版本之后，ES取消了默认的广播模式来发现master节点，需要使用该配置来指定发现master节点。这个配置在单机双实例的配置中需要特别注意下，因为习惯上我们配置时并未指定master节点的tcp端口，如果实例的transport.tcp.port配置为9301，那么实例启动后会认为discovery.zen.ping.unicast.hosts中指定的主机tcp端口也是9301，可能导致这些节点无法找到master节点。因此在该配置中需要指定master节点提供服务的tcp端口。</p>
-<p>配置示例：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">discovery.zen.ping.unicast.hosts: [&quot;testes.mydomain:9300&quot;,&quot;testes1.mydomain:9301&quot;]</span><br></pre></td></tr></table></figure></p>
-<h2 id="其他配置"><a href="#其他配置" class="headerlink" title="其他配置"></a>其他配置</h2><ul>
-<li><p>node.name</p>
-<p>同一主机上的两个实例需要使用不同的node.name</p>
-</li>
-<li><p>path.data</p>
-<p>同一主机上两个实例需要对应不同的数据目录</p>
-</li>
-<li><p>path.logs</p>
-<p>由于默认情况下日志用集群名称来命名，因此同一主机两个实例对应的日志目录需要分开</p>
-</li>
-</ul>
-<h2 id="完整配置示例"><a href="#完整配置示例" class="headerlink" title="完整配置示例"></a>完整配置示例</h2><p>以下提供两个完整的配置实例供参考：</p>
-<p>实例1：<br><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">cluster.name:</span> <span class="string">testes</span></span><br><span class="line"><span class="attr">node.name:</span> <span class="string">$&#123;HOSTNAME&#125;</span></span><br><span class="line"><span class="attr">node.box_type:</span> <span class="string">M</span></span><br><span class="line"><span class="attr">node.master:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">node.data:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">path.data:</span> <span class="string">/data/disk01</span></span><br><span class="line"><span class="attr">path.logs:</span> <span class="string">/home/centos/elasticsearch/logs/instance1</span></span><br><span class="line"><span class="attr">network.host:</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span></span><br><span class="line"><span class="attr">http.port:</span> <span class="number">9200</span></span><br><span class="line"><span class="attr">transport.tcp.port:</span> <span class="number">9300</span></span><br><span class="line"><span class="attr">discovery.zen.ping.unicast.hosts:</span> [<span class="string">&quot;testes1.mydomain:9300&quot;</span>,<span class="string">&quot;testes2.mydomain:9301&quot;</span>]</span><br><span class="line"><span class="attr">node.max_local_storage_nodes:</span> <span class="number">2</span></span><br><span class="line"><span class="attr">threadpool.index.queue_size:</span> <span class="number">400</span></span><br><span class="line"><span class="attr">threadpool.bulk.queue_size:</span> <span class="number">5000</span></span><br><span class="line"><span class="attr">bootstrap.mlockall:</span> <span class="literal">false</span></span><br></pre></td></tr></table></figure><br>实例2：<br><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">cluster.name:</span> <span class="string">testes</span></span><br><span class="line"><span class="attr">node.name:</span> <span class="string">$&#123;HOSTNAME&#125;-2</span></span><br><span class="line"><span class="attr">node.box_type:</span> <span class="string">M</span></span><br><span class="line"><span class="attr">node.master:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">node.data:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">path.data:</span> <span class="string">/data/disk02</span></span><br><span class="line"><span class="attr">path.logs:</span> <span class="string">/home/centos/elasticsearch/logs/instance2</span></span><br><span class="line"><span class="attr">network.host:</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span></span><br><span class="line"><span class="attr">http.port:</span> <span class="number">9201</span></span><br><span class="line"><span class="attr">transport.tcp.port:</span> <span class="number">9301</span></span><br><span class="line"><span class="attr">discovery.zen.ping.unicast.hosts:</span> [<span class="string">&quot;testes1.mydomain:9300&quot;</span>,<span class="string">&quot;testes2.mydomain:9301&quot;</span>]</span><br><span class="line"><span class="attr">node.max_local_storage_nodes:</span> <span class="number">2</span></span><br><span class="line"></span><br></pre></td></tr></table></figure></p>
-<h2 id="配置部署"><a href="#配置部署" class="headerlink" title="配置部署"></a>配置部署</h2><p>默认情况下ES启动时使用ES安装目录的config子目录下的elasticsearch.yml文件来作为配置文件，同时还用到了config子目录下的logging.yml文件来作为日志的配置文件。为了实现单机双实例的分别启动，我们需要创建两个目录来分别存储两个实例的配置文件，如：</p>
-<p>在config子目录下创建instance1和instance2两个目录，分别放置两个实例需要的elasticsearch.yml和logging.yml配置文件。</p>
-<p>注意，ES的配置文件必须使用elasticsearch.yml这个命名，因此必须创建出两个目录来。</p>
-<h2 id="启动实例"><a href="#启动实例" class="headerlink" title="启动实例"></a>启动实例</h2><p>以下是两条参考的命令，用于启动单机上的两个实例：</p>
-<h3 id="实例1"><a href="#实例1" class="headerlink" title="实例1:"></a>实例1:</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">bin/elasticsearch -Des.path.conf=config/instance1 -d -p /tmp/elasticsearch_1.pid</span><br></pre></td></tr></table></figure>
-<h3 id="实例2"><a href="#实例2" class="headerlink" title="实例2:"></a>实例2:</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">bin/elasticsearch -Des.path.conf=config/instance2 -d -p /tmp/elasticsearch_2.pid</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>es</category>
-      </categories>
-      <tags>
-        <tag>elasticsearch</tag>
-        <tag>install</tag>
         <tag>es 运维</tag>
       </tags>
   </entry>
@@ -444,69 +402,45 @@ system call filters failed to install; check the logs and fix your configuration
       </tags>
   </entry>
   <entry>
-    <title>linux-Firewall 配置</title>
-    <url>/2018/10/17/linux-Firewall/</url>
-    <content><![CDATA[<blockquote>
-<p><code>iptables</code> 主要用于<code>centos 7</code>一下,<code>Firewall</code>用于<code>centos7</code>以上.</p>
-</blockquote>
-<h1 id="Firewall"><a href="#Firewall" class="headerlink" title="Firewall"></a>Firewall</h1><p>FirewallD 是 iptables 的前端控制器，用于实现持久的网络流量规则。它提供命令行和图形界面，在大多数 Linux 发行版的仓库中都有。与直接控制 iptables 相比，使用 FirewallD 有两个主要区别：</p>
-<p>1、FirewallD 使用区域和服务而不是链式规则。</p>
-<p>2、它动态管理规则集，允许更新规则而不破坏现有会话和连接。</p>
-<p>FirewallD 是 iptables 的一个封装，可以让你更容易地管理 iptables 规则 - 它并不是 iptables 的替代品。虽然 iptables 命令仍可用于 FirewallD，但建议使用 FirewallD 时仅使用 FirewallD 命令。</p>
-<p>本指南将向您介绍 FirewallD 的区域和服务的概念，以及一些基本的配置步骤。</p>
-<h2 id="安装与管理-FirewallD"><a href="#安装与管理-FirewallD" class="headerlink" title="安装与管理 FirewallD"></a>安装与管理 FirewallD</h2><p>CentOS 7 和 Fedora 20+ 已经包含了 FirewallD，但是默认没有激活。可以像其它的 systemd 单元那样控制它。</p>
-<p>1、 启动服务，并在系统引导时启动该服务：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo systemctl start firewalld</span><br><span class="line">sudo systemctl enable firewalld</span><br></pre></td></tr></table></figure><br>要停止并禁用：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo systemctl stop firewalld</span><br><span class="line">sudo systemctl disable firewalld</span><br></pre></td></tr></table></figure><br>2、 检查防火墙状态。输出应该是 running 或者 not running。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --state</span><br></pre></td></tr></table></figure><br>3、 要查看 FirewallD 守护进程的状态：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo systemctl status firewalld</span><br><span class="line">示例输出</span><br><span class="line"></span><br><span class="line">firewalld.service - firewalld - dynamic firewall daemon</span><br><span class="line">   Loaded: loaded (/usr/lib/systemd/system/firewalld.service; disabled)</span><br><span class="line">   Active: active (running) since Wed 2015-09-02 18:03:22 UTC; 1min 12s ago</span><br><span class="line"> Main PID: 11954 (firewalld)</span><br><span class="line">   CGroup: /system.slice/firewalld.service</span><br><span class="line">   └─11954 /usr/bin/python -Es /usr/sbin/firewalld --nofork --nopid</span><br></pre></td></tr></table></figure><br>4、 重新加载 FirewallD 配置：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --reload</span><br></pre></td></tr></table></figure></p>
-<h2 id="配置-FirewallD"><a href="#配置-FirewallD" class="headerlink" title="配置 FirewallD"></a>配置 FirewallD</h2><p>FirewallD 使用 XML 进行配置。除非是非常特殊的配置，你不必处理它们，而应该使用 firewall-cmd。</p>
-<p>配置文件位于两个目录中：</p>
-<ul>
-<li><code>/usr/lib/FirewallD</code> 下保存默认配置，如默认区域和公用服务。 避免修改它们，因为每次 firewall 软件包更新时都会覆盖这些文件。</li>
-<li><code>/etc/firewalld</code> 下保存系统配置文件。 这些文件将覆盖默认配置。</li>
-</ul>
-<h2 id="配置集"><a href="#配置集" class="headerlink" title="配置集"></a>配置集</h2><p><code>FirewallD</code> 使用两个配置集：“运行时”和“持久”。 在系统重新启动或重新启动 <code>FirewallD</code> 时，不会保留运行时的配置更改，而对持久配置集的更改不会应用于正在运行的系统。</p>
-<p>默认情况下，<code>firewall-cmd</code> 命令适用于运行时配置，但使用 <code>--permanent</code> 标志将保存到持久配置中。要添加和激活持久性规则，你可以使用两种方法之一。</p>
-<p>1、 将规则同时添加到持久规则集和运行时规则集中。 <br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-service=http --permanent</span><br><span class="line">sudo firewall-cmd --zone=public --add-service=http</span><br></pre></td></tr></table></figure><br>2、 将规则添加到持久规则集中并重新加载 FirewallD。 <br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-service=http --permanent</span><br><span class="line">sudo firewall-cmd --reload</span><br></pre></td></tr></table></figure><br><em><code>reload</code> 命令会删除所有运行时配置并应用永久配置。因为 firewalld 动态管理规则集，所以它不会破坏现有的连接和会话。</em></p>
-<h2 id="防火墙的区域"><a href="#防火墙的区域" class="headerlink" title="防火墙的区域"></a>防火墙的区域</h2><p>“区域”是针对给定位置或场景（例如家庭、公共、受信任等）可能具有的各种信任级别的预构建规则集。不同的区域允许不同的网络服务和入站流量类型，而拒绝其他任何流量。 首次启用 FirewallD 后，public 将是默认区域。</p>
-<p>区域也可以用于不同的网络接口。例如，要分离内部网络和互联网的接口，你可以在 internal 区域上允许 DHCP，但在external 区域仅允许 HTTP 和 SSH。未明确设置为特定区域的任何接口将添加到默认区域。</p>
-<p>要找到默认区域： <br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --get-default-zone</span><br></pre></td></tr></table></figure><br>要修改默认区域：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --set-default-zone=internal</span><br></pre></td></tr></table></figure><br>要查看你网络接口使用的区域：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --get-active-zones</span><br></pre></td></tr></table></figure><br>示例输出：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">public</span><br><span class="line">  interfaces: eth0</span><br></pre></td></tr></table></figure><br>要得到特定区域的所有配置：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --list-all</span><br></pre></td></tr></table></figure><br>示例输出：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">public (default, active)</span><br><span class="line">  interfaces: ens160</span><br><span class="line">  sources:</span><br><span class="line">  services: dhcpv6-client http ssh</span><br><span class="line">  ports: 12345/tcp</span><br><span class="line">  masquerade: no</span><br><span class="line">  forward-ports:</span><br><span class="line">  icmp-blocks:</span><br><span class="line">  rich rules:</span><br></pre></td></tr></table></figure><br>要得到所有区域的配置： <br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --list-all-zones</span><br></pre></td></tr></table></figure><br>示例输出：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">block</span><br><span class="line">  interfaces:</span><br><span class="line">  sources:</span><br><span class="line">  services:</span><br><span class="line">  ports:</span><br><span class="line">  masquerade: no</span><br><span class="line">  forward-ports:</span><br><span class="line">  icmp-blocks:</span><br><span class="line">  rich rules:</span><br><span class="line">  ...</span><br><span class="line">work</span><br><span class="line">  interfaces:</span><br><span class="line">  sources:</span><br><span class="line">  services: dhcpv6-client ipp-client ssh</span><br><span class="line">  ports:</span><br><span class="line">  masquerade: no</span><br><span class="line">  forward-ports:</span><br><span class="line">  icmp-blocks:</span><br><span class="line">  rich rules:</span><br></pre></td></tr></table></figure></p>
-<h2 id="与服务一起使用"><a href="#与服务一起使用" class="headerlink" title="与服务一起使用"></a>与服务一起使用</h2><p><code>FirewallD</code> 可以根据特定网络服务的预定义规则来允许相关流量。你可以创建自己的自定义系统规则，并将它们添加到任何区域。 默认支持的服务的配置文件位于 <code>/usr/lib /firewalld/services</code>，用户创建的服务文件在 <code>/etc/firewalld/services</code> 中。</p>
-<p>要查看默认的可用服务：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --get-services</span><br></pre></td></tr></table></figure><br>比如，要启用或禁用 HTTP 服务： <br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-service=http --permanent</span><br><span class="line">sudo firewall-cmd --zone=public --remove-service=http --permanent</span><br></pre></td></tr></table></figure><br>允许或者拒绝任意端口/协议<br>比如：允许或者禁用 12345 端口的 TCP 流量。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-port=12345/tcp --permanent</span><br><span class="line">sudo firewall-cmd --zone=public --remove-port=12345/tcp --permanent</span><br></pre></td></tr></table></figure><br>端口转发<br>下面是在同一台服务器上将 80 端口的流量转发到 12345 端口。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=&quot;public&quot; --add-forward-port=port=80:proto=tcp:toport=12345</span><br></pre></td></tr></table></figure><br>要将端口转发到另外一台服务器上：</p>
-<p>1、 在需要的区域中激活 masquerade。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-masquerade</span><br></pre></td></tr></table></figure><br>2、 添加转发规则。例子中是将本地的 80 端口的流量转发到 IP 地址为 ：123.456.78.9 的远程服务器上的  8080 端口。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=&quot;public&quot; --add-forward-port=port=80:proto=tcp:toport=8080:toaddr=123.456.78.9</span><br></pre></td></tr></table></figure><br>要删除规则，用 –remove 替换 –add。比如：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --remove-masquerade</span><br></pre></td></tr></table></figure><br>用 <code>FirewallD</code> 构建规则集<br>例如，以下是如何使用<code>FirewallD</code> 为你的服务器配置基本规则（如果您正在运行 web 服务器）。</p>
-<p>将 <code>eth0</code> 的默认区域设置为 <code>dmz</code>。 在所提供的默认区域中，<code>dmz</code>（非军事区）是最适合于这个程序的，因为它只允许 <code>SSH</code> 和 <code>ICM</code>P。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --set-default-zone=dmz</span><br><span class="line">sudo firewall-cmd --zone=dmz --add-interface=eth0</span><br></pre></td></tr></table></figure><br>2、 把 <code>HTTP</code> 和 <code>HTTS</code> 添加永久的服务规则到 <code>dmz</code> 区域中：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=dmz --add-service=http --permanent</span><br><span class="line">sudo firewall-cmd --zone=dmz --add-service=https --permanent</span><br></pre></td></tr></table></figure><br> 3、 重新加载 <code>FirewallD</code> 让规则立即生效：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --reload</span><br></pre></td></tr></table></figure><br> 如果你运行 <code>firewall-cmd --zone=dmz --list-all</code>， 会有下面的输出：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">dmz (default)</span><br><span class="line">  interfaces: eth0</span><br><span class="line">  sources:</span><br><span class="line">  services: http https ssh</span><br><span class="line">  ports:</span><br><span class="line">  masquerade: no</span><br><span class="line">  forward-ports:</span><br><span class="line">  icmp-blocks:</span><br><span class="line">  rich rules:</span><br></pre></td></tr></table></figure><br> 这告诉我们，<code>dmz</code> 区域是我们的默认区域，它被用于 <code>eth0</code> 接口中所有网络的源地址和端口。 允许传入 <code>HTTP</code>（端口 80）、<code>HTTPS</code>（端口 443）和 SSH（端口 22）的流量，并且由于没有 <code>IP</code> 版本控制的限制，这些适用于 <code>IPv4</code> 和 <code>IPv6</code>。 不允许IP 伪装以及端口转发。 我们没有 <code>ICMP</code> 块，所以 <code>ICMP</code> 流量是完全允许的。没有丰富Rich规则，允许所有出站流量。</p>
-<h2 id="高级配置"><a href="#高级配置" class="headerlink" title="高级配置"></a>高级配置</h2><p>服务和端口适用于基本配置，但对于高级情景可能会限制较多。 丰富Rich规则和直接Direct接口允许你为任何端口、协议、地址和操作向任何区域 添加完全自定义的防火墙规则。</p>
-<h2 id="丰富规则"><a href="#丰富规则" class="headerlink" title="丰富规则"></a>丰富规则</h2><p>丰富规则的语法有很多，但都完整地记录在 <code>firewalld.richlanguage(5)</code> 的手册页中（或在终端中 man firewalld.richlanguage）。 使用 <code>--add-rich-rule</code>、<code>--list-rich-rules</code> 、 <code>--remove-rich-rule</code> 和 <code>firewall-cmd</code> 命令来管理它们。</p>
-<p>这里有一些常见的例子：</p>
-<p>允许来自主机 <code>192.168.0.14</code> 的所有 IPv4 流量。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-rich-rule &#x27;rule family=&quot;ipv4&quot; source address=192.168.0.14 accept&#x27;</span><br></pre></td></tr></table></figure><br>拒绝来自主机 192.168.1.10 到 22 端口的 IPv4 的 TCP 流量。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-rich-rule &#x27;rule family=&quot;ipv4&quot; source address=&quot;192.168.1.10&quot; port port=22 protocol=tcp reject&#x27;</span><br></pre></td></tr></table></figure><br>允许来自主机 10.1.0.3 到 80 端口的 IPv4 的 TCP 流量，并将流量转发到 6532 端口上。 <br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-rich-rule &#x27;rule family=ipv4 source address=10.1.0.3 forward-port port=80 protocol=tcp to-port=6532&#x27;</span><br></pre></td></tr></table></figure><br>将主机 172.31.4.2 上 80 端口的 IPv4 流量转发到 8080 端口（需要在区域上激活 <code>masquerade</code>）。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-rich-rule &#x27;rule family=ipv4 forward-port port=80 protocol=tcp to-port=8080 to-addr=172.31.4.2&#x27;</span><br></pre></td></tr></table></figure><br>列出你目前的丰富规则：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --list-rich-rules</span><br></pre></td></tr></table></figure><br><code>iptables</code> 的直接接口<br>对于最高级的使用，或对于 <code>iptables</code> 专家，<code>FirewallD</code> 提供了一个直接Direct接口，允许你给它传递原始 <code>iptables</code>命令。 直接接口规则不是持久的，除非使用 <code>--permanent</code>。</p>
-<p>要查看添加到 <code>FirewallD</code> 的所有自定义链或规则：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">firewall-cmd --direct --get-all-chains</span><br><span class="line">firewall-cmd --direct --get-all-rules</span><br></pre></td></tr></table></figure><br>讨论 <code>iptables</code> 的具体语法已经超出了这篇文章的范围。如果你想学习更多，你可以查看我们的 <code>iptables</code> 指南。</p>
-<h2 id="更多信息"><a href="#更多信息" class="headerlink" title="更多信息"></a>更多信息</h2><ul>
-<li><a href="https://firewalld.org/">FirewallD 官方网站</a></li>
-<li><a href="https://access.redhat.com/documentation/zh-cn/red_hat_enterprise_linux/7/html/security_guide/">RHEL 7 安全指南：FirewallD 简介</a></li>
-</ul>
-<h1 id="iptables"><a href="#iptables" class="headerlink" title="iptables"></a>iptables</h1><ul>
-<li><code>root</code> 用户登录</li>
-<li>编辑防火墙文件</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cat /etc/sysconfig/iptables</span><br></pre></td></tr></table></figure>
-<ul>
-<li>设置禁止进入</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">-A INPUT -m state --state NEW -m tcp -p tcp -s 10.1.4.0/24 --dport 5601 -j ACCEPT</span><br><span class="line">解释: -s 可以访问的ip端</span><br><span class="line">      -dport 5601 可以访问此服务器上的某个端口，如果全部就不用设置这个参数 </span><br></pre></td></tr></table></figure>
-<ul>
-<li>命令 <code>service iptables</code></li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">Usage: iptables &#123;start|stop|reload|restart|condrestart|status|panic|save&#125;</span><br><span class="line">查询iptables状态: service iptables status</span><br><span class="line">重启iptables状态: service iptables restart</span><br><span class="line">启动iptables状态: service iptables start</span><br><span class="line">停止iptables状态: service iptables stop</span><br></pre></td></tr></table></figure>
-<ul>
-<li>FORWAD<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">iptables -t nat -A PREROUTING -d 61.129.93.38 -p tcp -j DNAT --to-destination localhost:8080</span><br></pre></td></tr></table></figure>
+    <title>es 单节点部署多个服务</title>
+    <url>/2018/10/17/es-single-node-install/</url>
+    <content><![CDATA[<h1 id="ElasticSearch单机双实例的配置方法"><a href="#ElasticSearch单机双实例的配置方法" class="headerlink" title="ElasticSearch单机双实例的配置方法"></a>ElasticSearch单机双实例的配置方法</h1><p>从ElasticSearch官方的多份文档中可以看到，官方并不建议部署ES时为实例指定超过32GB的内存，但是现在内存的价格非常便宜，一台实体机服务器仅用32G内存显然是非常浪费的。所以我们要尝试在一个服务器上开多个ES实例，以便达到充分利用资源的目的。本文提供了一些ES单机双实例的配置要点，可扩展至单机多实例，供大家来实际参考。</p>
+<h2 id="突破32G"><a href="#突破32G" class="headerlink" title="突破32G"></a>突破32G</h2><p>从ElasticSearch官方的多份文档中可以看到，官方并不建议部署ES时为实例指定超过32GB的内存，例如这些写着大字警告用户的文章： <a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/heap-sizing.html#compressed_oops">Don’t Cross 32 GB!</a></p>
+<p>但是现在内存的价格非常便宜，一台实体机服务器仅用32G内存显然是非常浪费的。所以我们要尝试在一个服务器上开多个ES实例，以便达到充分利用资源的目的。</p>
+<h2 id="配置变更"><a href="#配置变更" class="headerlink" title="配置变更"></a>配置变更</h2><p>要做到单机上开多个实例，需要修改ES的默认配置，以下是一些配置要点：</p>
+<h3 id="node-max-local-storage-nodes"><a href="#node-max-local-storage-nodes" class="headerlink" title="node.max_local_storage_nodes"></a>node.max_local_storage_nodes</h3><p>这个配置限制了单节点上可以开启的ES存储实例的个数，我们需要开多个实例，因此需要把这个配置写到配置文件中，并为这个配置赋值为2或者更高。</p>
+<h3 id="http-port"><a href="#http-port" class="headerlink" title="http.port"></a>http.port</h3><p>这个配置是elasticsearch对外提供服务的http端口配置，默认情况下ES会取用9200~9299之间的端口，如果9200被占用就会自动使用9201，在单机多实例的配置中这个配置实际是不需要修改的。</p>
+<p>但是为了更好地进行配置管理，以及和老的配置兼容，我们还是手动将第一个实例的http端口配置为9200，第二个实例配置为9201。</p>
+<h3 id="transport-tcp-port"><a href="#transport-tcp-port" class="headerlink" title="transport.tcp.port"></a>transport.tcp.port</h3><p>这个配置指定了elasticsearch集群内数据通讯使用的端口，默认情况下为9300，与上面的http.port配置类似，ES也会自动为已占用的端口选择下一个端口号。我们可以将第一个实例的tcp传输端口配置为9300，第二实例配置为9301。<br>discovery.zen.ping.unicast.hosts</p>
+<p>由于到了2.x版本之后，ES取消了默认的广播模式来发现master节点，需要使用该配置来指定发现master节点。这个配置在单机双实例的配置中需要特别注意下，因为习惯上我们配置时并未指定master节点的tcp端口，如果实例的transport.tcp.port配置为9301，那么实例启动后会认为discovery.zen.ping.unicast.hosts中指定的主机tcp端口也是9301，可能导致这些节点无法找到master节点。因此在该配置中需要指定master节点提供服务的tcp端口。</p>
+<p>配置示例：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">discovery.zen.ping.unicast.hosts: [&quot;testes.mydomain:9300&quot;,&quot;testes1.mydomain:9301&quot;]</span><br></pre></td></tr></table></figure></p>
+<h2 id="其他配置"><a href="#其他配置" class="headerlink" title="其他配置"></a>其他配置</h2><ul>
+<li><p>node.name</p>
+<p>同一主机上的两个实例需要使用不同的node.name</p>
+</li>
+<li><p>path.data</p>
+<p>同一主机上两个实例需要对应不同的数据目录</p>
+</li>
+<li><p>path.logs</p>
+<p>由于默认情况下日志用集群名称来命名，因此同一主机两个实例对应的日志目录需要分开</p>
 </li>
 </ul>
-<p>iptables -t nat -A PREROUTING -d 61.129.93.38 -p tcp –dport 80 -j DNAT –to-destination 10.1.4.172:8080</p>
+<h2 id="完整配置示例"><a href="#完整配置示例" class="headerlink" title="完整配置示例"></a>完整配置示例</h2><p>以下提供两个完整的配置实例供参考：</p>
+<p>实例1：<br><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">cluster.name:</span> <span class="string">testes</span></span><br><span class="line"><span class="attr">node.name:</span> <span class="string">$&#123;HOSTNAME&#125;</span></span><br><span class="line"><span class="attr">node.box_type:</span> <span class="string">M</span></span><br><span class="line"><span class="attr">node.master:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">node.data:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">path.data:</span> <span class="string">/data/disk01</span></span><br><span class="line"><span class="attr">path.logs:</span> <span class="string">/home/centos/elasticsearch/logs/instance1</span></span><br><span class="line"><span class="attr">network.host:</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span></span><br><span class="line"><span class="attr">http.port:</span> <span class="number">9200</span></span><br><span class="line"><span class="attr">transport.tcp.port:</span> <span class="number">9300</span></span><br><span class="line"><span class="attr">discovery.zen.ping.unicast.hosts:</span> [<span class="string">&quot;testes1.mydomain:9300&quot;</span>,<span class="string">&quot;testes2.mydomain:9301&quot;</span>]</span><br><span class="line"><span class="attr">node.max_local_storage_nodes:</span> <span class="number">2</span></span><br><span class="line"><span class="attr">threadpool.index.queue_size:</span> <span class="number">400</span></span><br><span class="line"><span class="attr">threadpool.bulk.queue_size:</span> <span class="number">5000</span></span><br><span class="line"><span class="attr">bootstrap.mlockall:</span> <span class="literal">false</span></span><br></pre></td></tr></table></figure><br>实例2：<br><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">cluster.name:</span> <span class="string">testes</span></span><br><span class="line"><span class="attr">node.name:</span> <span class="string">$&#123;HOSTNAME&#125;-2</span></span><br><span class="line"><span class="attr">node.box_type:</span> <span class="string">M</span></span><br><span class="line"><span class="attr">node.master:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">node.data:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">path.data:</span> <span class="string">/data/disk02</span></span><br><span class="line"><span class="attr">path.logs:</span> <span class="string">/home/centos/elasticsearch/logs/instance2</span></span><br><span class="line"><span class="attr">network.host:</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span></span><br><span class="line"><span class="attr">http.port:</span> <span class="number">9201</span></span><br><span class="line"><span class="attr">transport.tcp.port:</span> <span class="number">9301</span></span><br><span class="line"><span class="attr">discovery.zen.ping.unicast.hosts:</span> [<span class="string">&quot;testes1.mydomain:9300&quot;</span>,<span class="string">&quot;testes2.mydomain:9301&quot;</span>]</span><br><span class="line"><span class="attr">node.max_local_storage_nodes:</span> <span class="number">2</span></span><br><span class="line"></span><br></pre></td></tr></table></figure></p>
+<h2 id="配置部署"><a href="#配置部署" class="headerlink" title="配置部署"></a>配置部署</h2><p>默认情况下ES启动时使用ES安装目录的config子目录下的elasticsearch.yml文件来作为配置文件，同时还用到了config子目录下的logging.yml文件来作为日志的配置文件。为了实现单机双实例的分别启动，我们需要创建两个目录来分别存储两个实例的配置文件，如：</p>
+<p>在config子目录下创建instance1和instance2两个目录，分别放置两个实例需要的elasticsearch.yml和logging.yml配置文件。</p>
+<p>注意，ES的配置文件必须使用elasticsearch.yml这个命名，因此必须创建出两个目录来。</p>
+<h2 id="启动实例"><a href="#启动实例" class="headerlink" title="启动实例"></a>启动实例</h2><p>以下是两条参考的命令，用于启动单机上的两个实例：</p>
+<h3 id="实例1"><a href="#实例1" class="headerlink" title="实例1:"></a>实例1:</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">bin/elasticsearch -Des.path.conf=config/instance1 -d -p /tmp/elasticsearch_1.pid</span><br></pre></td></tr></table></figure>
+<h3 id="实例2"><a href="#实例2" class="headerlink" title="实例2:"></a>实例2:</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">bin/elasticsearch -Des.path.conf=config/instance2 -d -p /tmp/elasticsearch_2.pid</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
-        <category>Linux</category>
+        <category>es</category>
       </categories>
       <tags>
-        <tag>linux</tag>
-        <tag>Firewall</tag>
-        <tag>iptables</tag>
+        <tag>elasticsearch</tag>
+        <tag>install</tag>
+        <tag>es 运维</tag>
       </tags>
   </entry>
   <entry>
@@ -628,6 +562,72 @@ system call filters failed to install; check the logs and fix your configuration
       </tags>
   </entry>
   <entry>
+    <title>linux-Firewall 配置</title>
+    <url>/2018/10/17/linux-Firewall/</url>
+    <content><![CDATA[<blockquote>
+<p><code>iptables</code> 主要用于<code>centos 7</code>一下,<code>Firewall</code>用于<code>centos7</code>以上.</p>
+</blockquote>
+<h1 id="Firewall"><a href="#Firewall" class="headerlink" title="Firewall"></a>Firewall</h1><p>FirewallD 是 iptables 的前端控制器，用于实现持久的网络流量规则。它提供命令行和图形界面，在大多数 Linux 发行版的仓库中都有。与直接控制 iptables 相比，使用 FirewallD 有两个主要区别：</p>
+<p>1、FirewallD 使用区域和服务而不是链式规则。</p>
+<p>2、它动态管理规则集，允许更新规则而不破坏现有会话和连接。</p>
+<p>FirewallD 是 iptables 的一个封装，可以让你更容易地管理 iptables 规则 - 它并不是 iptables 的替代品。虽然 iptables 命令仍可用于 FirewallD，但建议使用 FirewallD 时仅使用 FirewallD 命令。</p>
+<p>本指南将向您介绍 FirewallD 的区域和服务的概念，以及一些基本的配置步骤。</p>
+<h2 id="安装与管理-FirewallD"><a href="#安装与管理-FirewallD" class="headerlink" title="安装与管理 FirewallD"></a>安装与管理 FirewallD</h2><p>CentOS 7 和 Fedora 20+ 已经包含了 FirewallD，但是默认没有激活。可以像其它的 systemd 单元那样控制它。</p>
+<p>1、 启动服务，并在系统引导时启动该服务：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo systemctl start firewalld</span><br><span class="line">sudo systemctl enable firewalld</span><br></pre></td></tr></table></figure><br>要停止并禁用：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo systemctl stop firewalld</span><br><span class="line">sudo systemctl disable firewalld</span><br></pre></td></tr></table></figure><br>2、 检查防火墙状态。输出应该是 running 或者 not running。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --state</span><br></pre></td></tr></table></figure><br>3、 要查看 FirewallD 守护进程的状态：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo systemctl status firewalld</span><br><span class="line">示例输出</span><br><span class="line"></span><br><span class="line">firewalld.service - firewalld - dynamic firewall daemon</span><br><span class="line">   Loaded: loaded (/usr/lib/systemd/system/firewalld.service; disabled)</span><br><span class="line">   Active: active (running) since Wed 2015-09-02 18:03:22 UTC; 1min 12s ago</span><br><span class="line"> Main PID: 11954 (firewalld)</span><br><span class="line">   CGroup: /system.slice/firewalld.service</span><br><span class="line">   └─11954 /usr/bin/python -Es /usr/sbin/firewalld --nofork --nopid</span><br></pre></td></tr></table></figure><br>4、 重新加载 FirewallD 配置：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --reload</span><br></pre></td></tr></table></figure></p>
+<h2 id="配置-FirewallD"><a href="#配置-FirewallD" class="headerlink" title="配置 FirewallD"></a>配置 FirewallD</h2><p>FirewallD 使用 XML 进行配置。除非是非常特殊的配置，你不必处理它们，而应该使用 firewall-cmd。</p>
+<p>配置文件位于两个目录中：</p>
+<ul>
+<li><code>/usr/lib/FirewallD</code> 下保存默认配置，如默认区域和公用服务。 避免修改它们，因为每次 firewall 软件包更新时都会覆盖这些文件。</li>
+<li><code>/etc/firewalld</code> 下保存系统配置文件。 这些文件将覆盖默认配置。</li>
+</ul>
+<h2 id="配置集"><a href="#配置集" class="headerlink" title="配置集"></a>配置集</h2><p><code>FirewallD</code> 使用两个配置集：“运行时”和“持久”。 在系统重新启动或重新启动 <code>FirewallD</code> 时，不会保留运行时的配置更改，而对持久配置集的更改不会应用于正在运行的系统。</p>
+<p>默认情况下，<code>firewall-cmd</code> 命令适用于运行时配置，但使用 <code>--permanent</code> 标志将保存到持久配置中。要添加和激活持久性规则，你可以使用两种方法之一。</p>
+<p>1、 将规则同时添加到持久规则集和运行时规则集中。 <br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-service=http --permanent</span><br><span class="line">sudo firewall-cmd --zone=public --add-service=http</span><br></pre></td></tr></table></figure><br>2、 将规则添加到持久规则集中并重新加载 FirewallD。 <br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-service=http --permanent</span><br><span class="line">sudo firewall-cmd --reload</span><br></pre></td></tr></table></figure><br><em><code>reload</code> 命令会删除所有运行时配置并应用永久配置。因为 firewalld 动态管理规则集，所以它不会破坏现有的连接和会话。</em></p>
+<h2 id="防火墙的区域"><a href="#防火墙的区域" class="headerlink" title="防火墙的区域"></a>防火墙的区域</h2><p>“区域”是针对给定位置或场景（例如家庭、公共、受信任等）可能具有的各种信任级别的预构建规则集。不同的区域允许不同的网络服务和入站流量类型，而拒绝其他任何流量。 首次启用 FirewallD 后，public 将是默认区域。</p>
+<p>区域也可以用于不同的网络接口。例如，要分离内部网络和互联网的接口，你可以在 internal 区域上允许 DHCP，但在external 区域仅允许 HTTP 和 SSH。未明确设置为特定区域的任何接口将添加到默认区域。</p>
+<p>要找到默认区域： <br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --get-default-zone</span><br></pre></td></tr></table></figure><br>要修改默认区域：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --set-default-zone=internal</span><br></pre></td></tr></table></figure><br>要查看你网络接口使用的区域：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --get-active-zones</span><br></pre></td></tr></table></figure><br>示例输出：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">public</span><br><span class="line">  interfaces: eth0</span><br></pre></td></tr></table></figure><br>要得到特定区域的所有配置：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --list-all</span><br></pre></td></tr></table></figure><br>示例输出：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">public (default, active)</span><br><span class="line">  interfaces: ens160</span><br><span class="line">  sources:</span><br><span class="line">  services: dhcpv6-client http ssh</span><br><span class="line">  ports: 12345/tcp</span><br><span class="line">  masquerade: no</span><br><span class="line">  forward-ports:</span><br><span class="line">  icmp-blocks:</span><br><span class="line">  rich rules:</span><br></pre></td></tr></table></figure><br>要得到所有区域的配置： <br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --list-all-zones</span><br></pre></td></tr></table></figure><br>示例输出：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">block</span><br><span class="line">  interfaces:</span><br><span class="line">  sources:</span><br><span class="line">  services:</span><br><span class="line">  ports:</span><br><span class="line">  masquerade: no</span><br><span class="line">  forward-ports:</span><br><span class="line">  icmp-blocks:</span><br><span class="line">  rich rules:</span><br><span class="line">  ...</span><br><span class="line">work</span><br><span class="line">  interfaces:</span><br><span class="line">  sources:</span><br><span class="line">  services: dhcpv6-client ipp-client ssh</span><br><span class="line">  ports:</span><br><span class="line">  masquerade: no</span><br><span class="line">  forward-ports:</span><br><span class="line">  icmp-blocks:</span><br><span class="line">  rich rules:</span><br></pre></td></tr></table></figure></p>
+<h2 id="与服务一起使用"><a href="#与服务一起使用" class="headerlink" title="与服务一起使用"></a>与服务一起使用</h2><p><code>FirewallD</code> 可以根据特定网络服务的预定义规则来允许相关流量。你可以创建自己的自定义系统规则，并将它们添加到任何区域。 默认支持的服务的配置文件位于 <code>/usr/lib /firewalld/services</code>，用户创建的服务文件在 <code>/etc/firewalld/services</code> 中。</p>
+<p>要查看默认的可用服务：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --get-services</span><br></pre></td></tr></table></figure><br>比如，要启用或禁用 HTTP 服务： <br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-service=http --permanent</span><br><span class="line">sudo firewall-cmd --zone=public --remove-service=http --permanent</span><br></pre></td></tr></table></figure><br>允许或者拒绝任意端口/协议<br>比如：允许或者禁用 12345 端口的 TCP 流量。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-port=12345/tcp --permanent</span><br><span class="line">sudo firewall-cmd --zone=public --remove-port=12345/tcp --permanent</span><br></pre></td></tr></table></figure><br>端口转发<br>下面是在同一台服务器上将 80 端口的流量转发到 12345 端口。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=&quot;public&quot; --add-forward-port=port=80:proto=tcp:toport=12345</span><br></pre></td></tr></table></figure><br>要将端口转发到另外一台服务器上：</p>
+<p>1、 在需要的区域中激活 masquerade。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-masquerade</span><br></pre></td></tr></table></figure><br>2、 添加转发规则。例子中是将本地的 80 端口的流量转发到 IP 地址为 ：123.456.78.9 的远程服务器上的  8080 端口。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=&quot;public&quot; --add-forward-port=port=80:proto=tcp:toport=8080:toaddr=123.456.78.9</span><br></pre></td></tr></table></figure><br>要删除规则，用 –remove 替换 –add。比如：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --remove-masquerade</span><br></pre></td></tr></table></figure><br>用 <code>FirewallD</code> 构建规则集<br>例如，以下是如何使用<code>FirewallD</code> 为你的服务器配置基本规则（如果您正在运行 web 服务器）。</p>
+<p>将 <code>eth0</code> 的默认区域设置为 <code>dmz</code>。 在所提供的默认区域中，<code>dmz</code>（非军事区）是最适合于这个程序的，因为它只允许 <code>SSH</code> 和 <code>ICM</code>P。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --set-default-zone=dmz</span><br><span class="line">sudo firewall-cmd --zone=dmz --add-interface=eth0</span><br></pre></td></tr></table></figure><br>2、 把 <code>HTTP</code> 和 <code>HTTS</code> 添加永久的服务规则到 <code>dmz</code> 区域中：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=dmz --add-service=http --permanent</span><br><span class="line">sudo firewall-cmd --zone=dmz --add-service=https --permanent</span><br></pre></td></tr></table></figure><br> 3、 重新加载 <code>FirewallD</code> 让规则立即生效：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --reload</span><br></pre></td></tr></table></figure><br> 如果你运行 <code>firewall-cmd --zone=dmz --list-all</code>， 会有下面的输出：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">dmz (default)</span><br><span class="line">  interfaces: eth0</span><br><span class="line">  sources:</span><br><span class="line">  services: http https ssh</span><br><span class="line">  ports:</span><br><span class="line">  masquerade: no</span><br><span class="line">  forward-ports:</span><br><span class="line">  icmp-blocks:</span><br><span class="line">  rich rules:</span><br></pre></td></tr></table></figure><br> 这告诉我们，<code>dmz</code> 区域是我们的默认区域，它被用于 <code>eth0</code> 接口中所有网络的源地址和端口。 允许传入 <code>HTTP</code>（端口 80）、<code>HTTPS</code>（端口 443）和 SSH（端口 22）的流量，并且由于没有 <code>IP</code> 版本控制的限制，这些适用于 <code>IPv4</code> 和 <code>IPv6</code>。 不允许IP 伪装以及端口转发。 我们没有 <code>ICMP</code> 块，所以 <code>ICMP</code> 流量是完全允许的。没有丰富Rich规则，允许所有出站流量。</p>
+<h2 id="高级配置"><a href="#高级配置" class="headerlink" title="高级配置"></a>高级配置</h2><p>服务和端口适用于基本配置，但对于高级情景可能会限制较多。 丰富Rich规则和直接Direct接口允许你为任何端口、协议、地址和操作向任何区域 添加完全自定义的防火墙规则。</p>
+<h2 id="丰富规则"><a href="#丰富规则" class="headerlink" title="丰富规则"></a>丰富规则</h2><p>丰富规则的语法有很多，但都完整地记录在 <code>firewalld.richlanguage(5)</code> 的手册页中（或在终端中 man firewalld.richlanguage）。 使用 <code>--add-rich-rule</code>、<code>--list-rich-rules</code> 、 <code>--remove-rich-rule</code> 和 <code>firewall-cmd</code> 命令来管理它们。</p>
+<p>这里有一些常见的例子：</p>
+<p>允许来自主机 <code>192.168.0.14</code> 的所有 IPv4 流量。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-rich-rule &#x27;rule family=&quot;ipv4&quot; source address=192.168.0.14 accept&#x27;</span><br></pre></td></tr></table></figure><br>拒绝来自主机 192.168.1.10 到 22 端口的 IPv4 的 TCP 流量。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-rich-rule &#x27;rule family=&quot;ipv4&quot; source address=&quot;192.168.1.10&quot; port port=22 protocol=tcp reject&#x27;</span><br></pre></td></tr></table></figure><br>允许来自主机 10.1.0.3 到 80 端口的 IPv4 的 TCP 流量，并将流量转发到 6532 端口上。 <br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-rich-rule &#x27;rule family=ipv4 source address=10.1.0.3 forward-port port=80 protocol=tcp to-port=6532&#x27;</span><br></pre></td></tr></table></figure><br>将主机 172.31.4.2 上 80 端口的 IPv4 流量转发到 8080 端口（需要在区域上激活 <code>masquerade</code>）。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-rich-rule &#x27;rule family=ipv4 forward-port port=80 protocol=tcp to-port=8080 to-addr=172.31.4.2&#x27;</span><br></pre></td></tr></table></figure><br>列出你目前的丰富规则：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --list-rich-rules</span><br></pre></td></tr></table></figure><br><code>iptables</code> 的直接接口<br>对于最高级的使用，或对于 <code>iptables</code> 专家，<code>FirewallD</code> 提供了一个直接Direct接口，允许你给它传递原始 <code>iptables</code>命令。 直接接口规则不是持久的，除非使用 <code>--permanent</code>。</p>
+<p>要查看添加到 <code>FirewallD</code> 的所有自定义链或规则：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">firewall-cmd --direct --get-all-chains</span><br><span class="line">firewall-cmd --direct --get-all-rules</span><br></pre></td></tr></table></figure><br>讨论 <code>iptables</code> 的具体语法已经超出了这篇文章的范围。如果你想学习更多，你可以查看我们的 <code>iptables</code> 指南。</p>
+<h2 id="更多信息"><a href="#更多信息" class="headerlink" title="更多信息"></a>更多信息</h2><ul>
+<li><a href="https://firewalld.org/">FirewallD 官方网站</a></li>
+<li><a href="https://access.redhat.com/documentation/zh-cn/red_hat_enterprise_linux/7/html/security_guide/">RHEL 7 安全指南：FirewallD 简介</a></li>
+</ul>
+<h1 id="iptables"><a href="#iptables" class="headerlink" title="iptables"></a>iptables</h1><ul>
+<li><code>root</code> 用户登录</li>
+<li>编辑防火墙文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cat /etc/sysconfig/iptables</span><br></pre></td></tr></table></figure>
+<ul>
+<li>设置禁止进入</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">-A INPUT -m state --state NEW -m tcp -p tcp -s 10.1.4.0/24 --dport 5601 -j ACCEPT</span><br><span class="line">解释: -s 可以访问的ip端</span><br><span class="line">      -dport 5601 可以访问此服务器上的某个端口，如果全部就不用设置这个参数 </span><br></pre></td></tr></table></figure>
+<ul>
+<li>命令 <code>service iptables</code></li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">Usage: iptables &#123;start|stop|reload|restart|condrestart|status|panic|save&#125;</span><br><span class="line">查询iptables状态: service iptables status</span><br><span class="line">重启iptables状态: service iptables restart</span><br><span class="line">启动iptables状态: service iptables start</span><br><span class="line">停止iptables状态: service iptables stop</span><br></pre></td></tr></table></figure>
+<ul>
+<li>FORWAD<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">iptables -t nat -A PREROUTING -d 61.129.93.38 -p tcp -j DNAT --to-destination localhost:8080</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>iptables -t nat -A PREROUTING -d 61.129.93.38 -p tcp –dport 80 -j DNAT –to-destination 10.1.4.172:8080</p>
+]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>linux</tag>
+        <tag>Firewall</tag>
+        <tag>iptables</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>linux-crond</title>
     <url>/2018/10/17/linux-crond/</url>
     <content><![CDATA[<h2 id="1-写定时任务要执行的脚本"><a href="#1-写定时任务要执行的脚本" class="headerlink" title="1.写定时任务要执行的脚本"></a>1.写定时任务要执行的脚本</h2><p>如:test.sh</p>
@@ -721,49 +721,6 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
-    <title>pinpoint 添加 hbase kerberos认证</title>
-    <url>/2018/10/18/pinpoint-add-hbase-kerberos-auth/</url>
-    <content><![CDATA[<blockquote>
-<p><code>pinpoint</code> 原生是不支持的<code>hbase</code>的<code>kerberos</code>认证的，经过修改源码，现已在<code>1.8</code>版本之后支持了这一功能，并入到项目主分支中，以后可以直接使用。</p>
-</blockquote>
-<p>开源地址: <a href="https://github.com/naver/pinpoint">https://github.com/naver/pinpoint</a></p>
-<h1 id="kerberos-认证简介"><a href="#kerberos-认证简介" class="headerlink" title="kerberos 认证简介"></a>kerberos 认证简介</h1><blockquote>
-<p><code>Kerberos</code> 是一种基于对称密钥的身份认证协议，它作为一个独立的第三方的身份认证服务，可以为其服务提供身份认证功能，且支持<code>SSO</code>(即客户端身份认证后，可以访问多个服务如HBase/HDFS等).<br><code>Kerberos</code> 协议过程主要有两个阶段，第一个阶段是<code>KDC</code>对<code>client</code>的身份认证,第二个阶段是<code>service</code>对<code>client</code>的身份认证.</p>
-</blockquote>
-<p><img src="/2018/10/18/pinpoint-add-hbase-kerberos-auth/DingTalk20171127114504.png" alt="原理图"></p>
-<ul>
-<li>KDC: Kerberos的服务端程序</li>
-<li>Client: 需要访问服务的用户(principal)，KDC和Service会对用户的身份进行认证</li>
-<li>Service: 集成了Kerberos的服务，如HDFS/YARN/HBase等</li>
-</ul>
-<h2 id="1、KDC对Client身份认证"><a href="#1、KDC对Client身份认证" class="headerlink" title="1、KDC对Client身份认证"></a>1、KDC对Client身份认证</h2><p>当客户端用户访问一个集成了<code>Kerberos</code>的服务之前，需要先通过<code>KDC</code>的身份认证.若身份认证通过则客户端会拿到一个<code>TGT</code>,后续就可以拿该<code>TGT</code>去访问集成了<code>Kerberos</code>的服务。</p>
-<h2 id="2、Service对Client身份认证"><a href="#2、Service对Client身份认证" class="headerlink" title="2、Service对Client身份认证"></a>2、Service对Client身份认证</h2><p>当该客户端拿到<code>TGT</code>之后，就可以继续访问<code>Service</code>服务。它回使用<code>TGT</code>以及需要访问的服务名称去<code>KDC</code>获取<code>SGT</code>,然后使用<code>SGT</code>去访问服务<code>Service</code>，<code>Service</code>会利用相关信息对<code>Client</code>进行身份认证,认证通过后就可以正常访问<code>Service</code>服务。</p>
-<h1 id="Hbase-kerberos-认证"><a href="#Hbase-kerberos-认证" class="headerlink" title="Hbase kerberos 认证"></a>Hbase kerberos 认证</h1><h2 id="1、修改源码"><a href="#1、修改源码" class="headerlink" title="1、修改源码"></a>1、修改源码</h2><blockquote>
-<p><code>pinpoint</code>中的<code>hbase</code>相关代码都是在<code>commons-hbase</code>这个项目中，连接都是通过<code>PooledHTableFactory.java</code> 这个类创建的，因此修改代码的地方就是这个类，并且只需要添加上<code>hbase</code>认证代码即可.</p>
-</blockquote>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">PooledHTableFactory</span><span class="params">(Configuration config, ExecutorService executor)</span> </span>&#123;</span><br><span class="line">    Objects.requireNonNull(config, <span class="string">&quot;config must not be null&quot;</span>);</span><br><span class="line">    <span class="keyword">this</span>.executor = Objects.requireNonNull(executor, <span class="string">&quot;executor must not be null&quot;</span>);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        String authEnable = config.get(<span class="string">&quot;hbase.kerberos.auth&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (!StringUtils.isEmpty(authEnable) &amp;&amp; Boolean.parseBoolean(authEnable))&#123;</span><br><span class="line">            <span class="keyword">if</span> (StringUtils.isEmpty(config.get(<span class="string">&quot;hbase.kerberos.keytab.path&quot;</span>)))&#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> KerberosException(ErrorType.KDC_ERR_NONE);</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(<span class="string">&quot;hbase.zookeeper.quorum:&quot;</span>+config.get(<span class="string">&quot;hbase.zookeeper.quorum&quot;</span>));</span><br><span class="line">            System.out.println(<span class="string">&quot;hbase.kerberos.keytab.path:&quot;</span>+config.get(<span class="string">&quot;hbase.kerberos.keytab.path&quot;</span>));</span><br><span class="line">            System.out.println(<span class="string">&quot;hbase.kerberos.user:&quot;</span>+config.get(<span class="string">&quot;hbase.kerberos.user&quot;</span>));</span><br><span class="line"> </span><br><span class="line">            config.set(<span class="string">&quot;hbase.security.authentication&quot;</span>, <span class="string">&quot;kerberos&quot;</span>);</span><br><span class="line">            config.set(<span class="string">&quot;hadoop.security.authentication&quot;</span>, <span class="string">&quot;kerberos&quot;</span>);</span><br><span class="line">            config.set(<span class="string">&quot;hbase.master.kerberos.principal&quot;</span>,config.get(<span class="string">&quot;hbase.master.kerberos.principal&quot;</span>));</span><br><span class="line">            config.set(<span class="string">&quot;hbase.regionserver.kerberos.principal&quot;</span>,config.get(<span class="string">&quot;hbase.regionserver.kerberos.principal&quot;</span>));</span><br><span class="line">            UserGroupInformation.setConfiguration(config);</span><br><span class="line">            String kerberosUser = config.get(<span class="string">&quot;hbase.kerberos.user&quot;</span>);</span><br><span class="line">            String kerberosPath = config.get(<span class="string">&quot;hbase.kerberos.keytab.path&quot;</span>);</span><br><span class="line">            UserGroupInformation.loginUserFromKeytab(kerberosUser, kerberosPath);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.connection = ConnectionFactory.createConnection(config, executor);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> HbaseSystemException(e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>只添加了<code>if</code>里面的所以代码，值都通过配置文件传入，设置了开关，可以启用或者禁用认证功能。</p>
-<h2 id="2、添加配置"><a href="#2、添加配置" class="headerlink" title="2、添加配置"></a>2、添加配置</h2><blockquote>
-<p>添加<code>hbase.properties</code>的配置</p>
-</blockquote>
- <figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="comment"># kerberos</span></span><br><span class="line"><span class="comment"># 是否启用或者禁用</span></span><br><span class="line"><span class="meta">hbase.kerberos.auth</span>=<span class="string">true</span></span><br><span class="line"><span class="comment"># kerberos 用户</span></span><br><span class="line"><span class="meta">hbase.kerberos.user</span>=<span class="string">test_add@HADOOP.COM</span></span><br><span class="line"><span class="comment"># keytab 认证文件路径</span></span><br><span class="line"><span class="meta">hbase.kerberos.keytab.path</span>=<span class="string">./test_add.keytab</span></span><br><span class="line"><span class="comment"># 默认配置</span></span><br><span class="line"><span class="meta">hbase.master.kerberos.principal</span>=<span class="string">hbase/_HOST@HADOOP.COM</span></span><br><span class="line"><span class="meta">hbase.regionserver.kerberos.principal</span>=<span class="string">hbase/_HOST@HADOOP.COM</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>添加 <code>applicationContext-hbase.xml</code>的配置.</p>
-</blockquote>
- <figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;hbaseConfiguration&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.navercorp.pinpoint.common.hbase.HbaseConfigurationFactoryBean&quot;</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;properties&quot;</span>&gt;</span></span><br><span class="line">             <span class="tag">&lt;<span class="name">props</span>&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.zookeeper.quorum&quot;</span>&gt;</span>$&#123;hbase.client.host&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.zookeeper.property.clientPort&quot;</span>&gt;</span>$&#123;hbase.client.port&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line"></span><br><span class="line">                <span class="comment">&lt;!--Root ZNode for HBase in ZooKeeper.--&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;zookeeper.znode.parent&quot;</span>&gt;</span>$&#123;hbase.zookeeper.znode.parent:/hbase&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                  <span class="comment">&lt;!-- hbase default:true --&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.ipc.client.tcpnodelay&quot;</span>&gt;</span>$&#123;hbase.ipc.client.tcpnodelay&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="comment">&lt;!-- hbase default:60000 --&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.rpc.timeout&quot;</span>&gt;</span>$&#123;hbase.rpc.timeout&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="comment">&lt;!-- hbase default:Integer.MAX_VALUE --&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.client.operation.timeout&quot;</span>&gt;</span>$&#123;hbase.client.operation.timeout&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line"> </span><br><span class="line">                 <span class="comment">&lt;!-- hbase socket read timeout. default: 200000--&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.ipc.client.socket.timeout.read&quot;</span>&gt;</span>$&#123;hbase.ipc.client.socket.timeout.read&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="comment">&lt;!-- socket write timeout. hbase default: 600000--&gt;</span></span><br><span class="line">                  <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.ipc.client.socket.timeout.write&quot;</span>&gt;</span>$&#123;hbase.ipc.client.socket.timeout.write&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">  </span><br><span class="line">                  <span class="comment">&lt;!-- hbase async put operation. --&gt;</span></span><br><span class="line">                  <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.client.async.enable&quot;</span>&gt;</span>$&#123;hbase.client.async.enable:false&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                  <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.client.async.in.queuesize&quot;</span>&gt;</span>$&#123;hbase.client.async.in.queuesize:10000&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                  <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.tablemultiplexer.flush.period.ms&quot;</span>&gt;</span>$&#123;hbase.client.async.flush.period.ms:100&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                  <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.client.max.retries.in.queue&quot;</span>&gt;</span>$&#123;hbase.client.async.max.retries.in.queue:10&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="comment">&lt;!--hbase kerberos--&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.kerberos.auth&quot;</span>&gt;</span>$&#123;hbase.kerberos.auth:false&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.kerberos.user&quot;</span>&gt;</span>$&#123;hbase.kerberos.user:test&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.kerberos.keytab.path&quot;</span>&gt;</span>$&#123;hbase.kerberos.keytab.path:/tmp&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.master.kerberos.principal&quot;</span>&gt;</span>$&#123;hbase.master.kerberos.principal:test&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.regionserver.kerberos.principal&quot;</span>&gt;</span>$&#123;hbase.regionserver.kerberos.principal:test&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">             <span class="tag">&lt;/<span class="name">props</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<h2 id="3、添加启动参数配置到tomcat中"><a href="#3、添加启动参数配置到tomcat中" class="headerlink" title="3、添加启动参数配置到tomcat中"></a>3、添加启动参数配置到<code>tomcat</code>中</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> vim bin/catalina.sh</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加krb配置文件</span></span><br><span class="line">CATALINA_OPTS=&quot;$CATALINA_OPTS -Djava.security.krb5.conf=./krb5.conf&quot;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 开启krb认证的bug日志</span></span><br><span class="line">CATALINA_OPTS=&quot;$CATALINA_OPTS -Dsun.security.krb5.debug=true&quot;</span><br><span class="line">CATALINA_OPTS=&quot;$CATALINA_OPTS -Djavax.security.auth.useSubjectCredsOnly=true&quot;</span><br></pre></td></tr></table></figure>
-<p><strong> 上面步骤都完成之后即可进行重启使用。</strong></p>
-]]></content>
-      <categories>
-        <category>github</category>
-      </categories>
-      <tags>
-        <tag>hbase kerberos认证</tag>
-        <tag>pinpoint</tag>
-        <tag>APM</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>自定义 spring-boot-stater</title>
     <url>/2018/10/17/new-spring-boot-stater/</url>
     <content><![CDATA[<h1 id="spring-boot-stater"><a href="#spring-boot-stater" class="headerlink" title="spring boot stater"></a>spring boot stater</h1><p>通过使用<code>Spring Boot Starter</code>将一些层、组件拆分为模块来管理，以便相互依赖复用。</p>
@@ -807,6 +764,49 @@ MySQL服务初始化(仅适用5.7)</li>
       </categories>
       <tags>
         <tag>spring boot stater</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>pinpoint 添加 hbase kerberos认证</title>
+    <url>/2018/10/18/pinpoint-add-hbase-kerberos-auth/</url>
+    <content><![CDATA[<blockquote>
+<p><code>pinpoint</code> 原生是不支持的<code>hbase</code>的<code>kerberos</code>认证的，经过修改源码，现已在<code>1.8</code>版本之后支持了这一功能，并入到项目主分支中，以后可以直接使用。</p>
+</blockquote>
+<p>开源地址: <a href="https://github.com/naver/pinpoint">https://github.com/naver/pinpoint</a></p>
+<h1 id="kerberos-认证简介"><a href="#kerberos-认证简介" class="headerlink" title="kerberos 认证简介"></a>kerberos 认证简介</h1><blockquote>
+<p><code>Kerberos</code> 是一种基于对称密钥的身份认证协议，它作为一个独立的第三方的身份认证服务，可以为其服务提供身份认证功能，且支持<code>SSO</code>(即客户端身份认证后，可以访问多个服务如HBase/HDFS等).<br><code>Kerberos</code> 协议过程主要有两个阶段，第一个阶段是<code>KDC</code>对<code>client</code>的身份认证,第二个阶段是<code>service</code>对<code>client</code>的身份认证.</p>
+</blockquote>
+<p><img src="/2018/10/18/pinpoint-add-hbase-kerberos-auth/DingTalk20171127114504.png" alt="原理图"></p>
+<ul>
+<li>KDC: Kerberos的服务端程序</li>
+<li>Client: 需要访问服务的用户(principal)，KDC和Service会对用户的身份进行认证</li>
+<li>Service: 集成了Kerberos的服务，如HDFS/YARN/HBase等</li>
+</ul>
+<h2 id="1、KDC对Client身份认证"><a href="#1、KDC对Client身份认证" class="headerlink" title="1、KDC对Client身份认证"></a>1、KDC对Client身份认证</h2><p>当客户端用户访问一个集成了<code>Kerberos</code>的服务之前，需要先通过<code>KDC</code>的身份认证.若身份认证通过则客户端会拿到一个<code>TGT</code>,后续就可以拿该<code>TGT</code>去访问集成了<code>Kerberos</code>的服务。</p>
+<h2 id="2、Service对Client身份认证"><a href="#2、Service对Client身份认证" class="headerlink" title="2、Service对Client身份认证"></a>2、Service对Client身份认证</h2><p>当该客户端拿到<code>TGT</code>之后，就可以继续访问<code>Service</code>服务。它回使用<code>TGT</code>以及需要访问的服务名称去<code>KDC</code>获取<code>SGT</code>,然后使用<code>SGT</code>去访问服务<code>Service</code>，<code>Service</code>会利用相关信息对<code>Client</code>进行身份认证,认证通过后就可以正常访问<code>Service</code>服务。</p>
+<h1 id="Hbase-kerberos-认证"><a href="#Hbase-kerberos-认证" class="headerlink" title="Hbase kerberos 认证"></a>Hbase kerberos 认证</h1><h2 id="1、修改源码"><a href="#1、修改源码" class="headerlink" title="1、修改源码"></a>1、修改源码</h2><blockquote>
+<p><code>pinpoint</code>中的<code>hbase</code>相关代码都是在<code>commons-hbase</code>这个项目中，连接都是通过<code>PooledHTableFactory.java</code> 这个类创建的，因此修改代码的地方就是这个类，并且只需要添加上<code>hbase</code>认证代码即可.</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">PooledHTableFactory</span><span class="params">(Configuration config, ExecutorService executor)</span> </span>&#123;</span><br><span class="line">    Objects.requireNonNull(config, <span class="string">&quot;config must not be null&quot;</span>);</span><br><span class="line">    <span class="keyword">this</span>.executor = Objects.requireNonNull(executor, <span class="string">&quot;executor must not be null&quot;</span>);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        String authEnable = config.get(<span class="string">&quot;hbase.kerberos.auth&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (!StringUtils.isEmpty(authEnable) &amp;&amp; Boolean.parseBoolean(authEnable))&#123;</span><br><span class="line">            <span class="keyword">if</span> (StringUtils.isEmpty(config.get(<span class="string">&quot;hbase.kerberos.keytab.path&quot;</span>)))&#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> KerberosException(ErrorType.KDC_ERR_NONE);</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(<span class="string">&quot;hbase.zookeeper.quorum:&quot;</span>+config.get(<span class="string">&quot;hbase.zookeeper.quorum&quot;</span>));</span><br><span class="line">            System.out.println(<span class="string">&quot;hbase.kerberos.keytab.path:&quot;</span>+config.get(<span class="string">&quot;hbase.kerberos.keytab.path&quot;</span>));</span><br><span class="line">            System.out.println(<span class="string">&quot;hbase.kerberos.user:&quot;</span>+config.get(<span class="string">&quot;hbase.kerberos.user&quot;</span>));</span><br><span class="line"> </span><br><span class="line">            config.set(<span class="string">&quot;hbase.security.authentication&quot;</span>, <span class="string">&quot;kerberos&quot;</span>);</span><br><span class="line">            config.set(<span class="string">&quot;hadoop.security.authentication&quot;</span>, <span class="string">&quot;kerberos&quot;</span>);</span><br><span class="line">            config.set(<span class="string">&quot;hbase.master.kerberos.principal&quot;</span>,config.get(<span class="string">&quot;hbase.master.kerberos.principal&quot;</span>));</span><br><span class="line">            config.set(<span class="string">&quot;hbase.regionserver.kerberos.principal&quot;</span>,config.get(<span class="string">&quot;hbase.regionserver.kerberos.principal&quot;</span>));</span><br><span class="line">            UserGroupInformation.setConfiguration(config);</span><br><span class="line">            String kerberosUser = config.get(<span class="string">&quot;hbase.kerberos.user&quot;</span>);</span><br><span class="line">            String kerberosPath = config.get(<span class="string">&quot;hbase.kerberos.keytab.path&quot;</span>);</span><br><span class="line">            UserGroupInformation.loginUserFromKeytab(kerberosUser, kerberosPath);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.connection = ConnectionFactory.createConnection(config, executor);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> HbaseSystemException(e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>只添加了<code>if</code>里面的所以代码，值都通过配置文件传入，设置了开关，可以启用或者禁用认证功能。</p>
+<h2 id="2、添加配置"><a href="#2、添加配置" class="headerlink" title="2、添加配置"></a>2、添加配置</h2><blockquote>
+<p>添加<code>hbase.properties</code>的配置</p>
+</blockquote>
+ <figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="comment"># kerberos</span></span><br><span class="line"><span class="comment"># 是否启用或者禁用</span></span><br><span class="line"><span class="meta">hbase.kerberos.auth</span>=<span class="string">true</span></span><br><span class="line"><span class="comment"># kerberos 用户</span></span><br><span class="line"><span class="meta">hbase.kerberos.user</span>=<span class="string">test_add@HADOOP.COM</span></span><br><span class="line"><span class="comment"># keytab 认证文件路径</span></span><br><span class="line"><span class="meta">hbase.kerberos.keytab.path</span>=<span class="string">./test_add.keytab</span></span><br><span class="line"><span class="comment"># 默认配置</span></span><br><span class="line"><span class="meta">hbase.master.kerberos.principal</span>=<span class="string">hbase/_HOST@HADOOP.COM</span></span><br><span class="line"><span class="meta">hbase.regionserver.kerberos.principal</span>=<span class="string">hbase/_HOST@HADOOP.COM</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>添加 <code>applicationContext-hbase.xml</code>的配置.</p>
+</blockquote>
+ <figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;hbaseConfiguration&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.navercorp.pinpoint.common.hbase.HbaseConfigurationFactoryBean&quot;</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;properties&quot;</span>&gt;</span></span><br><span class="line">             <span class="tag">&lt;<span class="name">props</span>&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.zookeeper.quorum&quot;</span>&gt;</span>$&#123;hbase.client.host&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.zookeeper.property.clientPort&quot;</span>&gt;</span>$&#123;hbase.client.port&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line"></span><br><span class="line">                <span class="comment">&lt;!--Root ZNode for HBase in ZooKeeper.--&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;zookeeper.znode.parent&quot;</span>&gt;</span>$&#123;hbase.zookeeper.znode.parent:/hbase&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                  <span class="comment">&lt;!-- hbase default:true --&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.ipc.client.tcpnodelay&quot;</span>&gt;</span>$&#123;hbase.ipc.client.tcpnodelay&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="comment">&lt;!-- hbase default:60000 --&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.rpc.timeout&quot;</span>&gt;</span>$&#123;hbase.rpc.timeout&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="comment">&lt;!-- hbase default:Integer.MAX_VALUE --&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.client.operation.timeout&quot;</span>&gt;</span>$&#123;hbase.client.operation.timeout&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line"> </span><br><span class="line">                 <span class="comment">&lt;!-- hbase socket read timeout. default: 200000--&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.ipc.client.socket.timeout.read&quot;</span>&gt;</span>$&#123;hbase.ipc.client.socket.timeout.read&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="comment">&lt;!-- socket write timeout. hbase default: 600000--&gt;</span></span><br><span class="line">                  <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.ipc.client.socket.timeout.write&quot;</span>&gt;</span>$&#123;hbase.ipc.client.socket.timeout.write&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">  </span><br><span class="line">                  <span class="comment">&lt;!-- hbase async put operation. --&gt;</span></span><br><span class="line">                  <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.client.async.enable&quot;</span>&gt;</span>$&#123;hbase.client.async.enable:false&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                  <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.client.async.in.queuesize&quot;</span>&gt;</span>$&#123;hbase.client.async.in.queuesize:10000&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                  <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.tablemultiplexer.flush.period.ms&quot;</span>&gt;</span>$&#123;hbase.client.async.flush.period.ms:100&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                  <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.client.max.retries.in.queue&quot;</span>&gt;</span>$&#123;hbase.client.async.max.retries.in.queue:10&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="comment">&lt;!--hbase kerberos--&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.kerberos.auth&quot;</span>&gt;</span>$&#123;hbase.kerberos.auth:false&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.kerberos.user&quot;</span>&gt;</span>$&#123;hbase.kerberos.user:test&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.kerberos.keytab.path&quot;</span>&gt;</span>$&#123;hbase.kerberos.keytab.path:/tmp&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.master.kerberos.principal&quot;</span>&gt;</span>$&#123;hbase.master.kerberos.principal:test&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.regionserver.kerberos.principal&quot;</span>&gt;</span>$&#123;hbase.regionserver.kerberos.principal:test&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">             <span class="tag">&lt;/<span class="name">props</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h2 id="3、添加启动参数配置到tomcat中"><a href="#3、添加启动参数配置到tomcat中" class="headerlink" title="3、添加启动参数配置到tomcat中"></a>3、添加启动参数配置到<code>tomcat</code>中</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> vim bin/catalina.sh</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加krb配置文件</span></span><br><span class="line">CATALINA_OPTS=&quot;$CATALINA_OPTS -Djava.security.krb5.conf=./krb5.conf&quot;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 开启krb认证的bug日志</span></span><br><span class="line">CATALINA_OPTS=&quot;$CATALINA_OPTS -Dsun.security.krb5.debug=true&quot;</span><br><span class="line">CATALINA_OPTS=&quot;$CATALINA_OPTS -Djavax.security.auth.useSubjectCredsOnly=true&quot;</span><br></pre></td></tr></table></figure>
+<p><strong> 上面步骤都完成之后即可进行重启使用。</strong></p>
+]]></content>
+      <categories>
+        <category>github</category>
+      </categories>
+      <tags>
+        <tag>hbase kerberos认证</tag>
+        <tag>pinpoint</tag>
+        <tag>APM</tag>
       </tags>
   </entry>
   <entry>
@@ -918,23 +918,6 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
-    <title>es-xpack-machinelean</title>
-    <url>/2018/11/16/es-xpack-machinelean/</url>
-    <content><![CDATA[<ul>
-<li>加载数据到<code>Elasticsearch</code>中</li>
-<li>创建一个机器学习<code>job</code></li>
-<li>使用结果来识别数据中可能存储的异常</li>
-</ul>
-]]></content>
-      <categories>
-        <category>es</category>
-      </categories>
-      <tags>
-        <tag>xpack</tag>
-        <tag>machinelean</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>docker Compose 使用</title>
     <url>/2018/11/24/docker-Compose-user/</url>
     <content><![CDATA[<h1 id="Docker-Compose-是什么"><a href="#Docker-Compose-是什么" class="headerlink" title="Docker Compose 是什么"></a>Docker Compose 是什么</h1><blockquote>
@@ -1027,6 +1010,23 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
+    <title>es-xpack-machinelean</title>
+    <url>/2018/11/16/es-xpack-machinelean/</url>
+    <content><![CDATA[<ul>
+<li>加载数据到<code>Elasticsearch</code>中</li>
+<li>创建一个机器学习<code>job</code></li>
+<li>使用结果来识别数据中可能存储的异常</li>
+</ul>
+]]></content>
+      <categories>
+        <category>es</category>
+      </categories>
+      <tags>
+        <tag>xpack</tag>
+        <tag>machinelean</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>docker 网络概念</title>
     <url>/2018/11/25/docker-network-concept/</url>
     <content><![CDATA[<h1 id="容器的网络模型"><a href="#容器的网络模型" class="headerlink" title="容器的网络模型"></a>容器的网络模型</h1><p><code>Docker</code>的网络架构是构建在一组称为容器网络模型(CNM)的接口之上的。这个CNM的原理是为了提供多种不同的基础系统架构的应用程可用性。<br>最初的容器网络设计只关注如何在单个主机上运行容器并使他们可以从网络访问；在<code>host</code>模式下，容器在主机的<code>Network Namespace</code>中运行并使用主机IP地址，暴露容器端口在主机外面，容器会使用主机的端口。<br>这个<code>bridge</code>模式对<code>host</code>模式进行了改进，在<code>Bridge</code>模式下，容器通过<code>IPAM</code>IP地址管理模块来提供IP，从它自己的网络空间中获取自己的网络IP，此时容器有自己的网络命名空间，不会出现端口冲突，但是容器如果要暴露服务在主机外部，仍然需要使用主机IP。该技术是使用的<code>NAT</code>网络地址转换实现的，在主机IP:主机端口和容器IP:容器端口之间进行映射，这些转换规则是使用<code>iptables</code>实现的，这种实现限制了解决方案的规模和性能。此方案并没有解决多主机的容器网络通信问题。</p>
@@ -1074,6 +1074,39 @@ MySQL服务初始化(仅适用5.7)</li>
       </categories>
       <tags>
         <tag>Docker network</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Container Networking 标准</title>
+    <url>/2018/12/05/Container-Networking-Standards/</url>
+    <content><![CDATA[<h1 id="容器网络概括"><a href="#容器网络概括" class="headerlink" title="容器网络概括"></a>容器网络概括</h1><p>容器正在改变应用程序的开发方式以及应用程序连接网络的方式，大多数讨论容器都是在讨论容器编排，比如：<code>k8s</code>,<code>swarm</code>,这是因为开发首先能接触到的就是容器的编排，但是，网络对于生产部署至关重要，因为网络需要自动化，可扩展且安全，以适应于下一代的混合云的应用架构。</p>
+<h1 id="容器与虚拟机的网络连接"><a href="#容器与虚拟机的网络连接" class="headerlink" title="容器与虚拟机的网络连接"></a>容器与虚拟机的网络连接</h1><h1 id="参考指南"><a href="#参考指南" class="headerlink" title="参考指南"></a>参考指南</h1><ul>
+<li><a href="http://www.nuagenetworks.net/blog/container-networking-standards/">http://www.nuagenetworks.net/blog/container-networking-standards/</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>学习</category>
+      </categories>
+      <tags>
+        <tag>Container Networking</tag>
+        <tag>CNM</tag>
+        <tag>CNI</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Kubernetes 入门学习</title>
+    <url>/2018/12/12/Kubernetes-Setup/</url>
+    <content><![CDATA[<h1 id="Kubernetes创建一个集群"><a href="#Kubernetes创建一个集群" class="headerlink" title="Kubernetes创建一个集群"></a>Kubernetes创建一个集群</h1><h3 id="Kubernetes-集群"><a href="#Kubernetes-集群" class="headerlink" title="Kubernetes 集群"></a>Kubernetes 集群</h3><p><code>Kubernetes</code>是一个计算机资源的协调器，将这些计算机连接起来作为一个工作单元。<code>Kubernetes</code>以更有效的方式自动化跨集群分发和调度应用程序容器。<code>Kubernetes</code>主要由两部分组成，<code>Master</code>协调集群，<code>Nodes</code>是应用程序的工作节点。</p>
+<p><img src="/2018/12/12/Kubernetes-Setup/module_01_cluster.svg" alt="module_01_cluster"></p>
+<p><code>Master</code>是负责管理集群的，<code>Noes</code>是虚拟机或者是物理机，用作<code>Kubernetes</code>中的工作节点。每一个<code>Node</code>节点都有一个<code>Kubelet</code>。<br><code>Minikube</code>是一种轻量级<code>Kubernetes</code>实现，可在本地计算机上创建VM并部署仅包含一个节点的简单集群.可以在<code>Linux</code>或者<code>Macos</code>上通过<a href="https://kubernetes.io/docs/tasks/tools/install-minikube/">Minikube</a>部署一个只有单节点的<code>k8s</code>集群。</p>
+<h3 id="使用minikube创建一个k8s集群"><a href="#使用minikube创建一个k8s集群" class="headerlink" title="使用minikube创建一个k8s集群"></a>使用minikube创建一个k8s集群</h3><p>1、先查看本地是否安装<code>minikube</code>,执行命令:<code>minikube version</code>,如果本地安装就能看到结果。<br>2、启动集群，使用命令<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 执行启动之后就能看到如下的日志</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> minikube start</span></span><br><span class="line">Starting local Kubernetes v1.10.0 cluster...</span><br><span class="line">Starting VM...</span><br><span class="line">Getting VM IP address...</span><br><span class="line">Moving files into cluster...</span><br><span class="line">Setting up certs...</span><br><span class="line">Connecting to cluster...</span><br><span class="line">Setting up kubeconfig...</span><br><span class="line">Starting cluster components...</span><br><span class="line">Kubectl is now configured to use the cluster.</span><br><span class="line">Loading cached images from config file.</span><br></pre></td></tr></table></figure><br>3、查看启动的<code>k8s</code>集群：<code>kubectl version</code>,执行这条命令之后会看到客户端和服务端的版本，客户端版本是<code>kubectl</code>的，服务端版本是<code>Kubernetes</code>的版本，<br>4、查看集群详细信息：<code>kubectl cluster-info</code><br>5、查看拥有节点：<code>kubectl get nodes</code>，即可得出所有的可用节点，状态为<code>Ready</code>,标示已经准备好可以处理应用。</p>
+<h1 id="使用kubectl去部署一个应用"><a href="#使用kubectl去部署一个应用" class="headerlink" title="使用kubectl去部署一个应用"></a>使用kubectl去部署一个应用</h1>]]></content>
+      <categories>
+        <category>学习</category>
+      </categories>
+      <tags>
+        <tag>Kubernetes</tag>
+        <tag>云计算</tag>
       </tags>
   </entry>
   <entry>
@@ -1125,39 +1158,6 @@ MySQL服务初始化(仅适用5.7)</li>
         <tag>docker</tag>
         <tag>multi-stage builds</tag>
         <tag>减小镜像</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Container Networking 标准</title>
-    <url>/2018/12/05/Container-Networking-Standards/</url>
-    <content><![CDATA[<h1 id="容器网络概括"><a href="#容器网络概括" class="headerlink" title="容器网络概括"></a>容器网络概括</h1><p>容器正在改变应用程序的开发方式以及应用程序连接网络的方式，大多数讨论容器都是在讨论容器编排，比如：<code>k8s</code>,<code>swarm</code>,这是因为开发首先能接触到的就是容器的编排，但是，网络对于生产部署至关重要，因为网络需要自动化，可扩展且安全，以适应于下一代的混合云的应用架构。</p>
-<h1 id="容器与虚拟机的网络连接"><a href="#容器与虚拟机的网络连接" class="headerlink" title="容器与虚拟机的网络连接"></a>容器与虚拟机的网络连接</h1><h1 id="参考指南"><a href="#参考指南" class="headerlink" title="参考指南"></a>参考指南</h1><ul>
-<li><a href="http://www.nuagenetworks.net/blog/container-networking-standards/">http://www.nuagenetworks.net/blog/container-networking-standards/</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>学习</category>
-      </categories>
-      <tags>
-        <tag>Container Networking</tag>
-        <tag>CNM</tag>
-        <tag>CNI</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Kubernetes 入门学习</title>
-    <url>/2018/12/12/Kubernetes-Setup/</url>
-    <content><![CDATA[<h1 id="Kubernetes创建一个集群"><a href="#Kubernetes创建一个集群" class="headerlink" title="Kubernetes创建一个集群"></a>Kubernetes创建一个集群</h1><h3 id="Kubernetes-集群"><a href="#Kubernetes-集群" class="headerlink" title="Kubernetes 集群"></a>Kubernetes 集群</h3><p><code>Kubernetes</code>是一个计算机资源的协调器，将这些计算机连接起来作为一个工作单元。<code>Kubernetes</code>以更有效的方式自动化跨集群分发和调度应用程序容器。<code>Kubernetes</code>主要由两部分组成，<code>Master</code>协调集群，<code>Nodes</code>是应用程序的工作节点。</p>
-<p><img src="/2018/12/12/Kubernetes-Setup/module_01_cluster.svg" alt="module_01_cluster"></p>
-<p><code>Master</code>是负责管理集群的，<code>Noes</code>是虚拟机或者是物理机，用作<code>Kubernetes</code>中的工作节点。每一个<code>Node</code>节点都有一个<code>Kubelet</code>。<br><code>Minikube</code>是一种轻量级<code>Kubernetes</code>实现，可在本地计算机上创建VM并部署仅包含一个节点的简单集群.可以在<code>Linux</code>或者<code>Macos</code>上通过<a href="https://kubernetes.io/docs/tasks/tools/install-minikube/">Minikube</a>部署一个只有单节点的<code>k8s</code>集群。</p>
-<h3 id="使用minikube创建一个k8s集群"><a href="#使用minikube创建一个k8s集群" class="headerlink" title="使用minikube创建一个k8s集群"></a>使用minikube创建一个k8s集群</h3><p>1、先查看本地是否安装<code>minikube</code>,执行命令:<code>minikube version</code>,如果本地安装就能看到结果。<br>2、启动集群，使用命令<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 执行启动之后就能看到如下的日志</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> minikube start</span></span><br><span class="line">Starting local Kubernetes v1.10.0 cluster...</span><br><span class="line">Starting VM...</span><br><span class="line">Getting VM IP address...</span><br><span class="line">Moving files into cluster...</span><br><span class="line">Setting up certs...</span><br><span class="line">Connecting to cluster...</span><br><span class="line">Setting up kubeconfig...</span><br><span class="line">Starting cluster components...</span><br><span class="line">Kubectl is now configured to use the cluster.</span><br><span class="line">Loading cached images from config file.</span><br></pre></td></tr></table></figure><br>3、查看启动的<code>k8s</code>集群：<code>kubectl version</code>,执行这条命令之后会看到客户端和服务端的版本，客户端版本是<code>kubectl</code>的，服务端版本是<code>Kubernetes</code>的版本，<br>4、查看集群详细信息：<code>kubectl cluster-info</code><br>5、查看拥有节点：<code>kubectl get nodes</code>，即可得出所有的可用节点，状态为<code>Ready</code>,标示已经准备好可以处理应用。</p>
-<h1 id="使用kubectl去部署一个应用"><a href="#使用kubectl去部署一个应用" class="headerlink" title="使用kubectl去部署一个应用"></a>使用kubectl去部署一个应用</h1>]]></content>
-      <categories>
-        <category>学习</category>
-      </categories>
-      <tags>
-        <tag>Kubernetes</tag>
-        <tag>云计算</tag>
       </tags>
   </entry>
   <entry>
@@ -1766,6 +1766,37 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
+    <title>渐进符号、替换、递归树、主方法</title>
+    <url>/2019/04/05/Introduction-to-Algorithms-lecture-2/</url>
+    <content><![CDATA[<p>这节课的主要知识就是讲诉了使用三种方法去求解递归式。</p>
+<h1 id="渐进记号"><a href="#渐进记号" class="headerlink" title="渐进记号"></a>渐进记号</h1><p>渐进记号主要有三种，具体定义参考课本。把渐进记号用来描述算法的运行时间。</p>
+<h2 id="Θ-记号-上界"><a href="#Θ-记号-上界" class="headerlink" title="Θ 记号(上界)"></a>Θ 记号(上界)</h2><p><code>f(n) = Θ(g(n))</code>使得存在正数常量<code>c1、c2、n0</code>,使得对所有 <code>n≥n0</code>,有<code>0≤c1g(n) ≤ f(n)≤ c2g(n)</code></p>
+<h2 id="Ω-记号（下界）"><a href="#Ω-记号（下界）" class="headerlink" title="Ω 记号（下界）"></a>Ω 记号（下界）</h2><p><code>f(n)=Ω(g(n))</code> 使得存在正数常量<code>c</code>和<code>n0</code>,使得对所有<code>n≥n0</code>有 <code>0 ≤ cg(n) ≤ f(n)</code>.</p>
+<h2 id="O-记号"><a href="#O-记号" class="headerlink" title="O 记号"></a>O 记号</h2><p><code>Θ</code>记号渐进的给出一个函数的上界和下界，当只有一个渐进上界时，使用<code>O</code>记号。<br><code>f(n) = O(g(n))</code> 使得存在正数常量<code>c,n0</code>，使得对所有<code>n≥n0</code>,有<code>0≤f(n)≤cg(n)</code></p>
+<h1 id="求解递归式"><a href="#求解递归式" class="headerlink" title="求解递归式"></a>求解递归式</h1><p>使用递归式来刻画分治算法的运行时间，如下三种方法便是学习如何求解递归式。<br>递归式如下：<br><img src="/2019/04/05/Introduction-to-Algorithms-lecture-2/1557153490587.jpg" alt="递归式"></p>
+<h2 id="替换法求解递归式"><a href="#替换法求解递归式" class="headerlink" title="替换法求解递归式"></a>替换法求解递归式</h2><p>代入法求解递归式分两步：<br>1、猜测解的形式。需要靠经验，或者借助递归树来得出好的猜测。<br>2、归纳验证，求解常量。</p>
+<h2 id="递归树求解递归式"><a href="#递归树求解递归式" class="headerlink" title="递归树求解递归式"></a>递归树求解递归式</h2><p>此方法参考课本内容。</p>
+<h2 id="主方法求解递归式"><a href="#主方法求解递归式" class="headerlink" title="主方法求解递归式"></a>主方法求解递归式</h2><p>主方法定义了一个通用的递归式求解方法，如下</p>
+<p><code>T(n) = aT(n/b) + f(n)</code></p>
+<p>含义：它将规模为<code>n</code>的问题分解为<code>a</code>个子问题，每个子问题规模为<code>n/b</code>，其中<code>a</code>和<code>b</code>都是正常数，<code>a</code>个子问题递归地进行求解，每个话费时间<code>T(n/b)</code>。函数<code>fn</code>包含了问题分解和子问题解合并的代价。</p>
+<p>主方法依赖下面的定理：令<code>a&gt;= 1</code>和<code>b&gt;1</code>是常数，<code>fn</code>是一个函数，<code>Tn</code>是定义在非负整数上的递归式：<br><code>T(n) = aT(n/b) + f(n)</code><br><code>Tn</code>有如下渐进界：</p>
+<ul>
+<li>1、若对某个常数<code>ε&gt;0</code>有<code>f(n)=O(nlogba–ε)</code>则<code>T(n) = Θ(nlogba) .</code></li>
+<li>2、若<code>f(n) = Θ(nlogba)</code>则<code>T(n) = Θ(nlogba lgk+1n) .</code></li>
+<li>3、若某个常数<code>ε&gt;0</code>有<code>f(n)=Ω(nlogba+ε)</code>且对某个常数<code>c&lt;1</code>和所有足够大的<code>n</code>有<code>af(n/b) &lt; cf(n)</code>,则<code>T(n) = Θ( f (n) )</code></li>
+</ul>
+<p>递归树的高度：<code>h = logbn</code><br>叶子结点个数：<code>l =  nlogba</code></p>
+]]></content>
+      <categories>
+        <category>Algorithms and Datastructure</category>
+      </categories>
+      <tags>
+        <tag>course 学习</tag>
+        <tag>Introduction to Algorithms</tag>
+        <tag>lecture2</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>算法分析、插入排序、归并排序</title>
     <url>/2019/03/30/Introduction-to-Algorithms-lecture-1/</url>
     <content><![CDATA[<blockquote>
@@ -1817,37 +1848,6 @@ MySQL服务初始化(仅适用5.7)</li>
         <tag>course 学习</tag>
         <tag>Introduction to Algorithms</tag>
         <tag>lecture1</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>渐进符号、替换、递归树、主方法</title>
-    <url>/2019/04/05/Introduction-to-Algorithms-lecture-2/</url>
-    <content><![CDATA[<p>这节课的主要知识就是讲诉了使用三种方法去求解递归式。</p>
-<h1 id="渐进记号"><a href="#渐进记号" class="headerlink" title="渐进记号"></a>渐进记号</h1><p>渐进记号主要有三种，具体定义参考课本。把渐进记号用来描述算法的运行时间。</p>
-<h2 id="Θ-记号-上界"><a href="#Θ-记号-上界" class="headerlink" title="Θ 记号(上界)"></a>Θ 记号(上界)</h2><p><code>f(n) = Θ(g(n))</code>使得存在正数常量<code>c1、c2、n0</code>,使得对所有 <code>n≥n0</code>,有<code>0≤c1g(n) ≤ f(n)≤ c2g(n)</code></p>
-<h2 id="Ω-记号（下界）"><a href="#Ω-记号（下界）" class="headerlink" title="Ω 记号（下界）"></a>Ω 记号（下界）</h2><p><code>f(n)=Ω(g(n))</code> 使得存在正数常量<code>c</code>和<code>n0</code>,使得对所有<code>n≥n0</code>有 <code>0 ≤ cg(n) ≤ f(n)</code>.</p>
-<h2 id="O-记号"><a href="#O-记号" class="headerlink" title="O 记号"></a>O 记号</h2><p><code>Θ</code>记号渐进的给出一个函数的上界和下界，当只有一个渐进上界时，使用<code>O</code>记号。<br><code>f(n) = O(g(n))</code> 使得存在正数常量<code>c,n0</code>，使得对所有<code>n≥n0</code>,有<code>0≤f(n)≤cg(n)</code></p>
-<h1 id="求解递归式"><a href="#求解递归式" class="headerlink" title="求解递归式"></a>求解递归式</h1><p>使用递归式来刻画分治算法的运行时间，如下三种方法便是学习如何求解递归式。<br>递归式如下：<br><img src="/2019/04/05/Introduction-to-Algorithms-lecture-2/1557153490587.jpg" alt="递归式"></p>
-<h2 id="替换法求解递归式"><a href="#替换法求解递归式" class="headerlink" title="替换法求解递归式"></a>替换法求解递归式</h2><p>代入法求解递归式分两步：<br>1、猜测解的形式。需要靠经验，或者借助递归树来得出好的猜测。<br>2、归纳验证，求解常量。</p>
-<h2 id="递归树求解递归式"><a href="#递归树求解递归式" class="headerlink" title="递归树求解递归式"></a>递归树求解递归式</h2><p>此方法参考课本内容。</p>
-<h2 id="主方法求解递归式"><a href="#主方法求解递归式" class="headerlink" title="主方法求解递归式"></a>主方法求解递归式</h2><p>主方法定义了一个通用的递归式求解方法，如下</p>
-<p><code>T(n) = aT(n/b) + f(n)</code></p>
-<p>含义：它将规模为<code>n</code>的问题分解为<code>a</code>个子问题，每个子问题规模为<code>n/b</code>，其中<code>a</code>和<code>b</code>都是正常数，<code>a</code>个子问题递归地进行求解，每个话费时间<code>T(n/b)</code>。函数<code>fn</code>包含了问题分解和子问题解合并的代价。</p>
-<p>主方法依赖下面的定理：令<code>a&gt;= 1</code>和<code>b&gt;1</code>是常数，<code>fn</code>是一个函数，<code>Tn</code>是定义在非负整数上的递归式：<br><code>T(n) = aT(n/b) + f(n)</code><br><code>Tn</code>有如下渐进界：</p>
-<ul>
-<li>1、若对某个常数<code>ε&gt;0</code>有<code>f(n)=O(nlogba–ε)</code>则<code>T(n) = Θ(nlogba) .</code></li>
-<li>2、若<code>f(n) = Θ(nlogba)</code>则<code>T(n) = Θ(nlogba lgk+1n) .</code></li>
-<li>3、若某个常数<code>ε&gt;0</code>有<code>f(n)=Ω(nlogba+ε)</code>且对某个常数<code>c&lt;1</code>和所有足够大的<code>n</code>有<code>af(n/b) &lt; cf(n)</code>,则<code>T(n) = Θ( f (n) )</code></li>
-</ul>
-<p>递归树的高度：<code>h = logbn</code><br>叶子结点个数：<code>l =  nlogba</code></p>
-]]></content>
-      <categories>
-        <category>Algorithms and Datastructure</category>
-      </categories>
-      <tags>
-        <tag>course 学习</tag>
-        <tag>Introduction to Algorithms</tag>
-        <tag>lecture2</tag>
       </tags>
   </entry>
   <entry>
