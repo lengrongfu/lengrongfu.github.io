@@ -186,6 +186,39 @@
       </tags>
   </entry>
   <entry>
+    <title>es 索引按时间自动创建</title>
+    <url>/2018/10/17/es-dynamic-index-create/</url>
+    <content><![CDATA[<h1 id="index"><a href="#index" class="headerlink" title="index"></a>index</h1><p>通过创建<code>template</code>来进行动态模版的创建。</p>
+<ul>
+<li><p>创建模版</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT _template/template_1</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;template&quot;</span>: <span class="string">&quot;test-*&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;settings&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;number_of_shards&quot;</span>: <span class="number">1</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">&quot;mappings&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;type1&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;_source&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;enabled&quot;</span>: <span class="literal">false</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">&quot;properties&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;host_name&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;keyword&quot;</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">&quot;created_at&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;date&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;format&quot;</span>: <span class="string">&quot;EEE MMM dd HH:mm:ss Z YYYY&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建第一天的数据</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT test<span class="number">-2018.08</span><span class="number">.10</span>/type1</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;host_name&quot;</span>:<span class="string">&quot;&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;created_at&quot;</span>:<span class="string">&quot;&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>创建第二天的数据<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT test<span class="number">-2018.08</span><span class="number">.11</span>/type1</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;host_name&quot;</span>:<span class="string">&quot;&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;created_at&quot;</span>:<span class="string">&quot;&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>后面都是依次类推。</p>
+<h2 id="禁止自动创建索引"><a href="#禁止自动创建索引" class="headerlink" title="禁止自动创建索引"></a>禁止自动创建索引</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim config/elasticsearch.yml</span><br><span class="line">action.auto_create_index: false</span><br></pre></td></tr></table></figure>
+<h2 id="删除索引"><a href="#删除索引" class="headerlink" title="删除索引"></a>删除索引</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#用以下的请求来 删除索引:</span><br><span class="line">DELETE /my_index</span><br><span class="line">#你也可以这样删除多个索引：</span><br><span class="line"></span><br><span class="line">DELETE /index_one,index_two</span><br><span class="line">DELETE /index_*</span><br><span class="line">#你甚至可以这样删除 全部 索引：</span><br><span class="line">DELETE /_all</span><br><span class="line">DELETE /*</span><br></pre></td></tr></table></figure>
+<p>为了避免意外的执行了删除所有数据的命令，可加入如下的配置。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim config/elasticsearch.yml</span><br><span class="line">action.destructive_requires_name: true</span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置之后就不能再执行删除所有的数据的命令，只能指定索引的删除</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="索引设置"><a href="#索引设置" class="headerlink" title="索引设置"></a>索引设置</h2><p>可以通过修改配置自定义索引行为，详细配置参照<a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/index-modules.html">索引模块</a>。</p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/_creating_an_index.html">https://www.elastic.co/guide/cn/elasticsearch/guide/current/_creating_an_index.html</a></li>
+<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/index-templates.html">https://www.elastic.co/guide/cn/elasticsearch/guide/current/index-templates.html</a></li>
+<li><a href="https://www.elastic.co/blog/managing-time-based-indices-efficiently">有效地管理Elasticsearch基于时间的指数</a></li>
+<li><a href="https://luyiisme.github.io/2017/04/13/es-rollover-index/">更高效的数据</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>es</category>
+      </categories>
+      <tags>
+        <tag>elasticsearch</tag>
+        <tag>es template</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>elk 搭建</title>
     <url>/2018/10/17/elk-install/</url>
     <content><![CDATA[<h1 id="ELK"><a href="#ELK" class="headerlink" title="ELK"></a>ELK</h1><h2 id="一、ElasticSearch"><a href="#一、ElasticSearch" class="headerlink" title="一、ElasticSearch"></a>一、ElasticSearch</h2><h3 id="1、安装"><a href="#1、安装" class="headerlink" title="1、安装"></a>1、安装</h3><ul>
@@ -282,39 +315,6 @@ system call filters failed to install; check the logs and fix your configuration
         <tag>logstash</tag>
         <tag>kibana</tag>
         <tag>install</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>es 索引按时间自动创建</title>
-    <url>/2018/10/17/es-dynamic-index-create/</url>
-    <content><![CDATA[<h1 id="index"><a href="#index" class="headerlink" title="index"></a>index</h1><p>通过创建<code>template</code>来进行动态模版的创建。</p>
-<ul>
-<li><p>创建模版</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT _template/template_1</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;template&quot;</span>: <span class="string">&quot;test-*&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;settings&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;number_of_shards&quot;</span>: <span class="number">1</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">&quot;mappings&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;type1&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;_source&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;enabled&quot;</span>: <span class="literal">false</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">&quot;properties&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;host_name&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;keyword&quot;</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">&quot;created_at&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;date&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;format&quot;</span>: <span class="string">&quot;EEE MMM dd HH:mm:ss Z YYYY&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>创建第一天的数据</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT test<span class="number">-2018.08</span><span class="number">.10</span>/type1</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;host_name&quot;</span>:<span class="string">&quot;&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;created_at&quot;</span>:<span class="string">&quot;&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>创建第二天的数据<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT test<span class="number">-2018.08</span><span class="number">.11</span>/type1</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;host_name&quot;</span>:<span class="string">&quot;&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;created_at&quot;</span>:<span class="string">&quot;&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>后面都是依次类推。</p>
-<h2 id="禁止自动创建索引"><a href="#禁止自动创建索引" class="headerlink" title="禁止自动创建索引"></a>禁止自动创建索引</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim config/elasticsearch.yml</span><br><span class="line">action.auto_create_index: false</span><br></pre></td></tr></table></figure>
-<h2 id="删除索引"><a href="#删除索引" class="headerlink" title="删除索引"></a>删除索引</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#用以下的请求来 删除索引:</span><br><span class="line">DELETE /my_index</span><br><span class="line">#你也可以这样删除多个索引：</span><br><span class="line"></span><br><span class="line">DELETE /index_one,index_two</span><br><span class="line">DELETE /index_*</span><br><span class="line">#你甚至可以这样删除 全部 索引：</span><br><span class="line">DELETE /_all</span><br><span class="line">DELETE /*</span><br></pre></td></tr></table></figure>
-<p>为了避免意外的执行了删除所有数据的命令，可加入如下的配置。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim config/elasticsearch.yml</span><br><span class="line">action.destructive_requires_name: true</span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置之后就不能再执行删除所有的数据的命令，只能指定索引的删除</span></span><br></pre></td></tr></table></figure></p>
-<h2 id="索引设置"><a href="#索引设置" class="headerlink" title="索引设置"></a>索引设置</h2><p>可以通过修改配置自定义索引行为，详细配置参照<a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/index-modules.html">索引模块</a>。</p>
-<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
-<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/_creating_an_index.html">https://www.elastic.co/guide/cn/elasticsearch/guide/current/_creating_an_index.html</a></li>
-<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/index-templates.html">https://www.elastic.co/guide/cn/elasticsearch/guide/current/index-templates.html</a></li>
-<li><a href="https://www.elastic.co/blog/managing-time-based-indices-efficiently">有效地管理Elasticsearch基于时间的指数</a></li>
-<li><a href="https://luyiisme.github.io/2017/04/13/es-rollover-index/">更高效的数据</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>es</category>
-      </categories>
-      <tags>
-        <tag>elasticsearch</tag>
-        <tag>es template</tag>
       </tags>
   </entry>
   <entry>
@@ -444,52 +444,6 @@ system call filters failed to install; check the logs and fix your configuration
       </tags>
   </entry>
   <entry>
-    <title>es-xpack-watch-user</title>
-    <url>/2018/10/17/es-xpack-watch-user/</url>
-    <content><![CDATA[<h1 id="Watcher"><a href="#Watcher" class="headerlink" title="Watcher"></a>Watcher</h1><p><strong>Es 安装了官方x-pack的插件，可以用来做业务监控。第一次使用请先阅读下面的注意事项。</strong></p>
-<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>1、进入<code>kibana</code>页面，从<code>management</code>进入，有一个<code>Watcher</code>的按钮，进入之后就可以进行<code>watcher</code>添加.</p>
-<p>2、点击<code>Addr</code>进入页面之后添加一个<code>ID</code>和<code>name</code>.之后编辑<code>watch Json</code>内容。</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;trigger&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;schedule&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;interval&quot;</span>: <span class="string">&quot;30m&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">&quot;input&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;search&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;request&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;body&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;size&quot;</span>: <span class="number">0</span>,</span><br><span class="line">          <span class="attr">&quot;query&quot;</span>: &#123;</span><br><span class="line">            <span class="attr">&quot;match_all&quot;</span>: &#123;&#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">&quot;indices&quot;</span>: [</span><br><span class="line">          <span class="string">&quot;*&quot;</span></span><br><span class="line">        ]</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">&quot;condition&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;compare&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;ctx.payload.hits.total&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;gte&quot;</span>: <span class="number">10</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">&quot;actions&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;my-logging-action&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;logging&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;text&quot;</span>: <span class="string">&quot;There are &#123;&#123;ctx.payload.hits.total&#125;&#125; documents in your index. Threshold is 10.&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>一个<code>Watcher</code>由四部分组成.</p>
-<ul>
-<li><code>Schedule</code>：查询和检查的定时任务</li>
-<li><code>Query</code>：查询的语句，支持<code>es</code>的完整查询语句。</li>
-<li><code>Condition</code>:判断条件，是否满足</li>
-<li><code>Actions</code>:满足条件之后触发的动作</li>
-</ul>
-<p>1、上面的定时任务是<code>30</code>分钟,可以改为<code>10s</code>,<code>1h</code>,不建议这个值太小，这样对<code>es</code>服务器压力比较大，并且没有太大意义。</p>
-<p>2、上面的<code>query</code>就是查询所有<code>index</code>的所以数据，具体的查看语句需要自己写。</p>
-<p>3、比较条件，上面的是比较<code>ctx.payload.hits.total</code>这个返回的值是否大于<code>10</code>,大于等于用<code>gte</code>,大于用<code>gt</code>,小于用<code>lt</code>,小于等于用<code>lte</code>.</p>
-<p>4、触发动作，上述的触发动作是打印日志。触发动作可以选择发送邮件。</p>
-<h2 id="场景用列"><a href="#场景用列" class="headerlink" title="场景用列"></a>场景用列</h2><ul>
-<li>业务系统中一个关键节点异常告警</li>
-<li>监控 <code>nginx</code> 一分钟之内<code>code</code>为<code>500</code>出现次数10次以上则告警</li>
-</ul>
-<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><ul>
-<li>新建的<code>watcher</code>的<code>id</code>和<code>name</code>，不要和已有的重名，不然会把人家的给覆盖掉，并且不能恢复回来，必须重写。所以写的人也要注意，自己写了的也要保存一份。</li>
-<li>定时任务时间不到太短</li>
-<li>上述查询返回是没有内容的，之后返回查询命中多少条，如果要返回多少条，请修改<code>query</code>中的<code>size</code>字段，这个值不要给太大，最好不要超过<code>100</code>,太大，会把服务器内存耗尽。如果需要只返回前面的几条数据即可。</li>
-<li>每个<code>watch</code>语句最好都在开发环境上测试一下，开发环境有同样的工具。</li>
-<li>如果<code>query</code>语句比较复杂，请在<code>Dev Tools</code>控制面板中先写好测试过了之后再使用，添加到线上之前请再三进行测试一下。</li>
-</ul>
-<h2 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h2><ul>
-<li>如果要获取返回的数据并且序列化为一个字符串需要使用<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="string">&quot;actions&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;my_webhook&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;transform&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;script&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;inline&quot;</span>: <span class="string">&quot;return ctx.payload.hits.hits.stream().map(p -&gt; p._source.message).collect(Collectors.toList())&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;lang&quot;</span>: <span class="string">&quot;painless&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">&quot;my-logging-action&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;logging&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;text&quot;</span>: <span class="string">&quot;&#123;&#123;#toJson&#125;&#125;ctx.payload&#123;&#123;/toJson&#125;&#125;&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
-<li><a href="https://www.elastic.co/guide/en/x-pack/5.4/xpack-alerting.html">https://www.elastic.co/guide/en/x-pack/5.4/xpack-alerting.html</a></li>
-<li><a href="https://demo.elastic.co">https://demo.elastic.co</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>es</category>
-      </categories>
-      <tags>
-        <tag>elasticsearch</tag>
-        <tag>X-pack</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>linux-Firewall 配置</title>
     <url>/2018/10/17/linux-Firewall/</url>
     <content><![CDATA[<blockquote>
@@ -553,6 +507,52 @@ system call filters failed to install; check the logs and fix your configuration
         <tag>linux</tag>
         <tag>Firewall</tag>
         <tag>iptables</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>es-xpack-watch-user</title>
+    <url>/2018/10/17/es-xpack-watch-user/</url>
+    <content><![CDATA[<h1 id="Watcher"><a href="#Watcher" class="headerlink" title="Watcher"></a>Watcher</h1><p><strong>Es 安装了官方x-pack的插件，可以用来做业务监控。第一次使用请先阅读下面的注意事项。</strong></p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>1、进入<code>kibana</code>页面，从<code>management</code>进入，有一个<code>Watcher</code>的按钮，进入之后就可以进行<code>watcher</code>添加.</p>
+<p>2、点击<code>Addr</code>进入页面之后添加一个<code>ID</code>和<code>name</code>.之后编辑<code>watch Json</code>内容。</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;trigger&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;schedule&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;interval&quot;</span>: <span class="string">&quot;30m&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">&quot;input&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;search&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;request&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;body&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;size&quot;</span>: <span class="number">0</span>,</span><br><span class="line">          <span class="attr">&quot;query&quot;</span>: &#123;</span><br><span class="line">            <span class="attr">&quot;match_all&quot;</span>: &#123;&#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">&quot;indices&quot;</span>: [</span><br><span class="line">          <span class="string">&quot;*&quot;</span></span><br><span class="line">        ]</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">&quot;condition&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;compare&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;ctx.payload.hits.total&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;gte&quot;</span>: <span class="number">10</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">&quot;actions&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;my-logging-action&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;logging&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;text&quot;</span>: <span class="string">&quot;There are &#123;&#123;ctx.payload.hits.total&#125;&#125; documents in your index. Threshold is 10.&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>一个<code>Watcher</code>由四部分组成.</p>
+<ul>
+<li><code>Schedule</code>：查询和检查的定时任务</li>
+<li><code>Query</code>：查询的语句，支持<code>es</code>的完整查询语句。</li>
+<li><code>Condition</code>:判断条件，是否满足</li>
+<li><code>Actions</code>:满足条件之后触发的动作</li>
+</ul>
+<p>1、上面的定时任务是<code>30</code>分钟,可以改为<code>10s</code>,<code>1h</code>,不建议这个值太小，这样对<code>es</code>服务器压力比较大，并且没有太大意义。</p>
+<p>2、上面的<code>query</code>就是查询所有<code>index</code>的所以数据，具体的查看语句需要自己写。</p>
+<p>3、比较条件，上面的是比较<code>ctx.payload.hits.total</code>这个返回的值是否大于<code>10</code>,大于等于用<code>gte</code>,大于用<code>gt</code>,小于用<code>lt</code>,小于等于用<code>lte</code>.</p>
+<p>4、触发动作，上述的触发动作是打印日志。触发动作可以选择发送邮件。</p>
+<h2 id="场景用列"><a href="#场景用列" class="headerlink" title="场景用列"></a>场景用列</h2><ul>
+<li>业务系统中一个关键节点异常告警</li>
+<li>监控 <code>nginx</code> 一分钟之内<code>code</code>为<code>500</code>出现次数10次以上则告警</li>
+</ul>
+<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><ul>
+<li>新建的<code>watcher</code>的<code>id</code>和<code>name</code>，不要和已有的重名，不然会把人家的给覆盖掉，并且不能恢复回来，必须重写。所以写的人也要注意，自己写了的也要保存一份。</li>
+<li>定时任务时间不到太短</li>
+<li>上述查询返回是没有内容的，之后返回查询命中多少条，如果要返回多少条，请修改<code>query</code>中的<code>size</code>字段，这个值不要给太大，最好不要超过<code>100</code>,太大，会把服务器内存耗尽。如果需要只返回前面的几条数据即可。</li>
+<li>每个<code>watch</code>语句最好都在开发环境上测试一下，开发环境有同样的工具。</li>
+<li>如果<code>query</code>语句比较复杂，请在<code>Dev Tools</code>控制面板中先写好测试过了之后再使用，添加到线上之前请再三进行测试一下。</li>
+</ul>
+<h2 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h2><ul>
+<li>如果要获取返回的数据并且序列化为一个字符串需要使用<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="string">&quot;actions&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;my_webhook&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;transform&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;script&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;inline&quot;</span>: <span class="string">&quot;return ctx.payload.hits.hits.stream().map(p -&gt; p._source.message).collect(Collectors.toList())&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;lang&quot;</span>: <span class="string">&quot;painless&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">&quot;my-logging-action&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;logging&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;text&quot;</span>: <span class="string">&quot;&#123;&#123;#toJson&#125;&#125;ctx.payload&#123;&#123;/toJson&#125;&#125;&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://www.elastic.co/guide/en/x-pack/5.4/xpack-alerting.html">https://www.elastic.co/guide/en/x-pack/5.4/xpack-alerting.html</a></li>
+<li><a href="https://demo.elastic.co">https://demo.elastic.co</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>es</category>
+      </categories>
+      <tags>
+        <tag>elasticsearch</tag>
+        <tag>X-pack</tag>
       </tags>
   </entry>
   <entry>
@@ -721,6 +721,49 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
+    <title>pinpoint 添加 hbase kerberos认证</title>
+    <url>/2018/10/18/pinpoint-add-hbase-kerberos-auth/</url>
+    <content><![CDATA[<blockquote>
+<p><code>pinpoint</code> 原生是不支持的<code>hbase</code>的<code>kerberos</code>认证的，经过修改源码，现已在<code>1.8</code>版本之后支持了这一功能，并入到项目主分支中，以后可以直接使用。</p>
+</blockquote>
+<p>开源地址: <a href="https://github.com/naver/pinpoint">https://github.com/naver/pinpoint</a></p>
+<h1 id="kerberos-认证简介"><a href="#kerberos-认证简介" class="headerlink" title="kerberos 认证简介"></a>kerberos 认证简介</h1><blockquote>
+<p><code>Kerberos</code> 是一种基于对称密钥的身份认证协议，它作为一个独立的第三方的身份认证服务，可以为其服务提供身份认证功能，且支持<code>SSO</code>(即客户端身份认证后，可以访问多个服务如HBase/HDFS等).<br><code>Kerberos</code> 协议过程主要有两个阶段，第一个阶段是<code>KDC</code>对<code>client</code>的身份认证,第二个阶段是<code>service</code>对<code>client</code>的身份认证.</p>
+</blockquote>
+<p><img src="/2018/10/18/pinpoint-add-hbase-kerberos-auth/DingTalk20171127114504.png" alt="原理图"></p>
+<ul>
+<li>KDC: Kerberos的服务端程序</li>
+<li>Client: 需要访问服务的用户(principal)，KDC和Service会对用户的身份进行认证</li>
+<li>Service: 集成了Kerberos的服务，如HDFS/YARN/HBase等</li>
+</ul>
+<h2 id="1、KDC对Client身份认证"><a href="#1、KDC对Client身份认证" class="headerlink" title="1、KDC对Client身份认证"></a>1、KDC对Client身份认证</h2><p>当客户端用户访问一个集成了<code>Kerberos</code>的服务之前，需要先通过<code>KDC</code>的身份认证.若身份认证通过则客户端会拿到一个<code>TGT</code>,后续就可以拿该<code>TGT</code>去访问集成了<code>Kerberos</code>的服务。</p>
+<h2 id="2、Service对Client身份认证"><a href="#2、Service对Client身份认证" class="headerlink" title="2、Service对Client身份认证"></a>2、Service对Client身份认证</h2><p>当该客户端拿到<code>TGT</code>之后，就可以继续访问<code>Service</code>服务。它回使用<code>TGT</code>以及需要访问的服务名称去<code>KDC</code>获取<code>SGT</code>,然后使用<code>SGT</code>去访问服务<code>Service</code>，<code>Service</code>会利用相关信息对<code>Client</code>进行身份认证,认证通过后就可以正常访问<code>Service</code>服务。</p>
+<h1 id="Hbase-kerberos-认证"><a href="#Hbase-kerberos-认证" class="headerlink" title="Hbase kerberos 认证"></a>Hbase kerberos 认证</h1><h2 id="1、修改源码"><a href="#1、修改源码" class="headerlink" title="1、修改源码"></a>1、修改源码</h2><blockquote>
+<p><code>pinpoint</code>中的<code>hbase</code>相关代码都是在<code>commons-hbase</code>这个项目中，连接都是通过<code>PooledHTableFactory.java</code> 这个类创建的，因此修改代码的地方就是这个类，并且只需要添加上<code>hbase</code>认证代码即可.</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">PooledHTableFactory</span><span class="params">(Configuration config, ExecutorService executor)</span> </span>&#123;</span><br><span class="line">    Objects.requireNonNull(config, <span class="string">&quot;config must not be null&quot;</span>);</span><br><span class="line">    <span class="keyword">this</span>.executor = Objects.requireNonNull(executor, <span class="string">&quot;executor must not be null&quot;</span>);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        String authEnable = config.get(<span class="string">&quot;hbase.kerberos.auth&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (!StringUtils.isEmpty(authEnable) &amp;&amp; Boolean.parseBoolean(authEnable))&#123;</span><br><span class="line">            <span class="keyword">if</span> (StringUtils.isEmpty(config.get(<span class="string">&quot;hbase.kerberos.keytab.path&quot;</span>)))&#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> KerberosException(ErrorType.KDC_ERR_NONE);</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(<span class="string">&quot;hbase.zookeeper.quorum:&quot;</span>+config.get(<span class="string">&quot;hbase.zookeeper.quorum&quot;</span>));</span><br><span class="line">            System.out.println(<span class="string">&quot;hbase.kerberos.keytab.path:&quot;</span>+config.get(<span class="string">&quot;hbase.kerberos.keytab.path&quot;</span>));</span><br><span class="line">            System.out.println(<span class="string">&quot;hbase.kerberos.user:&quot;</span>+config.get(<span class="string">&quot;hbase.kerberos.user&quot;</span>));</span><br><span class="line"> </span><br><span class="line">            config.set(<span class="string">&quot;hbase.security.authentication&quot;</span>, <span class="string">&quot;kerberos&quot;</span>);</span><br><span class="line">            config.set(<span class="string">&quot;hadoop.security.authentication&quot;</span>, <span class="string">&quot;kerberos&quot;</span>);</span><br><span class="line">            config.set(<span class="string">&quot;hbase.master.kerberos.principal&quot;</span>,config.get(<span class="string">&quot;hbase.master.kerberos.principal&quot;</span>));</span><br><span class="line">            config.set(<span class="string">&quot;hbase.regionserver.kerberos.principal&quot;</span>,config.get(<span class="string">&quot;hbase.regionserver.kerberos.principal&quot;</span>));</span><br><span class="line">            UserGroupInformation.setConfiguration(config);</span><br><span class="line">            String kerberosUser = config.get(<span class="string">&quot;hbase.kerberos.user&quot;</span>);</span><br><span class="line">            String kerberosPath = config.get(<span class="string">&quot;hbase.kerberos.keytab.path&quot;</span>);</span><br><span class="line">            UserGroupInformation.loginUserFromKeytab(kerberosUser, kerberosPath);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.connection = ConnectionFactory.createConnection(config, executor);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> HbaseSystemException(e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>只添加了<code>if</code>里面的所以代码，值都通过配置文件传入，设置了开关，可以启用或者禁用认证功能。</p>
+<h2 id="2、添加配置"><a href="#2、添加配置" class="headerlink" title="2、添加配置"></a>2、添加配置</h2><blockquote>
+<p>添加<code>hbase.properties</code>的配置</p>
+</blockquote>
+ <figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="comment"># kerberos</span></span><br><span class="line"><span class="comment"># 是否启用或者禁用</span></span><br><span class="line"><span class="meta">hbase.kerberos.auth</span>=<span class="string">true</span></span><br><span class="line"><span class="comment"># kerberos 用户</span></span><br><span class="line"><span class="meta">hbase.kerberos.user</span>=<span class="string">test_add@HADOOP.COM</span></span><br><span class="line"><span class="comment"># keytab 认证文件路径</span></span><br><span class="line"><span class="meta">hbase.kerberos.keytab.path</span>=<span class="string">./test_add.keytab</span></span><br><span class="line"><span class="comment"># 默认配置</span></span><br><span class="line"><span class="meta">hbase.master.kerberos.principal</span>=<span class="string">hbase/_HOST@HADOOP.COM</span></span><br><span class="line"><span class="meta">hbase.regionserver.kerberos.principal</span>=<span class="string">hbase/_HOST@HADOOP.COM</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>添加 <code>applicationContext-hbase.xml</code>的配置.</p>
+</blockquote>
+ <figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;hbaseConfiguration&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.navercorp.pinpoint.common.hbase.HbaseConfigurationFactoryBean&quot;</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;properties&quot;</span>&gt;</span></span><br><span class="line">             <span class="tag">&lt;<span class="name">props</span>&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.zookeeper.quorum&quot;</span>&gt;</span>$&#123;hbase.client.host&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.zookeeper.property.clientPort&quot;</span>&gt;</span>$&#123;hbase.client.port&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line"></span><br><span class="line">                <span class="comment">&lt;!--Root ZNode for HBase in ZooKeeper.--&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;zookeeper.znode.parent&quot;</span>&gt;</span>$&#123;hbase.zookeeper.znode.parent:/hbase&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                  <span class="comment">&lt;!-- hbase default:true --&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.ipc.client.tcpnodelay&quot;</span>&gt;</span>$&#123;hbase.ipc.client.tcpnodelay&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="comment">&lt;!-- hbase default:60000 --&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.rpc.timeout&quot;</span>&gt;</span>$&#123;hbase.rpc.timeout&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="comment">&lt;!-- hbase default:Integer.MAX_VALUE --&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.client.operation.timeout&quot;</span>&gt;</span>$&#123;hbase.client.operation.timeout&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line"> </span><br><span class="line">                 <span class="comment">&lt;!-- hbase socket read timeout. default: 200000--&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.ipc.client.socket.timeout.read&quot;</span>&gt;</span>$&#123;hbase.ipc.client.socket.timeout.read&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="comment">&lt;!-- socket write timeout. hbase default: 600000--&gt;</span></span><br><span class="line">                  <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.ipc.client.socket.timeout.write&quot;</span>&gt;</span>$&#123;hbase.ipc.client.socket.timeout.write&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">  </span><br><span class="line">                  <span class="comment">&lt;!-- hbase async put operation. --&gt;</span></span><br><span class="line">                  <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.client.async.enable&quot;</span>&gt;</span>$&#123;hbase.client.async.enable:false&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                  <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.client.async.in.queuesize&quot;</span>&gt;</span>$&#123;hbase.client.async.in.queuesize:10000&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                  <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.tablemultiplexer.flush.period.ms&quot;</span>&gt;</span>$&#123;hbase.client.async.flush.period.ms:100&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                  <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.client.max.retries.in.queue&quot;</span>&gt;</span>$&#123;hbase.client.async.max.retries.in.queue:10&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="comment">&lt;!--hbase kerberos--&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.kerberos.auth&quot;</span>&gt;</span>$&#123;hbase.kerberos.auth:false&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.kerberos.user&quot;</span>&gt;</span>$&#123;hbase.kerberos.user:test&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.kerberos.keytab.path&quot;</span>&gt;</span>$&#123;hbase.kerberos.keytab.path:/tmp&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.master.kerberos.principal&quot;</span>&gt;</span>$&#123;hbase.master.kerberos.principal:test&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.regionserver.kerberos.principal&quot;</span>&gt;</span>$&#123;hbase.regionserver.kerberos.principal:test&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">             <span class="tag">&lt;/<span class="name">props</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h2 id="3、添加启动参数配置到tomcat中"><a href="#3、添加启动参数配置到tomcat中" class="headerlink" title="3、添加启动参数配置到tomcat中"></a>3、添加启动参数配置到<code>tomcat</code>中</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> vim bin/catalina.sh</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加krb配置文件</span></span><br><span class="line">CATALINA_OPTS=&quot;$CATALINA_OPTS -Djava.security.krb5.conf=./krb5.conf&quot;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 开启krb认证的bug日志</span></span><br><span class="line">CATALINA_OPTS=&quot;$CATALINA_OPTS -Dsun.security.krb5.debug=true&quot;</span><br><span class="line">CATALINA_OPTS=&quot;$CATALINA_OPTS -Djavax.security.auth.useSubjectCredsOnly=true&quot;</span><br></pre></td></tr></table></figure>
+<p><strong> 上面步骤都完成之后即可进行重启使用。</strong></p>
+]]></content>
+      <categories>
+        <category>github</category>
+      </categories>
+      <tags>
+        <tag>hbase kerberos认证</tag>
+        <tag>pinpoint</tag>
+        <tag>APM</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>自定义 spring-boot-stater</title>
     <url>/2018/10/17/new-spring-boot-stater/</url>
     <content><![CDATA[<h1 id="spring-boot-stater"><a href="#spring-boot-stater" class="headerlink" title="spring boot stater"></a>spring boot stater</h1><p>通过使用<code>Spring Boot Starter</code>将一些层、组件拆分为模块来管理，以便相互依赖复用。</p>
@@ -764,49 +807,6 @@ MySQL服务初始化(仅适用5.7)</li>
       </categories>
       <tags>
         <tag>spring boot stater</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>pinpoint 添加 hbase kerberos认证</title>
-    <url>/2018/10/18/pinpoint-add-hbase-kerberos-auth/</url>
-    <content><![CDATA[<blockquote>
-<p><code>pinpoint</code> 原生是不支持的<code>hbase</code>的<code>kerberos</code>认证的，经过修改源码，现已在<code>1.8</code>版本之后支持了这一功能，并入到项目主分支中，以后可以直接使用。</p>
-</blockquote>
-<p>开源地址: <a href="https://github.com/naver/pinpoint">https://github.com/naver/pinpoint</a></p>
-<h1 id="kerberos-认证简介"><a href="#kerberos-认证简介" class="headerlink" title="kerberos 认证简介"></a>kerberos 认证简介</h1><blockquote>
-<p><code>Kerberos</code> 是一种基于对称密钥的身份认证协议，它作为一个独立的第三方的身份认证服务，可以为其服务提供身份认证功能，且支持<code>SSO</code>(即客户端身份认证后，可以访问多个服务如HBase/HDFS等).<br><code>Kerberos</code> 协议过程主要有两个阶段，第一个阶段是<code>KDC</code>对<code>client</code>的身份认证,第二个阶段是<code>service</code>对<code>client</code>的身份认证.</p>
-</blockquote>
-<p><img src="/2018/10/18/pinpoint-add-hbase-kerberos-auth/DingTalk20171127114504.png" alt="原理图"></p>
-<ul>
-<li>KDC: Kerberos的服务端程序</li>
-<li>Client: 需要访问服务的用户(principal)，KDC和Service会对用户的身份进行认证</li>
-<li>Service: 集成了Kerberos的服务，如HDFS/YARN/HBase等</li>
-</ul>
-<h2 id="1、KDC对Client身份认证"><a href="#1、KDC对Client身份认证" class="headerlink" title="1、KDC对Client身份认证"></a>1、KDC对Client身份认证</h2><p>当客户端用户访问一个集成了<code>Kerberos</code>的服务之前，需要先通过<code>KDC</code>的身份认证.若身份认证通过则客户端会拿到一个<code>TGT</code>,后续就可以拿该<code>TGT</code>去访问集成了<code>Kerberos</code>的服务。</p>
-<h2 id="2、Service对Client身份认证"><a href="#2、Service对Client身份认证" class="headerlink" title="2、Service对Client身份认证"></a>2、Service对Client身份认证</h2><p>当该客户端拿到<code>TGT</code>之后，就可以继续访问<code>Service</code>服务。它回使用<code>TGT</code>以及需要访问的服务名称去<code>KDC</code>获取<code>SGT</code>,然后使用<code>SGT</code>去访问服务<code>Service</code>，<code>Service</code>会利用相关信息对<code>Client</code>进行身份认证,认证通过后就可以正常访问<code>Service</code>服务。</p>
-<h1 id="Hbase-kerberos-认证"><a href="#Hbase-kerberos-认证" class="headerlink" title="Hbase kerberos 认证"></a>Hbase kerberos 认证</h1><h2 id="1、修改源码"><a href="#1、修改源码" class="headerlink" title="1、修改源码"></a>1、修改源码</h2><blockquote>
-<p><code>pinpoint</code>中的<code>hbase</code>相关代码都是在<code>commons-hbase</code>这个项目中，连接都是通过<code>PooledHTableFactory.java</code> 这个类创建的，因此修改代码的地方就是这个类，并且只需要添加上<code>hbase</code>认证代码即可.</p>
-</blockquote>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">PooledHTableFactory</span><span class="params">(Configuration config, ExecutorService executor)</span> </span>&#123;</span><br><span class="line">    Objects.requireNonNull(config, <span class="string">&quot;config must not be null&quot;</span>);</span><br><span class="line">    <span class="keyword">this</span>.executor = Objects.requireNonNull(executor, <span class="string">&quot;executor must not be null&quot;</span>);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        String authEnable = config.get(<span class="string">&quot;hbase.kerberos.auth&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (!StringUtils.isEmpty(authEnable) &amp;&amp; Boolean.parseBoolean(authEnable))&#123;</span><br><span class="line">            <span class="keyword">if</span> (StringUtils.isEmpty(config.get(<span class="string">&quot;hbase.kerberos.keytab.path&quot;</span>)))&#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> KerberosException(ErrorType.KDC_ERR_NONE);</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(<span class="string">&quot;hbase.zookeeper.quorum:&quot;</span>+config.get(<span class="string">&quot;hbase.zookeeper.quorum&quot;</span>));</span><br><span class="line">            System.out.println(<span class="string">&quot;hbase.kerberos.keytab.path:&quot;</span>+config.get(<span class="string">&quot;hbase.kerberos.keytab.path&quot;</span>));</span><br><span class="line">            System.out.println(<span class="string">&quot;hbase.kerberos.user:&quot;</span>+config.get(<span class="string">&quot;hbase.kerberos.user&quot;</span>));</span><br><span class="line"> </span><br><span class="line">            config.set(<span class="string">&quot;hbase.security.authentication&quot;</span>, <span class="string">&quot;kerberos&quot;</span>);</span><br><span class="line">            config.set(<span class="string">&quot;hadoop.security.authentication&quot;</span>, <span class="string">&quot;kerberos&quot;</span>);</span><br><span class="line">            config.set(<span class="string">&quot;hbase.master.kerberos.principal&quot;</span>,config.get(<span class="string">&quot;hbase.master.kerberos.principal&quot;</span>));</span><br><span class="line">            config.set(<span class="string">&quot;hbase.regionserver.kerberos.principal&quot;</span>,config.get(<span class="string">&quot;hbase.regionserver.kerberos.principal&quot;</span>));</span><br><span class="line">            UserGroupInformation.setConfiguration(config);</span><br><span class="line">            String kerberosUser = config.get(<span class="string">&quot;hbase.kerberos.user&quot;</span>);</span><br><span class="line">            String kerberosPath = config.get(<span class="string">&quot;hbase.kerberos.keytab.path&quot;</span>);</span><br><span class="line">            UserGroupInformation.loginUserFromKeytab(kerberosUser, kerberosPath);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.connection = ConnectionFactory.createConnection(config, executor);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> HbaseSystemException(e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>只添加了<code>if</code>里面的所以代码，值都通过配置文件传入，设置了开关，可以启用或者禁用认证功能。</p>
-<h2 id="2、添加配置"><a href="#2、添加配置" class="headerlink" title="2、添加配置"></a>2、添加配置</h2><blockquote>
-<p>添加<code>hbase.properties</code>的配置</p>
-</blockquote>
- <figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="comment"># kerberos</span></span><br><span class="line"><span class="comment"># 是否启用或者禁用</span></span><br><span class="line"><span class="meta">hbase.kerberos.auth</span>=<span class="string">true</span></span><br><span class="line"><span class="comment"># kerberos 用户</span></span><br><span class="line"><span class="meta">hbase.kerberos.user</span>=<span class="string">test_add@HADOOP.COM</span></span><br><span class="line"><span class="comment"># keytab 认证文件路径</span></span><br><span class="line"><span class="meta">hbase.kerberos.keytab.path</span>=<span class="string">./test_add.keytab</span></span><br><span class="line"><span class="comment"># 默认配置</span></span><br><span class="line"><span class="meta">hbase.master.kerberos.principal</span>=<span class="string">hbase/_HOST@HADOOP.COM</span></span><br><span class="line"><span class="meta">hbase.regionserver.kerberos.principal</span>=<span class="string">hbase/_HOST@HADOOP.COM</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>添加 <code>applicationContext-hbase.xml</code>的配置.</p>
-</blockquote>
- <figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;hbaseConfiguration&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.navercorp.pinpoint.common.hbase.HbaseConfigurationFactoryBean&quot;</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;properties&quot;</span>&gt;</span></span><br><span class="line">             <span class="tag">&lt;<span class="name">props</span>&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.zookeeper.quorum&quot;</span>&gt;</span>$&#123;hbase.client.host&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.zookeeper.property.clientPort&quot;</span>&gt;</span>$&#123;hbase.client.port&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line"></span><br><span class="line">                <span class="comment">&lt;!--Root ZNode for HBase in ZooKeeper.--&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;zookeeper.znode.parent&quot;</span>&gt;</span>$&#123;hbase.zookeeper.znode.parent:/hbase&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                  <span class="comment">&lt;!-- hbase default:true --&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.ipc.client.tcpnodelay&quot;</span>&gt;</span>$&#123;hbase.ipc.client.tcpnodelay&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="comment">&lt;!-- hbase default:60000 --&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.rpc.timeout&quot;</span>&gt;</span>$&#123;hbase.rpc.timeout&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="comment">&lt;!-- hbase default:Integer.MAX_VALUE --&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.client.operation.timeout&quot;</span>&gt;</span>$&#123;hbase.client.operation.timeout&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line"> </span><br><span class="line">                 <span class="comment">&lt;!-- hbase socket read timeout. default: 200000--&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.ipc.client.socket.timeout.read&quot;</span>&gt;</span>$&#123;hbase.ipc.client.socket.timeout.read&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="comment">&lt;!-- socket write timeout. hbase default: 600000--&gt;</span></span><br><span class="line">                  <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.ipc.client.socket.timeout.write&quot;</span>&gt;</span>$&#123;hbase.ipc.client.socket.timeout.write&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">  </span><br><span class="line">                  <span class="comment">&lt;!-- hbase async put operation. --&gt;</span></span><br><span class="line">                  <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.client.async.enable&quot;</span>&gt;</span>$&#123;hbase.client.async.enable:false&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                  <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.client.async.in.queuesize&quot;</span>&gt;</span>$&#123;hbase.client.async.in.queuesize:10000&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                  <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.tablemultiplexer.flush.period.ms&quot;</span>&gt;</span>$&#123;hbase.client.async.flush.period.ms:100&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                  <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.client.max.retries.in.queue&quot;</span>&gt;</span>$&#123;hbase.client.async.max.retries.in.queue:10&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="comment">&lt;!--hbase kerberos--&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.kerberos.auth&quot;</span>&gt;</span>$&#123;hbase.kerberos.auth:false&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.kerberos.user&quot;</span>&gt;</span>$&#123;hbase.kerberos.user:test&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.kerberos.keytab.path&quot;</span>&gt;</span>$&#123;hbase.kerberos.keytab.path:/tmp&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.master.kerberos.principal&quot;</span>&gt;</span>$&#123;hbase.master.kerberos.principal:test&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                 <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;hbase.regionserver.kerberos.principal&quot;</span>&gt;</span>$&#123;hbase.regionserver.kerberos.principal:test&#125;<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">             <span class="tag">&lt;/<span class="name">props</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<h2 id="3、添加启动参数配置到tomcat中"><a href="#3、添加启动参数配置到tomcat中" class="headerlink" title="3、添加启动参数配置到tomcat中"></a>3、添加启动参数配置到<code>tomcat</code>中</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> vim bin/catalina.sh</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加krb配置文件</span></span><br><span class="line">CATALINA_OPTS=&quot;$CATALINA_OPTS -Djava.security.krb5.conf=./krb5.conf&quot;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 开启krb认证的bug日志</span></span><br><span class="line">CATALINA_OPTS=&quot;$CATALINA_OPTS -Dsun.security.krb5.debug=true&quot;</span><br><span class="line">CATALINA_OPTS=&quot;$CATALINA_OPTS -Djavax.security.auth.useSubjectCredsOnly=true&quot;</span><br></pre></td></tr></table></figure>
-<p><strong> 上面步骤都完成之后即可进行重启使用。</strong></p>
-]]></content>
-      <categories>
-        <category>github</category>
-      </categories>
-      <tags>
-        <tag>hbase kerberos认证</tag>
-        <tag>pinpoint</tag>
-        <tag>APM</tag>
       </tags>
   </entry>
   <entry>
@@ -1901,6 +1901,18 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
+    <title>k8s-service原理</title>
+    <url>/2019/05/14/k8s-service%E5%8E%9F%E7%90%86/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>k8s</category>
+      </categories>
+      <tags>
+        <tag>service</tag>
+        <tag>k8s 源码</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>orange原理以及使用</title>
     <url>/2019/05/21/orange-%E5%8E%9F%E7%90%86/</url>
     <content><![CDATA[<h1 id="Orange-工具介绍"><a href="#Orange-工具介绍" class="headerlink" title="Orange 工具介绍"></a>Orange 工具介绍</h1><pre><code>`Orange`是一个基于`OpenResty`的页面化的网关,提供了页面化的分流规则配置和权限配置。工具更多的信息参考设计文档和源代码。
@@ -1924,18 +1936,6 @@ MySQL服务初始化(仅适用5.7)</li>
       </categories>
       <tags>
         <tag>orange</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>k8s-service原理</title>
-    <url>/2019/05/14/k8s-service%E5%8E%9F%E7%90%86/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>k8s</category>
-      </categories>
-      <tags>
-        <tag>service</tag>
-        <tag>k8s 源码</tag>
       </tags>
   </entry>
   <entry>
