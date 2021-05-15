@@ -47,6 +47,14 @@
       </tags>
   </entry>
   <entry>
+    <title>读大数据时代</title>
+    <url>/2018/09/04/%E8%AF%BB%E5%A4%A7%E6%95%B0%E6%8D%AE%E6%97%B6%E4%BB%A3/</url>
+    <content><![CDATA[<!--
+
+-->
+]]></content>
+  </entry>
+  <entry>
     <title>cloudera hadoop 安装</title>
     <url>/2018/09/06/cloudera/</url>
     <content><![CDATA[<h1 id="一、准备"><a href="#一、准备" class="headerlink" title="一、准备"></a>一、准备</h1><h2 id="1、JAVA-安装"><a href="#1、JAVA-安装" class="headerlink" title="1、JAVA 安装"></a>1、JAVA 安装</h2><p>要求：</p>
@@ -100,14 +108,6 @@
         <tag>cloudera</tag>
         <tag>hadoop</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>读大数据时代</title>
-    <url>/2018/09/04/%E8%AF%BB%E5%A4%A7%E6%95%B0%E6%8D%AE%E6%97%B6%E4%BB%A3/</url>
-    <content><![CDATA[<!--
-
--->
-]]></content>
   </entry>
   <entry>
     <title>Sqoop User Guide(Sqoop使用指南)</title>
@@ -1901,18 +1901,6 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
-    <title>k8s-service原理</title>
-    <url>/2019/05/14/k8s-service%E5%8E%9F%E7%90%86/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>k8s</category>
-      </categories>
-      <tags>
-        <tag>service</tag>
-        <tag>k8s 源码</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>orange原理以及使用</title>
     <url>/2019/05/21/orange-%E5%8E%9F%E7%90%86/</url>
     <content><![CDATA[<h1 id="Orange-工具介绍"><a href="#Orange-工具介绍" class="headerlink" title="Orange 工具介绍"></a>Orange 工具介绍</h1><pre><code>`Orange`是一个基于`OpenResty`的页面化的网关,提供了页面化的分流规则配置和权限配置。工具更多的信息参考设计文档和源代码。
@@ -1936,6 +1924,18 @@ MySQL服务初始化(仅适用5.7)</li>
       </categories>
       <tags>
         <tag>orange</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>k8s-service原理</title>
+    <url>/2019/05/14/k8s-service%E5%8E%9F%E7%90%86/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>k8s</category>
+      </categories>
+      <tags>
+        <tag>service</tag>
+        <tag>k8s 源码</tag>
       </tags>
   </entry>
   <entry>
