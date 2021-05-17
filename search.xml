@@ -155,34 +155,36 @@
       </tags>
   </entry>
   <entry>
-    <title>cloudera 问题解决</title>
-    <url>/2018/10/16/cloudera-problem/</url>
-    <content><![CDATA[<blockquote>
-<p>如下为记录<code>cloudera</code> 使用过程中的一些常见问题。</p>
-</blockquote>
-<h1 id="1、服务没有设置-opt这个挂载点"><a href="#1、服务没有设置-opt这个挂载点" class="headerlink" title="1、服务没有设置/opt这个挂载点"></a>1、服务没有设置<code>/opt</code>这个挂载点</h1><ul>
-<li><code>cloudera</code>所有的数据都是存储在<code>/opt</code>这个根目录下的，所以服务器在安装系统的时候最好让运维同事挂载一个大空间到这个目录下。</li>
-<li>如果安装的时候不知道，安装软件的时候可以选择存储空间,如果安装的时候也不知道，没有设置的话那就很悲催了。</li>
-<li>如果没有设置就回存到根目录的<code>/opt</code>下，这里面的存储空间一般都很小。说一下解决办法。<br>1、重装（我没这精力）<br>2、把<code>/opt</code>这个目录移动到一个大的挂载点上去，然后使用软连接，本人就是这么做的。</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 步骤</span></span><br><span class="line"><span class="meta">#</span><span class="bash">1、先停掉集群。</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv cloudera cloudera.bak</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv cloudera.bak /data/cloudera</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ln -sv /data/cloudera cloudera</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 经过上面的步骤之后再重启集群就可以了。</span></span><br></pre></td></tr></table></figure>
-<h1 id="2、Error-creating-LevelDB-timeseries-store-in-directory-var-lib-cloudera-service-monitor-ts"><a href="#2、Error-creating-LevelDB-timeseries-store-in-directory-var-lib-cloudera-service-monitor-ts" class="headerlink" title="2、Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts"></a>2、Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts</h1><blockquote>
-<p>具体现象如下，报找不到一个文件。解释一下出现这个问题的原因，还是由于根目录下的空间不够了，因此我移动了一个占有很<br>大空间的包，就是错误中的 <code>/var/lib/cloudera-service-monitor</code> 这个目录，然后通过软连接进行访问的。</p>
-</blockquote>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2018-10-16 16:24:25,993 INFO com.cloudera.cmon.firehose.Main: Cluster size: SMALL</span><br><span class="line">2018-10-16 16:24:26,056 INFO com.cloudera.cmon.tstore.leveldb.LDBResourceManager: Max file descriptors: 32768</span><br><span class="line">2018-10-16 16:24:26,057 INFO com.cloudera.cmon.tstore.leveldb.LDBResourceManager: Setting maximum open fds to: 768</span><br><span class="line">2018-10-16 16:24:26,181 ERROR com.cloudera.cmon.firehose.Main: Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts</span><br><span class="line">org.fusesource.leveldbjni.internal.NativeDB$DBException: Corruption: 3 missing files; e.g.: /data/lib/ts/ts_entity_metadata/000072.sst</span><br><span class="line">        at org.fusesource.leveldbjni.internal.NativeDB.checkStatus(NativeDB.java:194)</span><br><span class="line">        at org.fusesource.leveldbjni.internal.NativeDB.open(NativeDB.java:212)</span><br><span class="line">        at org.fusesource.leveldbjni.JniDBFactory.open(JniDBFactory.java:168)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBUtils.openVersionedDB(LDBUtils.java:264)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBUtils.openVersionedDB(LDBUtils.java:212)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBTimeSeriesMetadataStore.openMetadataDB(LDBTimeSeriesMetadataStore.java:148)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBTimeSeriesMetadataStore.&lt;init&gt;(LDBTimeSeriesMetadataStore.java:138)</span><br><span class="line">        at com.cloudera.cmon.firehose.Main.main(Main.java:453)</span><br></pre></td></tr></table></figure>
+    <title>es 索引按时间自动创建</title>
+    <url>/2018/10/17/es-dynamic-index-create/</url>
+    <content><![CDATA[<h1 id="index"><a href="#index" class="headerlink" title="index"></a>index</h1><p>通过创建<code>template</code>来进行动态模版的创建。</p>
 <ul>
-<li>说一下解决办法：</li>
+<li><p>创建模版</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT _template/template_1</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;template&quot;</span>: <span class="string">&quot;test-*&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;settings&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;number_of_shards&quot;</span>: <span class="number">1</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">&quot;mappings&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;type1&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;_source&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;enabled&quot;</span>: <span class="literal">false</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">&quot;properties&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;host_name&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;keyword&quot;</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">&quot;created_at&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;date&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;format&quot;</span>: <span class="string">&quot;EEE MMM dd HH:mm:ss Z YYYY&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建第一天的数据</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT test<span class="number">-2018.08</span><span class="number">.10</span>/type1</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;host_name&quot;</span>:<span class="string">&quot;&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;created_at&quot;</span>:<span class="string">&quot;&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>创建第二天的数据<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT test<span class="number">-2018.08</span><span class="number">.11</span>/type1</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;host_name&quot;</span>:<span class="string">&quot;&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;created_at&quot;</span>:<span class="string">&quot;&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进行如下的操作，再重启就可以了。亲测可以</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv /var/lib/cloudera-service-monitor /var/lib/cloudera-service-monitor.moved</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv /var/lib/cloudera-host-monitor /var/lib/cloudera-host-monitor.moved</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>参考：<a href="https://community.cloudera.com/t5/Security-Apache-Sentry/Host-Monitor-and-Service-Monitor-is-not-starting-after/td-p/49207">https://community.cloudera.com/t5/Security-Apache-Sentry/Host-Monitor-and-Service-Monitor-is-not-starting-after/td-p/49207</a></li>
+<p>后面都是依次类推。</p>
+<h2 id="禁止自动创建索引"><a href="#禁止自动创建索引" class="headerlink" title="禁止自动创建索引"></a>禁止自动创建索引</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim config/elasticsearch.yml</span><br><span class="line">action.auto_create_index: false</span><br></pre></td></tr></table></figure>
+<h2 id="删除索引"><a href="#删除索引" class="headerlink" title="删除索引"></a>删除索引</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#用以下的请求来 删除索引:</span><br><span class="line">DELETE /my_index</span><br><span class="line">#你也可以这样删除多个索引：</span><br><span class="line"></span><br><span class="line">DELETE /index_one,index_two</span><br><span class="line">DELETE /index_*</span><br><span class="line">#你甚至可以这样删除 全部 索引：</span><br><span class="line">DELETE /_all</span><br><span class="line">DELETE /*</span><br></pre></td></tr></table></figure>
+<p>为了避免意外的执行了删除所有数据的命令，可加入如下的配置。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim config/elasticsearch.yml</span><br><span class="line">action.destructive_requires_name: true</span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置之后就不能再执行删除所有的数据的命令，只能指定索引的删除</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="索引设置"><a href="#索引设置" class="headerlink" title="索引设置"></a>索引设置</h2><p>可以通过修改配置自定义索引行为，详细配置参照<a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/index-modules.html">索引模块</a>。</p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/_creating_an_index.html">https://www.elastic.co/guide/cn/elasticsearch/guide/current/_creating_an_index.html</a></li>
+<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/index-templates.html">https://www.elastic.co/guide/cn/elasticsearch/guide/current/index-templates.html</a></li>
+<li><a href="https://www.elastic.co/blog/managing-time-based-indices-efficiently">有效地管理Elasticsearch基于时间的指数</a></li>
+<li><a href="https://luyiisme.github.io/2017/04/13/es-rollover-index/">更高效的数据</a></li>
 </ul>
 ]]></content>
       <categories>
-        <category>Hadoop</category>
+        <category>es</category>
       </categories>
       <tags>
-        <tag>cloudera</tag>
+        <tag>elasticsearch</tag>
+        <tag>es template</tag>
       </tags>
   </entry>
   <entry>
@@ -285,36 +287,34 @@ system call filters failed to install; check the logs and fix your configuration
       </tags>
   </entry>
   <entry>
-    <title>es 索引按时间自动创建</title>
-    <url>/2018/10/17/es-dynamic-index-create/</url>
-    <content><![CDATA[<h1 id="index"><a href="#index" class="headerlink" title="index"></a>index</h1><p>通过创建<code>template</code>来进行动态模版的创建。</p>
-<ul>
-<li><p>创建模版</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT _template/template_1</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;template&quot;</span>: <span class="string">&quot;test-*&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;settings&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;number_of_shards&quot;</span>: <span class="number">1</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">&quot;mappings&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;type1&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;_source&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;enabled&quot;</span>: <span class="literal">false</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">&quot;properties&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;host_name&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;keyword&quot;</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">&quot;created_at&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;date&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;format&quot;</span>: <span class="string">&quot;EEE MMM dd HH:mm:ss Z YYYY&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>创建第一天的数据</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT test<span class="number">-2018.08</span><span class="number">.10</span>/type1</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;host_name&quot;</span>:<span class="string">&quot;&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;created_at&quot;</span>:<span class="string">&quot;&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>创建第二天的数据<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT test<span class="number">-2018.08</span><span class="number">.11</span>/type1</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;host_name&quot;</span>:<span class="string">&quot;&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;created_at&quot;</span>:<span class="string">&quot;&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
+    <title>cloudera 问题解决</title>
+    <url>/2018/10/16/cloudera-problem/</url>
+    <content><![CDATA[<blockquote>
+<p>如下为记录<code>cloudera</code> 使用过程中的一些常见问题。</p>
+</blockquote>
+<h1 id="1、服务没有设置-opt这个挂载点"><a href="#1、服务没有设置-opt这个挂载点" class="headerlink" title="1、服务没有设置/opt这个挂载点"></a>1、服务没有设置<code>/opt</code>这个挂载点</h1><ul>
+<li><code>cloudera</code>所有的数据都是存储在<code>/opt</code>这个根目录下的，所以服务器在安装系统的时候最好让运维同事挂载一个大空间到这个目录下。</li>
+<li>如果安装的时候不知道，安装软件的时候可以选择存储空间,如果安装的时候也不知道，没有设置的话那就很悲催了。</li>
+<li>如果没有设置就回存到根目录的<code>/opt</code>下，这里面的存储空间一般都很小。说一下解决办法。<br>1、重装（我没这精力）<br>2、把<code>/opt</code>这个目录移动到一个大的挂载点上去，然后使用软连接，本人就是这么做的。</li>
 </ul>
-<p>后面都是依次类推。</p>
-<h2 id="禁止自动创建索引"><a href="#禁止自动创建索引" class="headerlink" title="禁止自动创建索引"></a>禁止自动创建索引</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim config/elasticsearch.yml</span><br><span class="line">action.auto_create_index: false</span><br></pre></td></tr></table></figure>
-<h2 id="删除索引"><a href="#删除索引" class="headerlink" title="删除索引"></a>删除索引</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#用以下的请求来 删除索引:</span><br><span class="line">DELETE /my_index</span><br><span class="line">#你也可以这样删除多个索引：</span><br><span class="line"></span><br><span class="line">DELETE /index_one,index_two</span><br><span class="line">DELETE /index_*</span><br><span class="line">#你甚至可以这样删除 全部 索引：</span><br><span class="line">DELETE /_all</span><br><span class="line">DELETE /*</span><br></pre></td></tr></table></figure>
-<p>为了避免意外的执行了删除所有数据的命令，可加入如下的配置。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim config/elasticsearch.yml</span><br><span class="line">action.destructive_requires_name: true</span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置之后就不能再执行删除所有的数据的命令，只能指定索引的删除</span></span><br></pre></td></tr></table></figure></p>
-<h2 id="索引设置"><a href="#索引设置" class="headerlink" title="索引设置"></a>索引设置</h2><p>可以通过修改配置自定义索引行为，详细配置参照<a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/index-modules.html">索引模块</a>。</p>
-<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
-<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/_creating_an_index.html">https://www.elastic.co/guide/cn/elasticsearch/guide/current/_creating_an_index.html</a></li>
-<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/index-templates.html">https://www.elastic.co/guide/cn/elasticsearch/guide/current/index-templates.html</a></li>
-<li><a href="https://www.elastic.co/blog/managing-time-based-indices-efficiently">有效地管理Elasticsearch基于时间的指数</a></li>
-<li><a href="https://luyiisme.github.io/2017/04/13/es-rollover-index/">更高效的数据</a></li>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 步骤</span></span><br><span class="line"><span class="meta">#</span><span class="bash">1、先停掉集群。</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv cloudera cloudera.bak</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv cloudera.bak /data/cloudera</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ln -sv /data/cloudera cloudera</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 经过上面的步骤之后再重启集群就可以了。</span></span><br></pre></td></tr></table></figure>
+<h1 id="2、Error-creating-LevelDB-timeseries-store-in-directory-var-lib-cloudera-service-monitor-ts"><a href="#2、Error-creating-LevelDB-timeseries-store-in-directory-var-lib-cloudera-service-monitor-ts" class="headerlink" title="2、Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts"></a>2、Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts</h1><blockquote>
+<p>具体现象如下，报找不到一个文件。解释一下出现这个问题的原因，还是由于根目录下的空间不够了，因此我移动了一个占有很<br>大空间的包，就是错误中的 <code>/var/lib/cloudera-service-monitor</code> 这个目录，然后通过软连接进行访问的。</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2018-10-16 16:24:25,993 INFO com.cloudera.cmon.firehose.Main: Cluster size: SMALL</span><br><span class="line">2018-10-16 16:24:26,056 INFO com.cloudera.cmon.tstore.leveldb.LDBResourceManager: Max file descriptors: 32768</span><br><span class="line">2018-10-16 16:24:26,057 INFO com.cloudera.cmon.tstore.leveldb.LDBResourceManager: Setting maximum open fds to: 768</span><br><span class="line">2018-10-16 16:24:26,181 ERROR com.cloudera.cmon.firehose.Main: Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts</span><br><span class="line">org.fusesource.leveldbjni.internal.NativeDB$DBException: Corruption: 3 missing files; e.g.: /data/lib/ts/ts_entity_metadata/000072.sst</span><br><span class="line">        at org.fusesource.leveldbjni.internal.NativeDB.checkStatus(NativeDB.java:194)</span><br><span class="line">        at org.fusesource.leveldbjni.internal.NativeDB.open(NativeDB.java:212)</span><br><span class="line">        at org.fusesource.leveldbjni.JniDBFactory.open(JniDBFactory.java:168)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBUtils.openVersionedDB(LDBUtils.java:264)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBUtils.openVersionedDB(LDBUtils.java:212)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBTimeSeriesMetadataStore.openMetadataDB(LDBTimeSeriesMetadataStore.java:148)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBTimeSeriesMetadataStore.&lt;init&gt;(LDBTimeSeriesMetadataStore.java:138)</span><br><span class="line">        at com.cloudera.cmon.firehose.Main.main(Main.java:453)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>说一下解决办法：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进行如下的操作，再重启就可以了。亲测可以</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv /var/lib/cloudera-service-monitor /var/lib/cloudera-service-monitor.moved</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv /var/lib/cloudera-host-monitor /var/lib/cloudera-host-monitor.moved</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>参考：<a href="https://community.cloudera.com/t5/Security-Apache-Sentry/Host-Monitor-and-Service-Monitor-is-not-starting-after/td-p/49207">https://community.cloudera.com/t5/Security-Apache-Sentry/Host-Monitor-and-Service-Monitor-is-not-starting-after/td-p/49207</a></li>
 </ul>
 ]]></content>
       <categories>
-        <category>es</category>
+        <category>Hadoop</category>
       </categories>
       <tags>
-        <tag>elasticsearch</tag>
-        <tag>es template</tag>
+        <tag>cloudera</tag>
       </tags>
   </entry>
   <entry>
@@ -830,18 +830,6 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
-    <title>Docker-Source-code-analysis</title>
-    <url>/2018/10/31/Docker-Source-code-analysis/</url>
-    <content><![CDATA[<h1 id="学习参考"><a href="#学习参考" class="headerlink" title="学习参考"></a>学习参考</h1><ul>
-<li><a href="http://wangfakang.github.io/docker6/">docker源码讲解</a></li>
-<li><a href="http://www.infoq.com/cn/articles/docker-source-code-analysis-part1">docker 源码分析</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>后续学习</category>
-      </categories>
-  </entry>
-  <entry>
     <title>ZooKeeper kerberos 客户端认证</title>
     <url>/2018/10/31/ZooKeeper-kerberos/</url>
     <content><![CDATA[<blockquote>
@@ -862,6 +850,18 @@ MySQL服务初始化(仅适用5.7)</li>
       <tags>
         <tag>kerberos</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>Docker-Source-code-analysis</title>
+    <url>/2018/10/31/Docker-Source-code-analysis/</url>
+    <content><![CDATA[<h1 id="学习参考"><a href="#学习参考" class="headerlink" title="学习参考"></a>学习参考</h1><ul>
+<li><a href="http://wangfakang.github.io/docker6/">docker源码讲解</a></li>
+<li><a href="http://www.infoq.com/cn/articles/docker-source-code-analysis-part1">docker 源码分析</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>后续学习</category>
+      </categories>
   </entry>
   <entry>
     <title>java.util.concurrency 包</title>
@@ -1341,6 +1341,46 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
+    <title>go1.12 发行说明</title>
+    <url>/2019/02/27/go1-12/</url>
+    <content><![CDATA[<h1 id="Go1-12-概述"><a href="#Go1-12-概述" class="headerlink" title="Go1.12 概述"></a>Go1.12 概述</h1><p><code>Go1.12</code>是目前最新的<code>Go</code>版本，在<code>Go1.11</code>发行之后的六个月到来，大多数的改变是工具链、运行时和包，总的来说，该版本依然保持了<code>Go1</code>的<a href="https://golang.org/doc/go1compat">兼容性承诺</a>,希望大多数的程序还能和以前一样继续的编译和运行。</p>
+<h1 id="语言上的改变"><a href="#语言上的改变" class="headerlink" title="语言上的改变"></a>语言上的改变</h1><pre><code>语言规范上是没有改变的。
+</code></pre><h1 id="部分"><a href="#部分" class="headerlink" title="部分"></a>部分</h1><ul>
+<li>竞争检测现在是支持在<code>linux/arm64</code></li>
+<li><code>Go1.12</code>是最后一个支持<code>FreeBSD 10.x</code>的版本，<code>Go1.13</code>将开始支持<code>FreeBSD 11.2+ or FreeBSD 12.0+</code>,<code>FreeBSD 12.0+</code>要求设置一个<code>COMPAT_FREEBSD11</code>的变量，这是默认设置的。</li>
+<li>在<code>linux/ppc64</code>上支持<code>cgo</code></li>
+</ul>
+<h2 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h2><p><code>windows/arm</code>的部分支持<code>go</code>在<code>windows10 lot</code>的32位物联网<code>arm</code>芯片上，比如树莓派3.</p>
+<h2 id="AIX"><a href="#AIX" class="headerlink" title="AIX"></a>AIX</h2><p>Go现在支持AIX 7.2及更高版本的POWER8体系结构（aix / ppc64）。尚不支持外部链接，cgo，pprof和竞赛检测器</p>
+<h2 id="Darwin"><a href="#Darwin" class="headerlink" title="Darwin"></a>Darwin</h2><p><code>Go 1.12</code>是最后一个支持运行在<code>macOS 10.10</code>系统之上的版本，<code>Go1.13</code>将要求操作系统必须是<code>macOS 10.11</code>以上。</p>
+<h1 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h1><h2 id="go-tool-vet-不再支持"><a href="#go-tool-vet-不再支持" class="headerlink" title="go tool vet 不再支持"></a>go tool vet 不再支持</h2><p><code>go vet</code>命令将不在支持，关于这部分功能迁移到了<code>analysis</code>工具中，更多详情查看包<a href="https://godoc.org/golang.org/x/tools/go/analysis">golang.org/x/tools/go/analysis</a>,使用方式有所改变，不能再使用<code>go tool vet</code>此命令，需要更改为<code>go vet</code>命令，使用<code>go vet</code>可以支持所以的版本。<br><code>-shadow</code>将不再可用，需要替换。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">go</span> get -u golang.org/x/tools/<span class="keyword">go</span>/analysis/passes/shadow/cmd/shadow</span><br><span class="line"><span class="keyword">go</span> vet -vettool=$(which shadow)</span><br></pre></td></tr></table></figure></p>
+<h2 id="Tour将不在默认安装"><a href="#Tour将不在默认安装" class="headerlink" title="Tour将不在默认安装"></a>Tour将不在默认安装</h2><p><code>Go Tour</code>不会包含再主要的包中，如果需要使用需要自行安装。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">go</span> get -u golang.org/x/tour</span><br><span class="line">tour</span><br></pre></td></tr></table></figure></p>
+<h2 id="Build-cache-要求"><a href="#Build-cache-要求" class="headerlink" title="Build cache 要求"></a>Build cache 要求</h2><p>如果设置了<code>GOCACHE=off</code>将导致<code>go</code>命令行写缓存失败。</p>
+<h2 id="二进制包"><a href="#二进制包" class="headerlink" title="二进制包"></a>二进制包</h2><p><code>Go 1.12</code>是最后一个支持二进制包的版本.</p>
+<h2 id="Cgo"><a href="#Cgo" class="headerlink" title="Cgo"></a>Cgo</h2><p><code>Go1.12</code>将<code>C</code>语言的<code>EGLDisplay</code>类型翻译为<code>go</code>的<code>uintptr</code>类型。更多信息请参考<a href="https://golang.org/cmd/cgo/#hdr-Special_cases">cgo 文档</a></p>
+<h1 id="核心库"><a href="#核心库" class="headerlink" title="核心库"></a>核心库</h1><h2 id="TLS1-3"><a href="#TLS1-3" class="headerlink" title="TLS1.3"></a>TLS1.3</h2><p><code>Go1.12</code>添加了对<code>TLS 1.3</code>的支持，可以通过设置环境变量<code>tls13=1GODEBUG</code>来启用，在<code>Go1.13</code>版本中将默认开启。</p>
+<h2 id="bufio"><a href="#bufio" class="headerlink" title="bufio"></a>bufio</h2><p>如果在调用完<code>Peek</code>方法之后调用<code>UnreadRune and UnreadByte</code>将会返回一个错误。</p>
+<h2 id="bytes"><a href="#bytes" class="headerlink" title="bytes"></a>bytes</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ReplaceAll</span><span class="params">(s, old, <span class="built_in">new</span> []<span class="keyword">byte</span>)</span> []<span class="title">byte</span></span></span><br></pre></td></tr></table></figure>
+<p>新函数<code>ReplaceAll</code>将返回一个字节切片的副本。<code>s</code>是原字节，<code>old</code>是匹配字节，<code>new</code>是替换为新的字符。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;bytes&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;%s\n&quot;</span>, bytes.ReplaceAll([]<span class="keyword">byte</span>(<span class="string">&quot;oink oink oink&quot;</span>), []<span class="keyword">byte</span>(<span class="string">&quot;oink&quot;</span>), []<span class="keyword">byte</span>(<span class="string">&quot;moo&quot;</span>)))</span><br><span class="line">	fmt.Printf(<span class="string">&quot;%s\n&quot;</span>,bytes.ReplaceAll([]<span class="keyword">byte</span>(<span class="string">&quot;this is a demo,place open the demo file&quot;</span>),[]<span class="keyword">byte</span>(<span class="string">&quot;demo&quot;</span>),[]<span class="keyword">byte</span>(<span class="string">&quot;test&quot;</span>)))</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//输出</span></span><br><span class="line">moo moo moo</span><br><span class="line">this is a test,place open the test file</span><br></pre></td></tr></table></figure></p>
+<h2 id="crypto-rand"><a href="#crypto-rand" class="headerlink" title="crypto/rand"></a>crypto/rand</h2><p><code>Reader.Read</code>如果超过60s还没有读取到熵，那么将会打印输出。</p>
+<h2 id="crypto-rc4"><a href="#crypto-rc4" class="headerlink" title="crypto/rc4"></a>crypto/rc4</h2><p>这个版本移除了其他版本的实现，只保留了<code>Go</code>版本。<br><code>RC4</code>是一种流<a href="https://zh.wikipedia.org/wiki/RC4">加密算法</a></p>
+<h2 id="crypto-tls"><a href="#crypto-tls" class="headerlink" title="crypto/tls"></a>crypto/tls</h2><p>如果客户端发送的初始消息看起来不像TLS，则服务器将不再使用警报进行回复,当TLS记录头无效时，返回<code>RecordHeaderError</code>.<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> RecordHeaderError <span class="keyword">struct</span> &#123;</span><br><span class="line">        <span class="comment">// Msg contains a human readable string that describes the error.</span></span><br><span class="line">        Msg <span class="keyword">string</span></span><br><span class="line">        <span class="comment">// RecordHeader contains the five bytes of TLS record header that</span></span><br><span class="line">        <span class="comment">// triggered the error.</span></span><br><span class="line">        RecordHeader [<span class="number">5</span>]<span class="keyword">byte</span></span><br><span class="line">        <span class="comment">// Conn provides the underlying net.Conn in the case that a client</span></span><br><span class="line">        <span class="comment">// sent an initial handshake that didn&#x27;t look like TLS.</span></span><br><span class="line">        <span class="comment">// It is nil if there&#x27;s already been a handshake or a TLS alert has</span></span><br><span class="line">        <span class="comment">// been written to the connection.</span></span><br><span class="line">        Conn net.Conn <span class="comment">// Go 1.12</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="database-sql"><a href="#database-sql" class="headerlink" title="database/sql"></a>database/sql</h2><p>现在可以通过将<code>*Rows</code>值传递给<code>Row.Scan</code>方法来获取查询光标.</p>
+<h2 id="expvar"><a href="#expvar" class="headerlink" title="expvar"></a>expvar</h2><p><code>Delete</code>方法运行删除一个<code>Map</code>类型的的<code>key</code>.<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(v *Map)</span> <span class="title">Delete</span><span class="params">(key <span class="keyword">string</span>)</span></span></span><br></pre></td></tr></table></figure></p>
+<h2 id="lib-time"><a href="#lib-time" class="headerlink" title="lib/time"></a>lib/time</h2><p>当操作系统未提供时区数据时，将会使用配置的<code>$GOROOT/lib/time/zoneinfo.zip</code>数据。</p>
+<h1 id="参考官方"><a href="#参考官方" class="headerlink" title="参考官方"></a>参考官方</h1><ul>
+<li><a href="https://golang.org/doc/go1.12">https://golang.org/doc/go1.12</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>golang</category>
+      </categories>
+      <tags>
+        <tag>golang</tag>
+        <tag>go1.12</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Prometheus 初探一</title>
     <url>/2019/03/16/Prometheus-1/</url>
     <content><![CDATA[<h1 id="Prometheus-初探一"><a href="#Prometheus-初探一" class="headerlink" title="Prometheus 初探一"></a><a href="https://github.com/prometheus">Prometheus</a> 初探一</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><h3 id="主要特性"><a href="#主要特性" class="headerlink" title="主要特性"></a>主要特性</h3><ul>
@@ -1471,46 +1511,6 @@ MySQL服务初始化(仅适用5.7)</li>
       <tags>
         <tag>概念</tag>
         <tag>监控基础</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>go1.12 发行说明</title>
-    <url>/2019/02/27/go1-12/</url>
-    <content><![CDATA[<h1 id="Go1-12-概述"><a href="#Go1-12-概述" class="headerlink" title="Go1.12 概述"></a>Go1.12 概述</h1><p><code>Go1.12</code>是目前最新的<code>Go</code>版本，在<code>Go1.11</code>发行之后的六个月到来，大多数的改变是工具链、运行时和包，总的来说，该版本依然保持了<code>Go1</code>的<a href="https://golang.org/doc/go1compat">兼容性承诺</a>,希望大多数的程序还能和以前一样继续的编译和运行。</p>
-<h1 id="语言上的改变"><a href="#语言上的改变" class="headerlink" title="语言上的改变"></a>语言上的改变</h1><pre><code>语言规范上是没有改变的。
-</code></pre><h1 id="部分"><a href="#部分" class="headerlink" title="部分"></a>部分</h1><ul>
-<li>竞争检测现在是支持在<code>linux/arm64</code></li>
-<li><code>Go1.12</code>是最后一个支持<code>FreeBSD 10.x</code>的版本，<code>Go1.13</code>将开始支持<code>FreeBSD 11.2+ or FreeBSD 12.0+</code>,<code>FreeBSD 12.0+</code>要求设置一个<code>COMPAT_FREEBSD11</code>的变量，这是默认设置的。</li>
-<li>在<code>linux/ppc64</code>上支持<code>cgo</code></li>
-</ul>
-<h2 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h2><p><code>windows/arm</code>的部分支持<code>go</code>在<code>windows10 lot</code>的32位物联网<code>arm</code>芯片上，比如树莓派3.</p>
-<h2 id="AIX"><a href="#AIX" class="headerlink" title="AIX"></a>AIX</h2><p>Go现在支持AIX 7.2及更高版本的POWER8体系结构（aix / ppc64）。尚不支持外部链接，cgo，pprof和竞赛检测器</p>
-<h2 id="Darwin"><a href="#Darwin" class="headerlink" title="Darwin"></a>Darwin</h2><p><code>Go 1.12</code>是最后一个支持运行在<code>macOS 10.10</code>系统之上的版本，<code>Go1.13</code>将要求操作系统必须是<code>macOS 10.11</code>以上。</p>
-<h1 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h1><h2 id="go-tool-vet-不再支持"><a href="#go-tool-vet-不再支持" class="headerlink" title="go tool vet 不再支持"></a>go tool vet 不再支持</h2><p><code>go vet</code>命令将不在支持，关于这部分功能迁移到了<code>analysis</code>工具中，更多详情查看包<a href="https://godoc.org/golang.org/x/tools/go/analysis">golang.org/x/tools/go/analysis</a>,使用方式有所改变，不能再使用<code>go tool vet</code>此命令，需要更改为<code>go vet</code>命令，使用<code>go vet</code>可以支持所以的版本。<br><code>-shadow</code>将不再可用，需要替换。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">go</span> get -u golang.org/x/tools/<span class="keyword">go</span>/analysis/passes/shadow/cmd/shadow</span><br><span class="line"><span class="keyword">go</span> vet -vettool=$(which shadow)</span><br></pre></td></tr></table></figure></p>
-<h2 id="Tour将不在默认安装"><a href="#Tour将不在默认安装" class="headerlink" title="Tour将不在默认安装"></a>Tour将不在默认安装</h2><p><code>Go Tour</code>不会包含再主要的包中，如果需要使用需要自行安装。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">go</span> get -u golang.org/x/tour</span><br><span class="line">tour</span><br></pre></td></tr></table></figure></p>
-<h2 id="Build-cache-要求"><a href="#Build-cache-要求" class="headerlink" title="Build cache 要求"></a>Build cache 要求</h2><p>如果设置了<code>GOCACHE=off</code>将导致<code>go</code>命令行写缓存失败。</p>
-<h2 id="二进制包"><a href="#二进制包" class="headerlink" title="二进制包"></a>二进制包</h2><p><code>Go 1.12</code>是最后一个支持二进制包的版本.</p>
-<h2 id="Cgo"><a href="#Cgo" class="headerlink" title="Cgo"></a>Cgo</h2><p><code>Go1.12</code>将<code>C</code>语言的<code>EGLDisplay</code>类型翻译为<code>go</code>的<code>uintptr</code>类型。更多信息请参考<a href="https://golang.org/cmd/cgo/#hdr-Special_cases">cgo 文档</a></p>
-<h1 id="核心库"><a href="#核心库" class="headerlink" title="核心库"></a>核心库</h1><h2 id="TLS1-3"><a href="#TLS1-3" class="headerlink" title="TLS1.3"></a>TLS1.3</h2><p><code>Go1.12</code>添加了对<code>TLS 1.3</code>的支持，可以通过设置环境变量<code>tls13=1GODEBUG</code>来启用，在<code>Go1.13</code>版本中将默认开启。</p>
-<h2 id="bufio"><a href="#bufio" class="headerlink" title="bufio"></a>bufio</h2><p>如果在调用完<code>Peek</code>方法之后调用<code>UnreadRune and UnreadByte</code>将会返回一个错误。</p>
-<h2 id="bytes"><a href="#bytes" class="headerlink" title="bytes"></a>bytes</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ReplaceAll</span><span class="params">(s, old, <span class="built_in">new</span> []<span class="keyword">byte</span>)</span> []<span class="title">byte</span></span></span><br></pre></td></tr></table></figure>
-<p>新函数<code>ReplaceAll</code>将返回一个字节切片的副本。<code>s</code>是原字节，<code>old</code>是匹配字节，<code>new</code>是替换为新的字符。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;bytes&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;%s\n&quot;</span>, bytes.ReplaceAll([]<span class="keyword">byte</span>(<span class="string">&quot;oink oink oink&quot;</span>), []<span class="keyword">byte</span>(<span class="string">&quot;oink&quot;</span>), []<span class="keyword">byte</span>(<span class="string">&quot;moo&quot;</span>)))</span><br><span class="line">	fmt.Printf(<span class="string">&quot;%s\n&quot;</span>,bytes.ReplaceAll([]<span class="keyword">byte</span>(<span class="string">&quot;this is a demo,place open the demo file&quot;</span>),[]<span class="keyword">byte</span>(<span class="string">&quot;demo&quot;</span>),[]<span class="keyword">byte</span>(<span class="string">&quot;test&quot;</span>)))</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//输出</span></span><br><span class="line">moo moo moo</span><br><span class="line">this is a test,place open the test file</span><br></pre></td></tr></table></figure></p>
-<h2 id="crypto-rand"><a href="#crypto-rand" class="headerlink" title="crypto/rand"></a>crypto/rand</h2><p><code>Reader.Read</code>如果超过60s还没有读取到熵，那么将会打印输出。</p>
-<h2 id="crypto-rc4"><a href="#crypto-rc4" class="headerlink" title="crypto/rc4"></a>crypto/rc4</h2><p>这个版本移除了其他版本的实现，只保留了<code>Go</code>版本。<br><code>RC4</code>是一种流<a href="https://zh.wikipedia.org/wiki/RC4">加密算法</a></p>
-<h2 id="crypto-tls"><a href="#crypto-tls" class="headerlink" title="crypto/tls"></a>crypto/tls</h2><p>如果客户端发送的初始消息看起来不像TLS，则服务器将不再使用警报进行回复,当TLS记录头无效时，返回<code>RecordHeaderError</code>.<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> RecordHeaderError <span class="keyword">struct</span> &#123;</span><br><span class="line">        <span class="comment">// Msg contains a human readable string that describes the error.</span></span><br><span class="line">        Msg <span class="keyword">string</span></span><br><span class="line">        <span class="comment">// RecordHeader contains the five bytes of TLS record header that</span></span><br><span class="line">        <span class="comment">// triggered the error.</span></span><br><span class="line">        RecordHeader [<span class="number">5</span>]<span class="keyword">byte</span></span><br><span class="line">        <span class="comment">// Conn provides the underlying net.Conn in the case that a client</span></span><br><span class="line">        <span class="comment">// sent an initial handshake that didn&#x27;t look like TLS.</span></span><br><span class="line">        <span class="comment">// It is nil if there&#x27;s already been a handshake or a TLS alert has</span></span><br><span class="line">        <span class="comment">// been written to the connection.</span></span><br><span class="line">        Conn net.Conn <span class="comment">// Go 1.12</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h2 id="database-sql"><a href="#database-sql" class="headerlink" title="database/sql"></a>database/sql</h2><p>现在可以通过将<code>*Rows</code>值传递给<code>Row.Scan</code>方法来获取查询光标.</p>
-<h2 id="expvar"><a href="#expvar" class="headerlink" title="expvar"></a>expvar</h2><p><code>Delete</code>方法运行删除一个<code>Map</code>类型的的<code>key</code>.<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(v *Map)</span> <span class="title">Delete</span><span class="params">(key <span class="keyword">string</span>)</span></span></span><br></pre></td></tr></table></figure></p>
-<h2 id="lib-time"><a href="#lib-time" class="headerlink" title="lib/time"></a>lib/time</h2><p>当操作系统未提供时区数据时，将会使用配置的<code>$GOROOT/lib/time/zoneinfo.zip</code>数据。</p>
-<h1 id="参考官方"><a href="#参考官方" class="headerlink" title="参考官方"></a>参考官方</h1><ul>
-<li><a href="https://golang.org/doc/go1.12">https://golang.org/doc/go1.12</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>golang</category>
-      </categories>
-      <tags>
-        <tag>golang</tag>
-        <tag>go1.12</tag>
       </tags>
   </entry>
   <entry>
@@ -1913,6 +1913,32 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
+    <title>orange原理以及使用</title>
+    <url>/2019/05/21/orange-%E5%8E%9F%E7%90%86/</url>
+    <content><![CDATA[<h1 id="Orange-工具介绍"><a href="#Orange-工具介绍" class="headerlink" title="Orange 工具介绍"></a>Orange 工具介绍</h1><pre><code>`Orange`是一个基于`OpenResty`的页面化的网关,提供了页面化的分流规则配置和权限配置。工具更多的信息参考设计文档和源代码。
+</code></pre><ul>
+<li><a href="https://github.com/sumory/orange/blob/master/README_zh.md">orange github</a></li>
+<li><a href="http://resty.b0.upaiyun.com/orange.pdf">设计文档</a></li>
+</ul>
+<h1 id="Orange-使用"><a href="#Orange-使用" class="headerlink" title="Orange 使用"></a>Orange 使用</h1><pre><code>使用文档参考官方文档 [http://orange.sumory.com/docs/](http://orange.sumory.com/docs/).
+</code></pre><h1 id="Orange-原理"><a href="#Orange-原理" class="headerlink" title="Orange 原理"></a>Orange 原理</h1><p><code>orange</code>运行时更具<code>nginx.conf</code>文件内容中的<code>location</code>来进行匹配规则，通过<code>nginx</code>的执行顺序可知，在<code>access_by_lua_block</code>阶段就是为了通过分流规则来设置<code>upstream_url</code>这个变量的值。<br><img src="/2019/05/21/orange-%E5%8E%9F%E7%90%86/location.png" alt="location"><br>通过规则匹配来赋值给<code>ngx.upstream_url</code>这个变量，然后通过执行<code>proxy_pass $upstream_url;</code>这个方法就可以实现页面配置来进行转发。<br><img src="/2019/05/21/orange-%E5%8E%9F%E7%90%86/code.png" alt="code"><br><img src="/2019/05/21/orange-%E5%8E%9F%E7%90%86/arch.png" alt="arch"></p>
+<h1 id="Orange-扩展"><a href="#Orange-扩展" class="headerlink" title="Orange 扩展"></a>Orange 扩展</h1><ul>
+<li><a href="https://github.com/linger1216/understanding-orange">插件开发</a></li>
+</ul>
+<h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h1><p>再生产中遇到的问题</p>
+<ul>
+<li>容器部署多个<code>orange</code>，共用一个数据库时会出现节点缓存问题,基于<code>swarm</code>编排容器。</li>
+<li>添加规则出现<code>uuid</code>重复，这是因为<code>uuid</code>这个库在容器中生成了冲突，所以需要提花一个包，这个问题在<code>issues</code>中提到过。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>工具</category>
+      </categories>
+      <tags>
+        <tag>orange</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Linux Tcp 端口耗尽</title>
     <url>/2019/06/08/Linux-Tcp-%E7%AB%AF%E5%8F%A3%E8%80%97%E5%B0%BD/</url>
     <content><![CDATA[<h1 id="Linux-Tcp-端口耗尽"><a href="#Linux-Tcp-端口耗尽" class="headerlink" title="Linux Tcp 端口耗尽"></a>Linux Tcp 端口耗尽</h1><p>在<code>Tcp</code>连接中如果并发占用的端口过多，就会报<code>socket: too many open files</code>。我们一个正常的<code>service</code>可以提供多大并发的连接呢？</p>
@@ -1939,32 +1965,6 @@ MySQL服务初始化(仅适用5.7)</li>
       <tags>
         <tag>linux</tag>
         <tag>tcp</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>orange原理以及使用</title>
-    <url>/2019/05/21/orange-%E5%8E%9F%E7%90%86/</url>
-    <content><![CDATA[<h1 id="Orange-工具介绍"><a href="#Orange-工具介绍" class="headerlink" title="Orange 工具介绍"></a>Orange 工具介绍</h1><pre><code>`Orange`是一个基于`OpenResty`的页面化的网关,提供了页面化的分流规则配置和权限配置。工具更多的信息参考设计文档和源代码。
-</code></pre><ul>
-<li><a href="https://github.com/sumory/orange/blob/master/README_zh.md">orange github</a></li>
-<li><a href="http://resty.b0.upaiyun.com/orange.pdf">设计文档</a></li>
-</ul>
-<h1 id="Orange-使用"><a href="#Orange-使用" class="headerlink" title="Orange 使用"></a>Orange 使用</h1><pre><code>使用文档参考官方文档 [http://orange.sumory.com/docs/](http://orange.sumory.com/docs/).
-</code></pre><h1 id="Orange-原理"><a href="#Orange-原理" class="headerlink" title="Orange 原理"></a>Orange 原理</h1><p><code>orange</code>运行时更具<code>nginx.conf</code>文件内容中的<code>location</code>来进行匹配规则，通过<code>nginx</code>的执行顺序可知，在<code>access_by_lua_block</code>阶段就是为了通过分流规则来设置<code>upstream_url</code>这个变量的值。<br><img src="/2019/05/21/orange-%E5%8E%9F%E7%90%86/location.png" alt="location"><br>通过规则匹配来赋值给<code>ngx.upstream_url</code>这个变量，然后通过执行<code>proxy_pass $upstream_url;</code>这个方法就可以实现页面配置来进行转发。<br><img src="/2019/05/21/orange-%E5%8E%9F%E7%90%86/code.png" alt="code"><br><img src="/2019/05/21/orange-%E5%8E%9F%E7%90%86/arch.png" alt="arch"></p>
-<h1 id="Orange-扩展"><a href="#Orange-扩展" class="headerlink" title="Orange 扩展"></a>Orange 扩展</h1><ul>
-<li><a href="https://github.com/linger1216/understanding-orange">插件开发</a></li>
-</ul>
-<h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h1><p>再生产中遇到的问题</p>
-<ul>
-<li>容器部署多个<code>orange</code>，共用一个数据库时会出现节点缓存问题,基于<code>swarm</code>编排容器。</li>
-<li>添加规则出现<code>uuid</code>重复，这是因为<code>uuid</code>这个库在容器中生成了冲突，所以需要提花一个包，这个问题在<code>issues</code>中提到过。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>工具</category>
-      </categories>
-      <tags>
-        <tag>orange</tag>
       </tags>
   </entry>
   <entry>
@@ -2213,29 +2213,6 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
-    <title>intellij-idea激活</title>
-    <url>/2019/10/20/intellij-idea%E6%BF%80%E6%B4%BB/</url>
-    <content><![CDATA[<h1 id="IntelliJ-IDEA-2019-2-1最新激活码"><a href="#IntelliJ-IDEA-2019-2-1最新激活码" class="headerlink" title="IntelliJ IDEA 2019.2.1最新激活码"></a>IntelliJ IDEA 2019.2.1最新激活码</h1><p>激活时间到<strong>2089年</strong>，足够任何人使用了。</p>
-<p><code>IDEA</code>2019以前的版本都可以使用<code>http://idea.lanyus.com/</code>这个注册码去破解，我相信大多数人都是使用的这个激活码，可是<code>2019</code>版的都不能在使用这个注册码了。</p>
-<p>新版注册码方法主要有如下几个步骤。<br>此处的<code>IDEA</code>包括所有软件，不止<code>intellij</code>还包括<code>goland</code>、<code>pychart</code>这些软件都是本人亲测激活并且有效的。</p>
-<h2 id="破解步骤"><a href="#破解步骤" class="headerlink" title="破解步骤"></a>破解步骤</h2><p>首先去官网下载最新版的<code>IDEA</code>，下载好之后安装并启动；<br>打开之后选择<strong>选择30天免费试用</strong>。</p>
-<p><img src="https://note.youdao.com/yws/api/personal/file/WEBd316f43d8ad3dc706fcaa6b9e110a19e?method=download&amp;shareKey=a55b461fcf4d04c652066aab8e17d042" alt="image"></p>
-<p>进入之后点击<code>Configure</code>-&gt;<code>Edit Custom VM Options</code> 进入编辑框中。<br><img src="https://note.youdao.com/yws/api/personal/file/WEBc74c7dcf05dc009df79d42983abd4c70?method=download&amp;shareKey=48344ed4c5cb22f28376497a1cb99533" alt="image"></p>
-<p>在<code>VM Options</code>中添加<code>-javaagent:绝对路径</code>的参数。添加完之后保存，并关闭软件再次重启。<br><img src="https://note.youdao.com/yws/api/personal/file/WEB291a77318ea22fedcc84ce9a90c15b59?method=download&amp;shareKey=45ea668d89c153e2b1bb78cd9576a1c7" alt="image"></p>
-<p>重启后点击<code>Configure</code>-&gt;<code>Manage License</code>进入如下的页面，首先如果有<code>Remove License</code>，那就点击删除这个<code>License</code>，其次再把<code>License</code>放入即可激活。<br><img src="https://note.youdao.com/yws/api/personal/file/WEB4118c5e452fe931f50648bc609cf0101?method=download&amp;shareKey=5b00317cdae7a5fbc2585997f32205a0" alt="image"></p>
-<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><p>1、上面添加<code>-javaagent</code>这一步一定要做，不然就会出现<code>key is invalid</code>的提示。</p>
-<p>2、上面的破解包和<code>License</code>要对应。</p>
-<h2 id="破解包和License"><a href="#破解包和License" class="headerlink" title="破解包和License"></a>破解包和License</h2><h3 id="agent-jar-包"><a href="#agent-jar-包" class="headerlink" title="agent jar 包"></a>agent jar 包</h3><p>下载地址：<a href="http://note.youdao.com/noteshare?id=027477dc925c299fa427f761301a3e2a">http://note.youdao.com/noteshare?id=027477dc925c299fa427f761301a3e2a</a></p>
-<p><img src="https://note.youdao.com/yws/api/personal/file/WEBa838e2c0131a7781033f2d5b7bcb226e?method=download&amp;shareKey=01a48f4594b587f3f736576b4663a6a2" alt="image"></p>
-<h3 id="License"><a href="#License" class="headerlink" title="License"></a>License</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">520E5894E2-eyJsaWNlbnNlSWQiOiI1MjBFNTg5NEUyIiwibGljZW5zZWVOYW1lIjoicGlnNiIsImFzc2lnbmVlTmFtZSI6IiIsImFzc2lnbmVlRW1haWwiOiIiLCJsaWNlbnNlUmVzdHJpY3Rpb24iOiJVbmxpbWl0ZWQgbGljZW5zZSB0aWxsIGVuZCBvZiB0aGUgY2VudHVyeS4iLCJjaGVja0NvbmN1cnJlbnRVc2UiOmZhbHNlLCJwcm9kdWN0cyI6W3siY29kZSI6IklJIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiUlMwIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiV1MiLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJSRCIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IlJDIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiREMiLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJEQiIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IlJNIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiRE0iLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJBQyIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IkRQTiIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IkdPIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiUFMiLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJDTCIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IlBDIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiUlNVIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In1dLCJoYXNoIjoiODkwNzA3MC8wIiwiZ3JhY2VQZXJpb2REYXlzIjowLCJhdXRvUHJvbG9uZ2F0ZWQiOmZhbHNlLCJpc0F1dG9Qcm9sb25nYXRlZCI6ZmFsc2V9-DZ/oNHBfyho0XrrCJJvAOKg5Q1tLBgOdbCmzCKwkuM+Yryce0RoOi3OOmH6Ba/uTcCh/L37meyD0FJdJIprv59y4+n+k2kIeF/XKrKqg0dEsDUQRw0lUqqMt99ohqa+zmbJ44Yufdwwx/F1CtoRGvEQ2Mn0QjuqRoZJZ3wiT5Am22JiJW8MaNUl3wg9YPj+OPGARKKJUdUJ0NGUDQBcBAv5ds8LhbSbJSbPkbkwH/a1QMz4nEdn6lRDKI1aFIn43QhBSCFqvUq6TPJlbIJ0ZjE+PyZjHFBKCgkry0DHPXU2BbtIZPsksQnN3fx240a9K6sN7peZnLpEoMoq23FEz4g==-MIIElTCCAn2gAwIBAgIBCTANBgkqhkiG9w0BAQsFADAYMRYwFAYDVQQDDA1KZXRQcm9maWxlIENBMB4XDTE4MTEwMTEyMjk0NloXDTIwMTEwMjEyMjk0NlowaDELMAkGA1UEBhMCQ1oxDjAMBgNVBAgMBU51c2xlMQ8wDQYDVQQHDAZQcmFndWUxGTAXBgNVBAoMEEpldEJyYWlucyBzLnIuby4xHTAbBgNVBAMMFHByb2QzeS1mcm9tLTIwMTgxMTAxMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5ndaik1GD0nyTdqkZgURQZGW+RGxCdBITPXIwpjhhaD0SXGa4XSZBEBoiPdY6XV6pOfUJeyfi9dXsY4MmT0D+sKoST3rSw96xaf9FXPvOjn4prMTdj3Ji3CyQrGWeQU2nzYqFrp1QYNLAbaViHRKuJrYHI6GCvqCbJe0LQ8qqUiVMA9wG/PQwScpNmTF9Kp2Iej+Z5OUxF33zzm+vg/nYV31HLF7fJUAplI/1nM+ZG8K+AXWgYKChtknl3sW9PCQa3a3imPL9GVToUNxc0wcuTil8mqveWcSQCHYxsIaUajWLpFzoO2AhK4mfYBSStAqEjoXRTuj17mo8Q6M2SHOcwIDAQABo4GZMIGWMAkGA1UdEwQCMAAwHQYDVR0OBBYEFGEpG9oZGcfLMGNBkY7SgHiMGgTcMEgGA1UdIwRBMD+AFKOetkhnQhI2Qb1t4Lm0oFKLl/GzoRykGjAYMRYwFAYDVQQDDA1KZXRQcm9maWxlIENBggkA0myxg7KDeeEwEwYDVR0lBAwwCgYIKwYBBQUHAwEwCwYDVR0PBAQDAgWgMA0GCSqGSIb3DQEBCwUAA4ICAQBonMu8oa3vmNAa4RQP8gPGlX3SQaA3WCRUAj6Zrlk8AesKV1YSkh5D2l+yUk6njysgzfr1bIR5xF8eup5xXc4/G7NtVYRSMvrd6rfQcHOyK5UFJLm+8utmyMIDrZOzLQuTsT8NxFpbCVCfV5wNRu4rChrCuArYVGaKbmp9ymkw1PU6+HoO5i2wU3ikTmRv8IRjrlSStyNzXpnPTwt7bja19ousk56r40SmlmC04GdDHErr0ei2UbjUua5kw71Qn9g02tL9fERI2sSRjQrvPbn9INwRWl5+k05mlKekbtbu2ev2woJFZK4WEXAd/GaAdeZZdumv8T2idDFL7cAirJwcrbfpawPeXr52oKTPnXfi0l5+g9Gnt/wfiXCrPElX6ycTR6iL3GC2VR4jTz6YatT4Ntz59/THOT7NJQhr6AyLkhhJCdkzE2cob/KouVp4ivV7Q3Fc6HX7eepHAAF/DpxwgOrg9smX6coXLgfp0b1RU2u/tUNID04rpNxTMueTtrT8WSskqvaJd3RH8r7cnRj6Y2hltkja82HlpDURDxDTRvv+krbwMr26SB/40BjpMUrDRCeKuiBahC0DCoU/4+ze1l94wVUhdkCfL0GpJrMSCDEK+XEurU18Hb7WT+ThXbkdl6VpFdHsRvqAnhR2g4b+Qzgidmuky5NUZVfEaZqV/g==</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>工具</category>
-      </categories>
-      <tags>
-        <tag>intellij</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>go channel 实现</title>
     <url>/2019/09/18/go-channel%E6%BA%90%E7%A0%81/</url>
     <content><![CDATA[<h1 id="什么是Channel"><a href="#什么是Channel" class="headerlink" title="什么是Channel"></a>什么是Channel</h1><p><code>Channel</code>是<code>go</code>之间通信的一种方式，从实现上说，<code>channel</code>是一个链表的数据结构，可以将数据放入和读取。</p>
@@ -2333,6 +2310,29 @@ MySQL服务初始化(仅适用5.7)</li>
       </categories>
       <tags>
         <tag>blog</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>intellij-idea激活</title>
+    <url>/2019/10/20/intellij-idea%E6%BF%80%E6%B4%BB/</url>
+    <content><![CDATA[<h1 id="IntelliJ-IDEA-2019-2-1最新激活码"><a href="#IntelliJ-IDEA-2019-2-1最新激活码" class="headerlink" title="IntelliJ IDEA 2019.2.1最新激活码"></a>IntelliJ IDEA 2019.2.1最新激活码</h1><p>激活时间到<strong>2089年</strong>，足够任何人使用了。</p>
+<p><code>IDEA</code>2019以前的版本都可以使用<code>http://idea.lanyus.com/</code>这个注册码去破解，我相信大多数人都是使用的这个激活码，可是<code>2019</code>版的都不能在使用这个注册码了。</p>
+<p>新版注册码方法主要有如下几个步骤。<br>此处的<code>IDEA</code>包括所有软件，不止<code>intellij</code>还包括<code>goland</code>、<code>pychart</code>这些软件都是本人亲测激活并且有效的。</p>
+<h2 id="破解步骤"><a href="#破解步骤" class="headerlink" title="破解步骤"></a>破解步骤</h2><p>首先去官网下载最新版的<code>IDEA</code>，下载好之后安装并启动；<br>打开之后选择<strong>选择30天免费试用</strong>。</p>
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEBd316f43d8ad3dc706fcaa6b9e110a19e?method=download&amp;shareKey=a55b461fcf4d04c652066aab8e17d042" alt="image"></p>
+<p>进入之后点击<code>Configure</code>-&gt;<code>Edit Custom VM Options</code> 进入编辑框中。<br><img src="https://note.youdao.com/yws/api/personal/file/WEBc74c7dcf05dc009df79d42983abd4c70?method=download&amp;shareKey=48344ed4c5cb22f28376497a1cb99533" alt="image"></p>
+<p>在<code>VM Options</code>中添加<code>-javaagent:绝对路径</code>的参数。添加完之后保存，并关闭软件再次重启。<br><img src="https://note.youdao.com/yws/api/personal/file/WEB291a77318ea22fedcc84ce9a90c15b59?method=download&amp;shareKey=45ea668d89c153e2b1bb78cd9576a1c7" alt="image"></p>
+<p>重启后点击<code>Configure</code>-&gt;<code>Manage License</code>进入如下的页面，首先如果有<code>Remove License</code>，那就点击删除这个<code>License</code>，其次再把<code>License</code>放入即可激活。<br><img src="https://note.youdao.com/yws/api/personal/file/WEB4118c5e452fe931f50648bc609cf0101?method=download&amp;shareKey=5b00317cdae7a5fbc2585997f32205a0" alt="image"></p>
+<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><p>1、上面添加<code>-javaagent</code>这一步一定要做，不然就会出现<code>key is invalid</code>的提示。</p>
+<p>2、上面的破解包和<code>License</code>要对应。</p>
+<h2 id="破解包和License"><a href="#破解包和License" class="headerlink" title="破解包和License"></a>破解包和License</h2><h3 id="agent-jar-包"><a href="#agent-jar-包" class="headerlink" title="agent jar 包"></a>agent jar 包</h3><p>下载地址：<a href="http://note.youdao.com/noteshare?id=027477dc925c299fa427f761301a3e2a">http://note.youdao.com/noteshare?id=027477dc925c299fa427f761301a3e2a</a></p>
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEBa838e2c0131a7781033f2d5b7bcb226e?method=download&amp;shareKey=01a48f4594b587f3f736576b4663a6a2" alt="image"></p>
+<h3 id="License"><a href="#License" class="headerlink" title="License"></a>License</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">520E5894E2-eyJsaWNlbnNlSWQiOiI1MjBFNTg5NEUyIiwibGljZW5zZWVOYW1lIjoicGlnNiIsImFzc2lnbmVlTmFtZSI6IiIsImFzc2lnbmVlRW1haWwiOiIiLCJsaWNlbnNlUmVzdHJpY3Rpb24iOiJVbmxpbWl0ZWQgbGljZW5zZSB0aWxsIGVuZCBvZiB0aGUgY2VudHVyeS4iLCJjaGVja0NvbmN1cnJlbnRVc2UiOmZhbHNlLCJwcm9kdWN0cyI6W3siY29kZSI6IklJIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiUlMwIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiV1MiLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJSRCIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IlJDIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiREMiLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJEQiIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IlJNIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiRE0iLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJBQyIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IkRQTiIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IkdPIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiUFMiLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJDTCIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IlBDIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiUlNVIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In1dLCJoYXNoIjoiODkwNzA3MC8wIiwiZ3JhY2VQZXJpb2REYXlzIjowLCJhdXRvUHJvbG9uZ2F0ZWQiOmZhbHNlLCJpc0F1dG9Qcm9sb25nYXRlZCI6ZmFsc2V9-DZ/oNHBfyho0XrrCJJvAOKg5Q1tLBgOdbCmzCKwkuM+Yryce0RoOi3OOmH6Ba/uTcCh/L37meyD0FJdJIprv59y4+n+k2kIeF/XKrKqg0dEsDUQRw0lUqqMt99ohqa+zmbJ44Yufdwwx/F1CtoRGvEQ2Mn0QjuqRoZJZ3wiT5Am22JiJW8MaNUl3wg9YPj+OPGARKKJUdUJ0NGUDQBcBAv5ds8LhbSbJSbPkbkwH/a1QMz4nEdn6lRDKI1aFIn43QhBSCFqvUq6TPJlbIJ0ZjE+PyZjHFBKCgkry0DHPXU2BbtIZPsksQnN3fx240a9K6sN7peZnLpEoMoq23FEz4g==-MIIElTCCAn2gAwIBAgIBCTANBgkqhkiG9w0BAQsFADAYMRYwFAYDVQQDDA1KZXRQcm9maWxlIENBMB4XDTE4MTEwMTEyMjk0NloXDTIwMTEwMjEyMjk0NlowaDELMAkGA1UEBhMCQ1oxDjAMBgNVBAgMBU51c2xlMQ8wDQYDVQQHDAZQcmFndWUxGTAXBgNVBAoMEEpldEJyYWlucyBzLnIuby4xHTAbBgNVBAMMFHByb2QzeS1mcm9tLTIwMTgxMTAxMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5ndaik1GD0nyTdqkZgURQZGW+RGxCdBITPXIwpjhhaD0SXGa4XSZBEBoiPdY6XV6pOfUJeyfi9dXsY4MmT0D+sKoST3rSw96xaf9FXPvOjn4prMTdj3Ji3CyQrGWeQU2nzYqFrp1QYNLAbaViHRKuJrYHI6GCvqCbJe0LQ8qqUiVMA9wG/PQwScpNmTF9Kp2Iej+Z5OUxF33zzm+vg/nYV31HLF7fJUAplI/1nM+ZG8K+AXWgYKChtknl3sW9PCQa3a3imPL9GVToUNxc0wcuTil8mqveWcSQCHYxsIaUajWLpFzoO2AhK4mfYBSStAqEjoXRTuj17mo8Q6M2SHOcwIDAQABo4GZMIGWMAkGA1UdEwQCMAAwHQYDVR0OBBYEFGEpG9oZGcfLMGNBkY7SgHiMGgTcMEgGA1UdIwRBMD+AFKOetkhnQhI2Qb1t4Lm0oFKLl/GzoRykGjAYMRYwFAYDVQQDDA1KZXRQcm9maWxlIENBggkA0myxg7KDeeEwEwYDVR0lBAwwCgYIKwYBBQUHAwEwCwYDVR0PBAQDAgWgMA0GCSqGSIb3DQEBCwUAA4ICAQBonMu8oa3vmNAa4RQP8gPGlX3SQaA3WCRUAj6Zrlk8AesKV1YSkh5D2l+yUk6njysgzfr1bIR5xF8eup5xXc4/G7NtVYRSMvrd6rfQcHOyK5UFJLm+8utmyMIDrZOzLQuTsT8NxFpbCVCfV5wNRu4rChrCuArYVGaKbmp9ymkw1PU6+HoO5i2wU3ikTmRv8IRjrlSStyNzXpnPTwt7bja19ousk56r40SmlmC04GdDHErr0ei2UbjUua5kw71Qn9g02tL9fERI2sSRjQrvPbn9INwRWl5+k05mlKekbtbu2ev2woJFZK4WEXAd/GaAdeZZdumv8T2idDFL7cAirJwcrbfpawPeXr52oKTPnXfi0l5+g9Gnt/wfiXCrPElX6ycTR6iL3GC2VR4jTz6YatT4Ntz59/THOT7NJQhr6AyLkhhJCdkzE2cob/KouVp4ivV7Q3Fc6HX7eepHAAF/DpxwgOrg9smX6coXLgfp0b1RU2u/tUNID04rpNxTMueTtrT8WSskqvaJd3RH8r7cnRj6Y2hltkja82HlpDURDxDTRvv+krbwMr26SB/40BjpMUrDRCeKuiBahC0DCoU/4+ze1l94wVUhdkCfL0GpJrMSCDEK+XEurU18Hb7WT+ThXbkdl6VpFdHsRvqAnhR2g4b+Qzgidmuky5NUZVfEaZqV/g==</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>工具</category>
+      </categories>
+      <tags>
+        <tag>intellij</tag>
       </tags>
   </entry>
   <entry>
