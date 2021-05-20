@@ -110,37 +110,6 @@
       </tags>
   </entry>
   <entry>
-    <title>cloudera 问题解决</title>
-    <url>/2018/10/16/cloudera-problem/</url>
-    <content><![CDATA[<blockquote>
-<p>如下为记录<code>cloudera</code> 使用过程中的一些常见问题。</p>
-</blockquote>
-<h1 id="1、服务没有设置-opt这个挂载点"><a href="#1、服务没有设置-opt这个挂载点" class="headerlink" title="1、服务没有设置/opt这个挂载点"></a>1、服务没有设置<code>/opt</code>这个挂载点</h1><ul>
-<li><code>cloudera</code>所有的数据都是存储在<code>/opt</code>这个根目录下的，所以服务器在安装系统的时候最好让运维同事挂载一个大空间到这个目录下。</li>
-<li>如果安装的时候不知道，安装软件的时候可以选择存储空间,如果安装的时候也不知道，没有设置的话那就很悲催了。</li>
-<li>如果没有设置就回存到根目录的<code>/opt</code>下，这里面的存储空间一般都很小。说一下解决办法。<br>1、重装（我没这精力）<br>2、把<code>/opt</code>这个目录移动到一个大的挂载点上去，然后使用软连接，本人就是这么做的。</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 步骤</span></span><br><span class="line"><span class="meta">#</span><span class="bash">1、先停掉集群。</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv cloudera cloudera.bak</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv cloudera.bak /data/cloudera</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ln -sv /data/cloudera cloudera</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 经过上面的步骤之后再重启集群就可以了。</span></span><br></pre></td></tr></table></figure>
-<h1 id="2、Error-creating-LevelDB-timeseries-store-in-directory-var-lib-cloudera-service-monitor-ts"><a href="#2、Error-creating-LevelDB-timeseries-store-in-directory-var-lib-cloudera-service-monitor-ts" class="headerlink" title="2、Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts"></a>2、Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts</h1><blockquote>
-<p>具体现象如下，报找不到一个文件。解释一下出现这个问题的原因，还是由于根目录下的空间不够了，因此我移动了一个占有很<br>大空间的包，就是错误中的 <code>/var/lib/cloudera-service-monitor</code> 这个目录，然后通过软连接进行访问的。</p>
-</blockquote>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2018-10-16 16:24:25,993 INFO com.cloudera.cmon.firehose.Main: Cluster size: SMALL</span><br><span class="line">2018-10-16 16:24:26,056 INFO com.cloudera.cmon.tstore.leveldb.LDBResourceManager: Max file descriptors: 32768</span><br><span class="line">2018-10-16 16:24:26,057 INFO com.cloudera.cmon.tstore.leveldb.LDBResourceManager: Setting maximum open fds to: 768</span><br><span class="line">2018-10-16 16:24:26,181 ERROR com.cloudera.cmon.firehose.Main: Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts</span><br><span class="line">org.fusesource.leveldbjni.internal.NativeDB$DBException: Corruption: 3 missing files; e.g.: /data/lib/ts/ts_entity_metadata/000072.sst</span><br><span class="line">        at org.fusesource.leveldbjni.internal.NativeDB.checkStatus(NativeDB.java:194)</span><br><span class="line">        at org.fusesource.leveldbjni.internal.NativeDB.open(NativeDB.java:212)</span><br><span class="line">        at org.fusesource.leveldbjni.JniDBFactory.open(JniDBFactory.java:168)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBUtils.openVersionedDB(LDBUtils.java:264)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBUtils.openVersionedDB(LDBUtils.java:212)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBTimeSeriesMetadataStore.openMetadataDB(LDBTimeSeriesMetadataStore.java:148)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBTimeSeriesMetadataStore.&lt;init&gt;(LDBTimeSeriesMetadataStore.java:138)</span><br><span class="line">        at com.cloudera.cmon.firehose.Main.main(Main.java:453)</span><br></pre></td></tr></table></figure>
-<ul>
-<li>说一下解决办法：</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进行如下的操作，再重启就可以了。亲测可以</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv /var/lib/cloudera-service-monitor /var/lib/cloudera-service-monitor.moved</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv /var/lib/cloudera-host-monitor /var/lib/cloudera-host-monitor.moved</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>参考：<a href="https://community.cloudera.com/t5/Security-Apache-Sentry/Host-Monitor-and-Service-Monitor-is-not-starting-after/td-p/49207">https://community.cloudera.com/t5/Security-Apache-Sentry/Host-Monitor-and-Service-Monitor-is-not-starting-after/td-p/49207</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Hadoop</category>
-      </categories>
-      <tags>
-        <tag>cloudera</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Sqoop User Guide(Sqoop使用指南)</title>
     <url>/2018/09/11/Sqoop/</url>
     <content><![CDATA[<h1 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h1><blockquote>
@@ -183,6 +152,37 @@
       <tags>
         <tag>Sqoop</tag>
         <tag>Hadoop</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>cloudera 问题解决</title>
+    <url>/2018/10/16/cloudera-problem/</url>
+    <content><![CDATA[<blockquote>
+<p>如下为记录<code>cloudera</code> 使用过程中的一些常见问题。</p>
+</blockquote>
+<h1 id="1、服务没有设置-opt这个挂载点"><a href="#1、服务没有设置-opt这个挂载点" class="headerlink" title="1、服务没有设置/opt这个挂载点"></a>1、服务没有设置<code>/opt</code>这个挂载点</h1><ul>
+<li><code>cloudera</code>所有的数据都是存储在<code>/opt</code>这个根目录下的，所以服务器在安装系统的时候最好让运维同事挂载一个大空间到这个目录下。</li>
+<li>如果安装的时候不知道，安装软件的时候可以选择存储空间,如果安装的时候也不知道，没有设置的话那就很悲催了。</li>
+<li>如果没有设置就回存到根目录的<code>/opt</code>下，这里面的存储空间一般都很小。说一下解决办法。<br>1、重装（我没这精力）<br>2、把<code>/opt</code>这个目录移动到一个大的挂载点上去，然后使用软连接，本人就是这么做的。</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 步骤</span></span><br><span class="line"><span class="meta">#</span><span class="bash">1、先停掉集群。</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv cloudera cloudera.bak</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv cloudera.bak /data/cloudera</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ln -sv /data/cloudera cloudera</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 经过上面的步骤之后再重启集群就可以了。</span></span><br></pre></td></tr></table></figure>
+<h1 id="2、Error-creating-LevelDB-timeseries-store-in-directory-var-lib-cloudera-service-monitor-ts"><a href="#2、Error-creating-LevelDB-timeseries-store-in-directory-var-lib-cloudera-service-monitor-ts" class="headerlink" title="2、Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts"></a>2、Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts</h1><blockquote>
+<p>具体现象如下，报找不到一个文件。解释一下出现这个问题的原因，还是由于根目录下的空间不够了，因此我移动了一个占有很<br>大空间的包，就是错误中的 <code>/var/lib/cloudera-service-monitor</code> 这个目录，然后通过软连接进行访问的。</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2018-10-16 16:24:25,993 INFO com.cloudera.cmon.firehose.Main: Cluster size: SMALL</span><br><span class="line">2018-10-16 16:24:26,056 INFO com.cloudera.cmon.tstore.leveldb.LDBResourceManager: Max file descriptors: 32768</span><br><span class="line">2018-10-16 16:24:26,057 INFO com.cloudera.cmon.tstore.leveldb.LDBResourceManager: Setting maximum open fds to: 768</span><br><span class="line">2018-10-16 16:24:26,181 ERROR com.cloudera.cmon.firehose.Main: Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts</span><br><span class="line">org.fusesource.leveldbjni.internal.NativeDB$DBException: Corruption: 3 missing files; e.g.: /data/lib/ts/ts_entity_metadata/000072.sst</span><br><span class="line">        at org.fusesource.leveldbjni.internal.NativeDB.checkStatus(NativeDB.java:194)</span><br><span class="line">        at org.fusesource.leveldbjni.internal.NativeDB.open(NativeDB.java:212)</span><br><span class="line">        at org.fusesource.leveldbjni.JniDBFactory.open(JniDBFactory.java:168)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBUtils.openVersionedDB(LDBUtils.java:264)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBUtils.openVersionedDB(LDBUtils.java:212)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBTimeSeriesMetadataStore.openMetadataDB(LDBTimeSeriesMetadataStore.java:148)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBTimeSeriesMetadataStore.&lt;init&gt;(LDBTimeSeriesMetadataStore.java:138)</span><br><span class="line">        at com.cloudera.cmon.firehose.Main.main(Main.java:453)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>说一下解决办法：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进行如下的操作，再重启就可以了。亲测可以</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv /var/lib/cloudera-service-monitor /var/lib/cloudera-service-monitor.moved</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv /var/lib/cloudera-host-monitor /var/lib/cloudera-host-monitor.moved</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>参考：<a href="https://community.cloudera.com/t5/Security-Apache-Sentry/Host-Monitor-and-Service-Monitor-is-not-starting-after/td-p/49207">https://community.cloudera.com/t5/Security-Apache-Sentry/Host-Monitor-and-Service-Monitor-is-not-starting-after/td-p/49207</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Hadoop</category>
+      </categories>
+      <tags>
+        <tag>cloudera</tag>
       </tags>
   </entry>
   <entry>
@@ -344,6 +344,106 @@ system call filters failed to install; check the logs and fix your configuration
       </tags>
   </entry>
   <entry>
+    <title>es 单节点部署多个服务</title>
+    <url>/2018/10/17/es-single-node-install/</url>
+    <content><![CDATA[<h1 id="ElasticSearch单机双实例的配置方法"><a href="#ElasticSearch单机双实例的配置方法" class="headerlink" title="ElasticSearch单机双实例的配置方法"></a>ElasticSearch单机双实例的配置方法</h1><p>从ElasticSearch官方的多份文档中可以看到，官方并不建议部署ES时为实例指定超过32GB的内存，但是现在内存的价格非常便宜，一台实体机服务器仅用32G内存显然是非常浪费的。所以我们要尝试在一个服务器上开多个ES实例，以便达到充分利用资源的目的。本文提供了一些ES单机双实例的配置要点，可扩展至单机多实例，供大家来实际参考。</p>
+<h2 id="突破32G"><a href="#突破32G" class="headerlink" title="突破32G"></a>突破32G</h2><p>从ElasticSearch官方的多份文档中可以看到，官方并不建议部署ES时为实例指定超过32GB的内存，例如这些写着大字警告用户的文章： <a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/heap-sizing.html#compressed_oops">Don’t Cross 32 GB!</a></p>
+<p>但是现在内存的价格非常便宜，一台实体机服务器仅用32G内存显然是非常浪费的。所以我们要尝试在一个服务器上开多个ES实例，以便达到充分利用资源的目的。</p>
+<h2 id="配置变更"><a href="#配置变更" class="headerlink" title="配置变更"></a>配置变更</h2><p>要做到单机上开多个实例，需要修改ES的默认配置，以下是一些配置要点：</p>
+<h3 id="node-max-local-storage-nodes"><a href="#node-max-local-storage-nodes" class="headerlink" title="node.max_local_storage_nodes"></a>node.max_local_storage_nodes</h3><p>这个配置限制了单节点上可以开启的ES存储实例的个数，我们需要开多个实例，因此需要把这个配置写到配置文件中，并为这个配置赋值为2或者更高。</p>
+<h3 id="http-port"><a href="#http-port" class="headerlink" title="http.port"></a>http.port</h3><p>这个配置是elasticsearch对外提供服务的http端口配置，默认情况下ES会取用9200~9299之间的端口，如果9200被占用就会自动使用9201，在单机多实例的配置中这个配置实际是不需要修改的。</p>
+<p>但是为了更好地进行配置管理，以及和老的配置兼容，我们还是手动将第一个实例的http端口配置为9200，第二个实例配置为9201。</p>
+<h3 id="transport-tcp-port"><a href="#transport-tcp-port" class="headerlink" title="transport.tcp.port"></a>transport.tcp.port</h3><p>这个配置指定了elasticsearch集群内数据通讯使用的端口，默认情况下为9300，与上面的http.port配置类似，ES也会自动为已占用的端口选择下一个端口号。我们可以将第一个实例的tcp传输端口配置为9300，第二实例配置为9301。<br>discovery.zen.ping.unicast.hosts</p>
+<p>由于到了2.x版本之后，ES取消了默认的广播模式来发现master节点，需要使用该配置来指定发现master节点。这个配置在单机双实例的配置中需要特别注意下，因为习惯上我们配置时并未指定master节点的tcp端口，如果实例的transport.tcp.port配置为9301，那么实例启动后会认为discovery.zen.ping.unicast.hosts中指定的主机tcp端口也是9301，可能导致这些节点无法找到master节点。因此在该配置中需要指定master节点提供服务的tcp端口。</p>
+<p>配置示例：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">discovery.zen.ping.unicast.hosts: [&quot;testes.mydomain:9300&quot;,&quot;testes1.mydomain:9301&quot;]</span><br></pre></td></tr></table></figure></p>
+<h2 id="其他配置"><a href="#其他配置" class="headerlink" title="其他配置"></a>其他配置</h2><ul>
+<li><p>node.name</p>
+<p>同一主机上的两个实例需要使用不同的node.name</p>
+</li>
+<li><p>path.data</p>
+<p>同一主机上两个实例需要对应不同的数据目录</p>
+</li>
+<li><p>path.logs</p>
+<p>由于默认情况下日志用集群名称来命名，因此同一主机两个实例对应的日志目录需要分开</p>
+</li>
+</ul>
+<h2 id="完整配置示例"><a href="#完整配置示例" class="headerlink" title="完整配置示例"></a>完整配置示例</h2><p>以下提供两个完整的配置实例供参考：</p>
+<p>实例1：<br><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">cluster.name:</span> <span class="string">testes</span></span><br><span class="line"><span class="attr">node.name:</span> <span class="string">$&#123;HOSTNAME&#125;</span></span><br><span class="line"><span class="attr">node.box_type:</span> <span class="string">M</span></span><br><span class="line"><span class="attr">node.master:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">node.data:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">path.data:</span> <span class="string">/data/disk01</span></span><br><span class="line"><span class="attr">path.logs:</span> <span class="string">/home/centos/elasticsearch/logs/instance1</span></span><br><span class="line"><span class="attr">network.host:</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span></span><br><span class="line"><span class="attr">http.port:</span> <span class="number">9200</span></span><br><span class="line"><span class="attr">transport.tcp.port:</span> <span class="number">9300</span></span><br><span class="line"><span class="attr">discovery.zen.ping.unicast.hosts:</span> [<span class="string">&quot;testes1.mydomain:9300&quot;</span>,<span class="string">&quot;testes2.mydomain:9301&quot;</span>]</span><br><span class="line"><span class="attr">node.max_local_storage_nodes:</span> <span class="number">2</span></span><br><span class="line"><span class="attr">threadpool.index.queue_size:</span> <span class="number">400</span></span><br><span class="line"><span class="attr">threadpool.bulk.queue_size:</span> <span class="number">5000</span></span><br><span class="line"><span class="attr">bootstrap.mlockall:</span> <span class="literal">false</span></span><br></pre></td></tr></table></figure><br>实例2：<br><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">cluster.name:</span> <span class="string">testes</span></span><br><span class="line"><span class="attr">node.name:</span> <span class="string">$&#123;HOSTNAME&#125;-2</span></span><br><span class="line"><span class="attr">node.box_type:</span> <span class="string">M</span></span><br><span class="line"><span class="attr">node.master:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">node.data:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">path.data:</span> <span class="string">/data/disk02</span></span><br><span class="line"><span class="attr">path.logs:</span> <span class="string">/home/centos/elasticsearch/logs/instance2</span></span><br><span class="line"><span class="attr">network.host:</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span></span><br><span class="line"><span class="attr">http.port:</span> <span class="number">9201</span></span><br><span class="line"><span class="attr">transport.tcp.port:</span> <span class="number">9301</span></span><br><span class="line"><span class="attr">discovery.zen.ping.unicast.hosts:</span> [<span class="string">&quot;testes1.mydomain:9300&quot;</span>,<span class="string">&quot;testes2.mydomain:9301&quot;</span>]</span><br><span class="line"><span class="attr">node.max_local_storage_nodes:</span> <span class="number">2</span></span><br><span class="line"></span><br></pre></td></tr></table></figure></p>
+<h2 id="配置部署"><a href="#配置部署" class="headerlink" title="配置部署"></a>配置部署</h2><p>默认情况下ES启动时使用ES安装目录的config子目录下的elasticsearch.yml文件来作为配置文件，同时还用到了config子目录下的logging.yml文件来作为日志的配置文件。为了实现单机双实例的分别启动，我们需要创建两个目录来分别存储两个实例的配置文件，如：</p>
+<p>在config子目录下创建instance1和instance2两个目录，分别放置两个实例需要的elasticsearch.yml和logging.yml配置文件。</p>
+<p>注意，ES的配置文件必须使用elasticsearch.yml这个命名，因此必须创建出两个目录来。</p>
+<h2 id="启动实例"><a href="#启动实例" class="headerlink" title="启动实例"></a>启动实例</h2><p>以下是两条参考的命令，用于启动单机上的两个实例：</p>
+<h3 id="实例1"><a href="#实例1" class="headerlink" title="实例1:"></a>实例1:</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">bin/elasticsearch -Des.path.conf=config/instance1 -d -p /tmp/elasticsearch_1.pid</span><br></pre></td></tr></table></figure>
+<h3 id="实例2"><a href="#实例2" class="headerlink" title="实例2:"></a>实例2:</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">bin/elasticsearch -Des.path.conf=config/instance2 -d -p /tmp/elasticsearch_2.pid</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>es</category>
+      </categories>
+      <tags>
+        <tag>elasticsearch</tag>
+        <tag>install</tag>
+        <tag>es 运维</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>ES X-Pack 5.4.3破解安装</title>
+    <url>/2018/10/17/es-xpack-install/</url>
+    <content><![CDATA[<p>假如已经有<code>es</code>和<code>kibana</code>了。</p>
+<p>下面的为安装路径.<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">esHome=/data/home/elastic/elasticsearch-5.4.3</span><br><span class="line">xpackHome=/data/home/xpack</span><br><span class="line">kibanaHome=/data/home/kibana</span><br></pre></td></tr></table></figure></p>
+<h2 id="1、下载xpakc"><a href="#1、下载xpakc" class="headerlink" title="1、下载xpakc"></a>1、下载xpakc</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 下载xpack压缩包</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;xpackHome&#125;</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> wget -c <span class="string">&#x27;https://artifacts.elastic.co/downloads/packs/x-pack/x-pack-5.4.3.zip</span></span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="2、Elasticsearch安装X-Pack"><a href="#2、Elasticsearch安装X-Pack" class="headerlink" title="2、Elasticsearch安装X-Pack"></a>2、Elasticsearch安装X-Pack</h2><p><code>ES</code>安装<code>x-pack</code>有两种方法。</p>
+<h3 id="一、手动安装"><a href="#一、手动安装" class="headerlink" title="一、手动安装"></a>一、手动安装</h3><ul>
+<li>安装插件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ./bin/elasticsearch-plugin install file://<span class="variable">$&#123;xpackHome&#125;</span>/x-pack-5.4.3.zip</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>破解<code>xpack</code></li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;esHome&#125;</span>/plugins</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> touch LicenseVerifier.java</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> vim LicenseVerifier.java</span></span><br><span class="line"></span><br><span class="line">package org.elasticsearch.license;</span><br><span class="line"></span><br><span class="line">import java.nio.*;</span><br><span class="line">import java.util.*;</span><br><span class="line">import java.security.*;</span><br><span class="line">import org.elasticsearch.common.xcontent.*;</span><br><span class="line">import org.apache.lucene.util.*;</span><br><span class="line">import org.elasticsearch.common.io.*;</span><br><span class="line">import java.io.*;</span><br><span class="line"></span><br><span class="line">public class LicenseVerifier</span><br><span class="line">&#123;</span><br><span class="line">    public static boolean verifyLicense(final License license, final byte[] encryptedPublicKeyData) &#123;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static boolean verifyLicense(final License license) &#123;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ul>
+<li>编译</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;esHome&#125;</span>/plugins</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> javac -cp <span class="string">&quot;<span class="variable">$&#123;esHome&#125;</span>/lib/elasticsearch-5.4.3.jar:<span class="variable">$&#123;esHome&#125;</span>/lib/lucene-core-6.5.1.jar:<span class="variable">$&#123;esHome&#125;</span>/plugins/x-pack/x-pack-5.4.3.jar&quot;</span> LicenseVerifier.java</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ul>
+<li>替换class文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 解压</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;esHome&#125;</span>/plugins/x-pack/</span></span><br><span class="line">mkdir test</span><br><span class="line">mv x-pack-5.4.3.jar test/</span><br><span class="line">cd test/</span><br><span class="line">jar xvf x-pack-5.4.3.jar</span><br><span class="line"><span class="meta">#</span><span class="bash">替换</span></span><br><span class="line">cd ./org/elasticsearch/license</span><br><span class="line">rm -f LicenseVerifier.class</span><br><span class="line">mv $&#123;esHome&#125;/plugins/LicenseVerifier.class .</span><br><span class="line"><span class="meta">#</span><span class="bash"> 打包</span></span><br><span class="line">cd $&#123;esHome&#125;/plugins/x-pack/test</span><br><span class="line">jar cvf x-pack-5.4.3.jar .</span><br><span class="line">mv x-pack-5.4.3.jar ../</span><br><span class="line"><span class="meta">#</span><span class="bash">删除临时文件</span></span><br><span class="line">cd ../</span><br><span class="line">rm -rf test</span><br><span class="line">cd ../</span><br><span class="line">rm LicenseVerifier.java</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>申请license</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">来此注册，并下载license文件</span></span><br><span class="line">https://license.elastic.co/registration</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改license</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;                                                                                                                                                                                                       </span><br><span class="line">       <span class="attr">&quot;license&quot;</span>: &#123;</span><br><span class="line">           <span class="attr">&quot;uid&quot;</span>: <span class="string">&quot;01957577-fa6e-426f-9257-200ccdfaee73&quot;</span>,</span><br><span class="line">           <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;platinum&quot;</span>,</span><br><span class="line">           <span class="attr">&quot;issue_date_in_millis&quot;</span>: <span class="number">1534464000000</span>,</span><br><span class="line">           <span class="attr">&quot;expiry_date_in_millis&quot;</span>: <span class="number">2524579200999</span>,</span><br><span class="line">           <span class="attr">&quot;max_nodes&quot;</span>: <span class="number">100</span>,</span><br><span class="line">           <span class="attr">&quot;issued_to&quot;</span>: <span class="string">&quot;leng rongfu (no)&quot;</span>,</span><br><span class="line">           <span class="attr">&quot;issuer&quot;</span>: <span class="string">&quot;Web Form&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;signature&quot;</span>: <span class="string">&quot;AAAAAwAAAA0p6LA0HKNGcIOkCCRqAAABmC9ZN0hjZDBGYnVyRXpCOW5Bb3FjZDAxOWpSbTVoMVZwUzRxVk1PSmkxaktJRVl5MUYvUWh3bHZVUTllbXNPbzBUemtnbWpBbmlWRmRZb25KNFlBR2x0TXc2K2p1Y1VtMG1UQU9TRGZVSGRwaE   JGUjE3bXd3LzRqZ05iLzRteWFNekdxRGpIYlFwYkJiNUs0U1hTVlJKNVlXekMrSlVUdFIvV0FNeWdOYnlESDc3MWhlY3hSQmdKSjJ2ZTcvYlBFOHhPQlV3ZHdDQ0tHcG5uOElCaDJ4K1hob29xSG85N0kvTWV3THhlQk9NL01VMFRjNDZpZEVXeUtUMXIyMlIveFpJUk    k2WUdveEZaME9XWitGUi9WNTZVQW1FMG1DenhZU0ZmeXlZakVEMjZFT2NvOWxpZGlqVmlHNC8rWVVUYzMwRGVySHpIdURzKzFiRDl4TmM1TUp2VTBOUlJZUlAyV0ZVL2kvVk10L0NsbXNFYVZwT3NSU082dFNNa2prQ0ZsclZ4NTltbU1CVE5lR09Bck93V2J1Y3c9PQ    AAAQBENsHqhC2OW/yYxaKP5tS/GHT9TrEbcEtI62k//Id9p2DzSHUv+xekDbfiu550wMrBnoeOi4xV4X6C2WcJCYLSM/QRTotlm11SGvWnUgRXFst83n/nceh3l3Y9D3Odec4zAhrhrYynisls2WfCFGSEW5EUO1II+3C5xhyKMyLROlAxkwNco0H4zD3GlEjZNqC3CK    8cQRRmeJ1lIPvb/Tw8JbbG5zjQuYhQakMAbXqIeL9BLla7sAP4+M8lmvh4Z6bwUGy1MQ9j1+ijdswWMNVs8Vr7CnxZ1j4pla2ZWkGSr4sNfI0LF6U25HC4ofb8CQkrKoAq80EPdINnrfyr56CU&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;start_date_in_millis&quot;</span>: <span class="number">1534464000000</span></span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">&quot;license&quot;</span>:&#123;</span><br><span class="line">        <span class="attr">&quot;uid&quot;</span>:<span class="string">&quot;01957577-fa6e-426f-9257-200ccdfaee73&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;type&quot;</span>:<span class="string">&quot;platinum&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;issue_date_in_millis&quot;</span>:<span class="number">1534464000000</span>,</span><br><span class="line">        <span class="attr">&quot;expiry_date_in_millis&quot;</span>:<span class="number">2524579200999</span>,</span><br><span class="line">        <span class="attr">&quot;max_nodes&quot;</span>:<span class="number">100</span>,</span><br><span class="line">        <span class="attr">&quot;issued_to&quot;</span>:<span class="string">&quot;leng rongfu (no)&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;issuer&quot;</span>:<span class="string">&quot;Web Form&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;signature&quot;</span>:<span class="string">&quot;AAAAAwAAAA0p6LA0HKNGcIOkCCRqAAABmC9ZN0hjZDBGYnVyRXpCOW5Bb3FjZDAxOWpSbTVoMVZwUzRxVk1PSmkxaktJRVl5MUYvUWh3bHZVUTllbXNPbzBUemtnbWpBbmlWRmRZb25KNFlBR2x0TXc2K2p1Y1VtMG1UQU9TRGZVSGRwaEJGUjE3bXd3LzRqZ05iLzRteWFNekdxRGpIYlFwYkJiNUs0U1hTVlJKNVlXekMrSlVUdFIvV0FNeWdOYnlESDc3MWhlY3hSQmdKSjJ2ZTcvYlBFOHhPQlV3ZHdDQ0tHcG5uOElCaDJ4K1hob29xSG85N0kvTWV3THhlQk9NL01VMFRjNDZpZEVXeUtUMXIyMlIveFpJUkk2WUdveEZaME9XWitGUi9WNTZVQW1FMG1DenhZU0ZmeXlZakVEMjZFT2NvOWxpZGlqVmlHNC8rWVVUYzMwRGVySHpIdURzKzFiRDl4TmM1TUp2VTBOUlJZUlAyV0ZVL2kvVk10L0NsbXNFYVZwT3NSU082dFNNa2prQ0ZsclZ4NTltbU1CVE5lR09Bck93V2J1Y3c9PQAAAQBENsHqhC2OW/yYxaKP5tS/GHT9TrEbcEtI62k//Id9p2DzSHUv+xekDbfiu550wMrBnoeOi4xV4X6C2WcJCYLSM/QRTotlm11SGvWnUgRXFst83n/nceh3l3Y9D3Odec4zAhrhrYynisls2WfCFGSEW5EUO1II+3C5xhyKMyLROlAxkwNco0H4zD3GlEjZNqC3CK8cQRRmeJ1lIPvb/Tw8JbbG5zjQuYhQakMAbXqIeL9BLla7sAP4+M8lmvh4Z6bwUGy1MQ9j1+ijdswWMNVs8Vr7CnxZ1j4pla2ZWkGSr4sNfI0LF6U25HC4ofb8CQkrKoAq80EPdINnrfyr56CU&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;start_date_in_millis&quot;</span>:<span class="number">1534464000000</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>ps：<code>platinum</code>表示白金版，可以使用所有功能。其他的如<code>expiry_date_in_millis</code>、<code>max_nodes</code>等根据自己需要修改即可,<code>expiry_date_in_millis</code>是过期时间,使用的是<code>uninx时间</code>,我设置的是到<code>2049</code>年.</p>
+<ul>
+<li>查看lience</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> curl -XGET -u elastic:changeme <span class="string">&#x27;http://&#123;host&#125;:9200/_license&#x27;</span></span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>注册新修改的lience</li>
+<li><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> curl -XPUT -u elastic:changeme <span class="string">&#x27;http://&#123;host&#125;:9200/_xpack/license?acknowledge=true&#x27;</span> -d @lience.json</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="二、直接导入文件"><a href="#二、直接导入文件" class="headerlink" title="二、直接导入文件"></a>二、直接导入文件</h3><p>如果有破解好的文件，直接把<code>plugins</code>下的<code>x-pack</code>文件夹进行压缩，复制到其它节点的<code>plugins</code>路径下，重启就可以使用。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"># 下载地址</span><br><span class="line">$ wget -c https://note.youdao.com/yws/api/personal/file/WEBe693b8fab3b4cad482e5b354cd4176cd?method=download&amp;shareKey=a16d1e40a0ec4461a4f619f325c3f150</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="3、kibana安装X-Pack"><a href="#3、kibana安装X-Pack" class="headerlink" title="3、kibana安装X-Pack"></a>3、kibana安装X-Pack</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;kibanaHome&#125;</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./bin/kibana-plugin install file://<span class="variable">$&#123;xpackHome&#125;</span>/x-pack-5.4.3.zip</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><ul>
+<li><a href="https://my.oschina.net/guol/blog/1204258">https://my.oschina.net/guol/blog/1204258</a></li>
+<li><a href="https://mp.weixin.qq.com/s/NN01SalzLz2Ue6Q4exCfAw">https://mp.weixin.qq.com/s/NN01SalzLz2Ue6Q4exCfAw</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>es</category>
+      </categories>
+      <tags>
+        <tag>elasticsearch</tag>
+        <tag>install</tag>
+        <tag>X-pack</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>es-xpack-watch-user</title>
     <url>/2018/10/17/es-xpack-watch-user/</url>
     <content><![CDATA[<h1 id="Watcher"><a href="#Watcher" class="headerlink" title="Watcher"></a>Watcher</h1><p><strong>Es 安装了官方x-pack的插件，可以用来做业务监控。第一次使用请先阅读下面的注意事项。</strong></p>
@@ -390,45 +490,69 @@ system call filters failed to install; check the logs and fix your configuration
       </tags>
   </entry>
   <entry>
-    <title>es 单节点部署多个服务</title>
-    <url>/2018/10/17/es-single-node-install/</url>
-    <content><![CDATA[<h1 id="ElasticSearch单机双实例的配置方法"><a href="#ElasticSearch单机双实例的配置方法" class="headerlink" title="ElasticSearch单机双实例的配置方法"></a>ElasticSearch单机双实例的配置方法</h1><p>从ElasticSearch官方的多份文档中可以看到，官方并不建议部署ES时为实例指定超过32GB的内存，但是现在内存的价格非常便宜，一台实体机服务器仅用32G内存显然是非常浪费的。所以我们要尝试在一个服务器上开多个ES实例，以便达到充分利用资源的目的。本文提供了一些ES单机双实例的配置要点，可扩展至单机多实例，供大家来实际参考。</p>
-<h2 id="突破32G"><a href="#突破32G" class="headerlink" title="突破32G"></a>突破32G</h2><p>从ElasticSearch官方的多份文档中可以看到，官方并不建议部署ES时为实例指定超过32GB的内存，例如这些写着大字警告用户的文章： <a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/heap-sizing.html#compressed_oops">Don’t Cross 32 GB!</a></p>
-<p>但是现在内存的价格非常便宜，一台实体机服务器仅用32G内存显然是非常浪费的。所以我们要尝试在一个服务器上开多个ES实例，以便达到充分利用资源的目的。</p>
-<h2 id="配置变更"><a href="#配置变更" class="headerlink" title="配置变更"></a>配置变更</h2><p>要做到单机上开多个实例，需要修改ES的默认配置，以下是一些配置要点：</p>
-<h3 id="node-max-local-storage-nodes"><a href="#node-max-local-storage-nodes" class="headerlink" title="node.max_local_storage_nodes"></a>node.max_local_storage_nodes</h3><p>这个配置限制了单节点上可以开启的ES存储实例的个数，我们需要开多个实例，因此需要把这个配置写到配置文件中，并为这个配置赋值为2或者更高。</p>
-<h3 id="http-port"><a href="#http-port" class="headerlink" title="http.port"></a>http.port</h3><p>这个配置是elasticsearch对外提供服务的http端口配置，默认情况下ES会取用9200~9299之间的端口，如果9200被占用就会自动使用9201，在单机多实例的配置中这个配置实际是不需要修改的。</p>
-<p>但是为了更好地进行配置管理，以及和老的配置兼容，我们还是手动将第一个实例的http端口配置为9200，第二个实例配置为9201。</p>
-<h3 id="transport-tcp-port"><a href="#transport-tcp-port" class="headerlink" title="transport.tcp.port"></a>transport.tcp.port</h3><p>这个配置指定了elasticsearch集群内数据通讯使用的端口，默认情况下为9300，与上面的http.port配置类似，ES也会自动为已占用的端口选择下一个端口号。我们可以将第一个实例的tcp传输端口配置为9300，第二实例配置为9301。<br>discovery.zen.ping.unicast.hosts</p>
-<p>由于到了2.x版本之后，ES取消了默认的广播模式来发现master节点，需要使用该配置来指定发现master节点。这个配置在单机双实例的配置中需要特别注意下，因为习惯上我们配置时并未指定master节点的tcp端口，如果实例的transport.tcp.port配置为9301，那么实例启动后会认为discovery.zen.ping.unicast.hosts中指定的主机tcp端口也是9301，可能导致这些节点无法找到master节点。因此在该配置中需要指定master节点提供服务的tcp端口。</p>
-<p>配置示例：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">discovery.zen.ping.unicast.hosts: [&quot;testes.mydomain:9300&quot;,&quot;testes1.mydomain:9301&quot;]</span><br></pre></td></tr></table></figure></p>
-<h2 id="其他配置"><a href="#其他配置" class="headerlink" title="其他配置"></a>其他配置</h2><ul>
-<li><p>node.name</p>
-<p>同一主机上的两个实例需要使用不同的node.name</p>
-</li>
-<li><p>path.data</p>
-<p>同一主机上两个实例需要对应不同的数据目录</p>
-</li>
-<li><p>path.logs</p>
-<p>由于默认情况下日志用集群名称来命名，因此同一主机两个实例对应的日志目录需要分开</p>
+    <title>linux-Firewall 配置</title>
+    <url>/2018/10/17/linux-Firewall/</url>
+    <content><![CDATA[<blockquote>
+<p><code>iptables</code> 主要用于<code>centos 7</code>一下,<code>Firewall</code>用于<code>centos7</code>以上.</p>
+</blockquote>
+<h1 id="Firewall"><a href="#Firewall" class="headerlink" title="Firewall"></a>Firewall</h1><p>FirewallD 是 iptables 的前端控制器，用于实现持久的网络流量规则。它提供命令行和图形界面，在大多数 Linux 发行版的仓库中都有。与直接控制 iptables 相比，使用 FirewallD 有两个主要区别：</p>
+<p>1、FirewallD 使用区域和服务而不是链式规则。</p>
+<p>2、它动态管理规则集，允许更新规则而不破坏现有会话和连接。</p>
+<p>FirewallD 是 iptables 的一个封装，可以让你更容易地管理 iptables 规则 - 它并不是 iptables 的替代品。虽然 iptables 命令仍可用于 FirewallD，但建议使用 FirewallD 时仅使用 FirewallD 命令。</p>
+<p>本指南将向您介绍 FirewallD 的区域和服务的概念，以及一些基本的配置步骤。</p>
+<h2 id="安装与管理-FirewallD"><a href="#安装与管理-FirewallD" class="headerlink" title="安装与管理 FirewallD"></a>安装与管理 FirewallD</h2><p>CentOS 7 和 Fedora 20+ 已经包含了 FirewallD，但是默认没有激活。可以像其它的 systemd 单元那样控制它。</p>
+<p>1、 启动服务，并在系统引导时启动该服务：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo systemctl start firewalld</span><br><span class="line">sudo systemctl enable firewalld</span><br></pre></td></tr></table></figure><br>要停止并禁用：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo systemctl stop firewalld</span><br><span class="line">sudo systemctl disable firewalld</span><br></pre></td></tr></table></figure><br>2、 检查防火墙状态。输出应该是 running 或者 not running。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --state</span><br></pre></td></tr></table></figure><br>3、 要查看 FirewallD 守护进程的状态：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo systemctl status firewalld</span><br><span class="line">示例输出</span><br><span class="line"></span><br><span class="line">firewalld.service - firewalld - dynamic firewall daemon</span><br><span class="line">   Loaded: loaded (/usr/lib/systemd/system/firewalld.service; disabled)</span><br><span class="line">   Active: active (running) since Wed 2015-09-02 18:03:22 UTC; 1min 12s ago</span><br><span class="line"> Main PID: 11954 (firewalld)</span><br><span class="line">   CGroup: /system.slice/firewalld.service</span><br><span class="line">   └─11954 /usr/bin/python -Es /usr/sbin/firewalld --nofork --nopid</span><br></pre></td></tr></table></figure><br>4、 重新加载 FirewallD 配置：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --reload</span><br></pre></td></tr></table></figure></p>
+<h2 id="配置-FirewallD"><a href="#配置-FirewallD" class="headerlink" title="配置 FirewallD"></a>配置 FirewallD</h2><p>FirewallD 使用 XML 进行配置。除非是非常特殊的配置，你不必处理它们，而应该使用 firewall-cmd。</p>
+<p>配置文件位于两个目录中：</p>
+<ul>
+<li><code>/usr/lib/FirewallD</code> 下保存默认配置，如默认区域和公用服务。 避免修改它们，因为每次 firewall 软件包更新时都会覆盖这些文件。</li>
+<li><code>/etc/firewalld</code> 下保存系统配置文件。 这些文件将覆盖默认配置。</li>
+</ul>
+<h2 id="配置集"><a href="#配置集" class="headerlink" title="配置集"></a>配置集</h2><p><code>FirewallD</code> 使用两个配置集：“运行时”和“持久”。 在系统重新启动或重新启动 <code>FirewallD</code> 时，不会保留运行时的配置更改，而对持久配置集的更改不会应用于正在运行的系统。</p>
+<p>默认情况下，<code>firewall-cmd</code> 命令适用于运行时配置，但使用 <code>--permanent</code> 标志将保存到持久配置中。要添加和激活持久性规则，你可以使用两种方法之一。</p>
+<p>1、 将规则同时添加到持久规则集和运行时规则集中。 <br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-service=http --permanent</span><br><span class="line">sudo firewall-cmd --zone=public --add-service=http</span><br></pre></td></tr></table></figure><br>2、 将规则添加到持久规则集中并重新加载 FirewallD。 <br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-service=http --permanent</span><br><span class="line">sudo firewall-cmd --reload</span><br></pre></td></tr></table></figure><br><em><code>reload</code> 命令会删除所有运行时配置并应用永久配置。因为 firewalld 动态管理规则集，所以它不会破坏现有的连接和会话。</em></p>
+<h2 id="防火墙的区域"><a href="#防火墙的区域" class="headerlink" title="防火墙的区域"></a>防火墙的区域</h2><p>“区域”是针对给定位置或场景（例如家庭、公共、受信任等）可能具有的各种信任级别的预构建规则集。不同的区域允许不同的网络服务和入站流量类型，而拒绝其他任何流量。 首次启用 FirewallD 后，public 将是默认区域。</p>
+<p>区域也可以用于不同的网络接口。例如，要分离内部网络和互联网的接口，你可以在 internal 区域上允许 DHCP，但在external 区域仅允许 HTTP 和 SSH。未明确设置为特定区域的任何接口将添加到默认区域。</p>
+<p>要找到默认区域： <br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --get-default-zone</span><br></pre></td></tr></table></figure><br>要修改默认区域：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --set-default-zone=internal</span><br></pre></td></tr></table></figure><br>要查看你网络接口使用的区域：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --get-active-zones</span><br></pre></td></tr></table></figure><br>示例输出：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">public</span><br><span class="line">  interfaces: eth0</span><br></pre></td></tr></table></figure><br>要得到特定区域的所有配置：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --list-all</span><br></pre></td></tr></table></figure><br>示例输出：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">public (default, active)</span><br><span class="line">  interfaces: ens160</span><br><span class="line">  sources:</span><br><span class="line">  services: dhcpv6-client http ssh</span><br><span class="line">  ports: 12345/tcp</span><br><span class="line">  masquerade: no</span><br><span class="line">  forward-ports:</span><br><span class="line">  icmp-blocks:</span><br><span class="line">  rich rules:</span><br></pre></td></tr></table></figure><br>要得到所有区域的配置： <br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --list-all-zones</span><br></pre></td></tr></table></figure><br>示例输出：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">block</span><br><span class="line">  interfaces:</span><br><span class="line">  sources:</span><br><span class="line">  services:</span><br><span class="line">  ports:</span><br><span class="line">  masquerade: no</span><br><span class="line">  forward-ports:</span><br><span class="line">  icmp-blocks:</span><br><span class="line">  rich rules:</span><br><span class="line">  ...</span><br><span class="line">work</span><br><span class="line">  interfaces:</span><br><span class="line">  sources:</span><br><span class="line">  services: dhcpv6-client ipp-client ssh</span><br><span class="line">  ports:</span><br><span class="line">  masquerade: no</span><br><span class="line">  forward-ports:</span><br><span class="line">  icmp-blocks:</span><br><span class="line">  rich rules:</span><br></pre></td></tr></table></figure></p>
+<h2 id="与服务一起使用"><a href="#与服务一起使用" class="headerlink" title="与服务一起使用"></a>与服务一起使用</h2><p><code>FirewallD</code> 可以根据特定网络服务的预定义规则来允许相关流量。你可以创建自己的自定义系统规则，并将它们添加到任何区域。 默认支持的服务的配置文件位于 <code>/usr/lib /firewalld/services</code>，用户创建的服务文件在 <code>/etc/firewalld/services</code> 中。</p>
+<p>要查看默认的可用服务：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --get-services</span><br></pre></td></tr></table></figure><br>比如，要启用或禁用 HTTP 服务： <br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-service=http --permanent</span><br><span class="line">sudo firewall-cmd --zone=public --remove-service=http --permanent</span><br></pre></td></tr></table></figure><br>允许或者拒绝任意端口/协议<br>比如：允许或者禁用 12345 端口的 TCP 流量。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-port=12345/tcp --permanent</span><br><span class="line">sudo firewall-cmd --zone=public --remove-port=12345/tcp --permanent</span><br></pre></td></tr></table></figure><br>端口转发<br>下面是在同一台服务器上将 80 端口的流量转发到 12345 端口。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=&quot;public&quot; --add-forward-port=port=80:proto=tcp:toport=12345</span><br></pre></td></tr></table></figure><br>要将端口转发到另外一台服务器上：</p>
+<p>1、 在需要的区域中激活 masquerade。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-masquerade</span><br></pre></td></tr></table></figure><br>2、 添加转发规则。例子中是将本地的 80 端口的流量转发到 IP 地址为 ：123.456.78.9 的远程服务器上的  8080 端口。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=&quot;public&quot; --add-forward-port=port=80:proto=tcp:toport=8080:toaddr=123.456.78.9</span><br></pre></td></tr></table></figure><br>要删除规则，用 –remove 替换 –add。比如：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --remove-masquerade</span><br></pre></td></tr></table></figure><br>用 <code>FirewallD</code> 构建规则集<br>例如，以下是如何使用<code>FirewallD</code> 为你的服务器配置基本规则（如果您正在运行 web 服务器）。</p>
+<p>将 <code>eth0</code> 的默认区域设置为 <code>dmz</code>。 在所提供的默认区域中，<code>dmz</code>（非军事区）是最适合于这个程序的，因为它只允许 <code>SSH</code> 和 <code>ICM</code>P。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --set-default-zone=dmz</span><br><span class="line">sudo firewall-cmd --zone=dmz --add-interface=eth0</span><br></pre></td></tr></table></figure><br>2、 把 <code>HTTP</code> 和 <code>HTTS</code> 添加永久的服务规则到 <code>dmz</code> 区域中：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=dmz --add-service=http --permanent</span><br><span class="line">sudo firewall-cmd --zone=dmz --add-service=https --permanent</span><br></pre></td></tr></table></figure><br> 3、 重新加载 <code>FirewallD</code> 让规则立即生效：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --reload</span><br></pre></td></tr></table></figure><br> 如果你运行 <code>firewall-cmd --zone=dmz --list-all</code>， 会有下面的输出：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">dmz (default)</span><br><span class="line">  interfaces: eth0</span><br><span class="line">  sources:</span><br><span class="line">  services: http https ssh</span><br><span class="line">  ports:</span><br><span class="line">  masquerade: no</span><br><span class="line">  forward-ports:</span><br><span class="line">  icmp-blocks:</span><br><span class="line">  rich rules:</span><br></pre></td></tr></table></figure><br> 这告诉我们，<code>dmz</code> 区域是我们的默认区域，它被用于 <code>eth0</code> 接口中所有网络的源地址和端口。 允许传入 <code>HTTP</code>（端口 80）、<code>HTTPS</code>（端口 443）和 SSH（端口 22）的流量，并且由于没有 <code>IP</code> 版本控制的限制，这些适用于 <code>IPv4</code> 和 <code>IPv6</code>。 不允许IP 伪装以及端口转发。 我们没有 <code>ICMP</code> 块，所以 <code>ICMP</code> 流量是完全允许的。没有丰富Rich规则，允许所有出站流量。</p>
+<h2 id="高级配置"><a href="#高级配置" class="headerlink" title="高级配置"></a>高级配置</h2><p>服务和端口适用于基本配置，但对于高级情景可能会限制较多。 丰富Rich规则和直接Direct接口允许你为任何端口、协议、地址和操作向任何区域 添加完全自定义的防火墙规则。</p>
+<h2 id="丰富规则"><a href="#丰富规则" class="headerlink" title="丰富规则"></a>丰富规则</h2><p>丰富规则的语法有很多，但都完整地记录在 <code>firewalld.richlanguage(5)</code> 的手册页中（或在终端中 man firewalld.richlanguage）。 使用 <code>--add-rich-rule</code>、<code>--list-rich-rules</code> 、 <code>--remove-rich-rule</code> 和 <code>firewall-cmd</code> 命令来管理它们。</p>
+<p>这里有一些常见的例子：</p>
+<p>允许来自主机 <code>192.168.0.14</code> 的所有 IPv4 流量。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-rich-rule &#x27;rule family=&quot;ipv4&quot; source address=192.168.0.14 accept&#x27;</span><br></pre></td></tr></table></figure><br>拒绝来自主机 192.168.1.10 到 22 端口的 IPv4 的 TCP 流量。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-rich-rule &#x27;rule family=&quot;ipv4&quot; source address=&quot;192.168.1.10&quot; port port=22 protocol=tcp reject&#x27;</span><br></pre></td></tr></table></figure><br>允许来自主机 10.1.0.3 到 80 端口的 IPv4 的 TCP 流量，并将流量转发到 6532 端口上。 <br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-rich-rule &#x27;rule family=ipv4 source address=10.1.0.3 forward-port port=80 protocol=tcp to-port=6532&#x27;</span><br></pre></td></tr></table></figure><br>将主机 172.31.4.2 上 80 端口的 IPv4 流量转发到 8080 端口（需要在区域上激活 <code>masquerade</code>）。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-rich-rule &#x27;rule family=ipv4 forward-port port=80 protocol=tcp to-port=8080 to-addr=172.31.4.2&#x27;</span><br></pre></td></tr></table></figure><br>列出你目前的丰富规则：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --list-rich-rules</span><br></pre></td></tr></table></figure><br><code>iptables</code> 的直接接口<br>对于最高级的使用，或对于 <code>iptables</code> 专家，<code>FirewallD</code> 提供了一个直接Direct接口，允许你给它传递原始 <code>iptables</code>命令。 直接接口规则不是持久的，除非使用 <code>--permanent</code>。</p>
+<p>要查看添加到 <code>FirewallD</code> 的所有自定义链或规则：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">firewall-cmd --direct --get-all-chains</span><br><span class="line">firewall-cmd --direct --get-all-rules</span><br></pre></td></tr></table></figure><br>讨论 <code>iptables</code> 的具体语法已经超出了这篇文章的范围。如果你想学习更多，你可以查看我们的 <code>iptables</code> 指南。</p>
+<h2 id="更多信息"><a href="#更多信息" class="headerlink" title="更多信息"></a>更多信息</h2><ul>
+<li><a href="https://firewalld.org/">FirewallD 官方网站</a></li>
+<li><a href="https://access.redhat.com/documentation/zh-cn/red_hat_enterprise_linux/7/html/security_guide/">RHEL 7 安全指南：FirewallD 简介</a></li>
+</ul>
+<h1 id="iptables"><a href="#iptables" class="headerlink" title="iptables"></a>iptables</h1><ul>
+<li><code>root</code> 用户登录</li>
+<li>编辑防火墙文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cat /etc/sysconfig/iptables</span><br></pre></td></tr></table></figure>
+<ul>
+<li>设置禁止进入</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">-A INPUT -m state --state NEW -m tcp -p tcp -s 10.1.4.0/24 --dport 5601 -j ACCEPT</span><br><span class="line">解释: -s 可以访问的ip端</span><br><span class="line">      -dport 5601 可以访问此服务器上的某个端口，如果全部就不用设置这个参数 </span><br></pre></td></tr></table></figure>
+<ul>
+<li>命令 <code>service iptables</code></li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">Usage: iptables &#123;start|stop|reload|restart|condrestart|status|panic|save&#125;</span><br><span class="line">查询iptables状态: service iptables status</span><br><span class="line">重启iptables状态: service iptables restart</span><br><span class="line">启动iptables状态: service iptables start</span><br><span class="line">停止iptables状态: service iptables stop</span><br></pre></td></tr></table></figure>
+<ul>
+<li>FORWAD<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">iptables -t nat -A PREROUTING -d 61.129.93.38 -p tcp -j DNAT --to-destination localhost:8080</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
-<h2 id="完整配置示例"><a href="#完整配置示例" class="headerlink" title="完整配置示例"></a>完整配置示例</h2><p>以下提供两个完整的配置实例供参考：</p>
-<p>实例1：<br><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">cluster.name:</span> <span class="string">testes</span></span><br><span class="line"><span class="attr">node.name:</span> <span class="string">$&#123;HOSTNAME&#125;</span></span><br><span class="line"><span class="attr">node.box_type:</span> <span class="string">M</span></span><br><span class="line"><span class="attr">node.master:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">node.data:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">path.data:</span> <span class="string">/data/disk01</span></span><br><span class="line"><span class="attr">path.logs:</span> <span class="string">/home/centos/elasticsearch/logs/instance1</span></span><br><span class="line"><span class="attr">network.host:</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span></span><br><span class="line"><span class="attr">http.port:</span> <span class="number">9200</span></span><br><span class="line"><span class="attr">transport.tcp.port:</span> <span class="number">9300</span></span><br><span class="line"><span class="attr">discovery.zen.ping.unicast.hosts:</span> [<span class="string">&quot;testes1.mydomain:9300&quot;</span>,<span class="string">&quot;testes2.mydomain:9301&quot;</span>]</span><br><span class="line"><span class="attr">node.max_local_storage_nodes:</span> <span class="number">2</span></span><br><span class="line"><span class="attr">threadpool.index.queue_size:</span> <span class="number">400</span></span><br><span class="line"><span class="attr">threadpool.bulk.queue_size:</span> <span class="number">5000</span></span><br><span class="line"><span class="attr">bootstrap.mlockall:</span> <span class="literal">false</span></span><br></pre></td></tr></table></figure><br>实例2：<br><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">cluster.name:</span> <span class="string">testes</span></span><br><span class="line"><span class="attr">node.name:</span> <span class="string">$&#123;HOSTNAME&#125;-2</span></span><br><span class="line"><span class="attr">node.box_type:</span> <span class="string">M</span></span><br><span class="line"><span class="attr">node.master:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">node.data:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">path.data:</span> <span class="string">/data/disk02</span></span><br><span class="line"><span class="attr">path.logs:</span> <span class="string">/home/centos/elasticsearch/logs/instance2</span></span><br><span class="line"><span class="attr">network.host:</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span></span><br><span class="line"><span class="attr">http.port:</span> <span class="number">9201</span></span><br><span class="line"><span class="attr">transport.tcp.port:</span> <span class="number">9301</span></span><br><span class="line"><span class="attr">discovery.zen.ping.unicast.hosts:</span> [<span class="string">&quot;testes1.mydomain:9300&quot;</span>,<span class="string">&quot;testes2.mydomain:9301&quot;</span>]</span><br><span class="line"><span class="attr">node.max_local_storage_nodes:</span> <span class="number">2</span></span><br><span class="line"></span><br></pre></td></tr></table></figure></p>
-<h2 id="配置部署"><a href="#配置部署" class="headerlink" title="配置部署"></a>配置部署</h2><p>默认情况下ES启动时使用ES安装目录的config子目录下的elasticsearch.yml文件来作为配置文件，同时还用到了config子目录下的logging.yml文件来作为日志的配置文件。为了实现单机双实例的分别启动，我们需要创建两个目录来分别存储两个实例的配置文件，如：</p>
-<p>在config子目录下创建instance1和instance2两个目录，分别放置两个实例需要的elasticsearch.yml和logging.yml配置文件。</p>
-<p>注意，ES的配置文件必须使用elasticsearch.yml这个命名，因此必须创建出两个目录来。</p>
-<h2 id="启动实例"><a href="#启动实例" class="headerlink" title="启动实例"></a>启动实例</h2><p>以下是两条参考的命令，用于启动单机上的两个实例：</p>
-<h3 id="实例1"><a href="#实例1" class="headerlink" title="实例1:"></a>实例1:</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">bin/elasticsearch -Des.path.conf=config/instance1 -d -p /tmp/elasticsearch_1.pid</span><br></pre></td></tr></table></figure>
-<h3 id="实例2"><a href="#实例2" class="headerlink" title="实例2:"></a>实例2:</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">bin/elasticsearch -Des.path.conf=config/instance2 -d -p /tmp/elasticsearch_2.pid</span><br></pre></td></tr></table></figure>
+<p>iptables -t nat -A PREROUTING -d 61.129.93.38 -p tcp –dport 80 -j DNAT –to-destination 10.1.4.172:8080</p>
 ]]></content>
       <categories>
-        <category>es</category>
+        <category>Linux</category>
       </categories>
       <tags>
-        <tag>elasticsearch</tag>
-        <tag>install</tag>
-        <tag>es 运维</tag>
+        <tag>linux</tag>
+        <tag>Firewall</tag>
+        <tag>iptables</tag>
       </tags>
   </entry>
   <entry>
@@ -718,6 +842,28 @@ MySQL服务初始化(仅适用5.7)</li>
       </categories>
   </entry>
   <entry>
+    <title>ZooKeeper kerberos 客户端认证</title>
+    <url>/2018/10/31/ZooKeeper-kerberos/</url>
+    <content><![CDATA[<blockquote>
+<p><code>Hadoop</code>中的<code>ZooKeeper</code> 添加了<code>kerberos</code> 认证，写的代码需要操作<code>Hadoop</code>中的<code>ZooKeeper</code>,因此代码需要进行认证才能操作<code>ZooKeeper</code>。</p>
+</blockquote>
+<h1 id="spring-boot-项目进行认证"><a href="#spring-boot-项目进行认证" class="headerlink" title="spring boot 项目进行认证"></a>spring boot 项目进行认证</h1><p>项目不需要进行任何修改和添加，在启动参数中加入认证即可，认证方式和<code>Hbase</code>的<code>kerberos</code>认证不一样，所以实现方式也不一样。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> -Dsun.security.krb5.debug=<span class="literal">true</span> 开启认证调试日志，这样有助于分析认证失败原因，可以达到事半功倍的效果</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> -Djava.security.auth.login.config=./jaas.conf 这是zookeeper的认证文件</span></span><br><span class="line">java -jar -Djava.security.auth.login.config=./jaas.conf -Dsun.security.krb5.debug=true demo.jar</span><br></pre></td></tr></table></figure></p>
+<h1 id="tomcat-项目进行认证"><a href="#tomcat-项目进行认证" class="headerlink" title="tomcat 项目进行认证"></a>tomcat 项目进行认证</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> tomcat 进行认证需要进行配置到 catalina.sh 中</span></span><br><span class="line">CATALINA_OPTS=&quot;$CATALINA_OPTS-Djava.security.auth.login.config=./jaas.conf&quot;</span><br><span class="line">CATALINA_OPTS=&quot;$CATALINA_OPTS -Dsun.security.krb5.debug=true&quot;</span><br></pre></td></tr></table></figure>
+<p>重启项目即可进行认证。</p>
+<h1 id="ZooKeeper-kerberos"><a href="#ZooKeeper-kerberos" class="headerlink" title="ZooKeeper kerberos"></a>ZooKeeper kerberos</h1><p>在使用<code>jaas.conf</code>文件中要注意，此文件分为服务端和客户端的配置文件，不能给错了，如果使用错误也是不能进行认证，<code>keytab</code>也是不一样的，用错了也是不能进行认证通过的。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 服务端</span></span><br><span class="line">Server &#123;</span><br><span class="line">  com.sun.security.auth.module.Krb5LoginModule required</span><br><span class="line">  useKeyTab=true</span><br><span class="line">  keyTab=&quot;/etc/zookeeper/conf/zookeeper.keytab&quot;</span><br><span class="line">  storeKey=true</span><br><span class="line">  useTicketCache=false</span><br><span class="line">  principal=&quot;zookeeper/cdh1@JAVACHEN.COM&quot;;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 客户端</span></span><br><span class="line">Client &#123;</span><br><span class="line">  com.sun.security.auth.module.Krb5LoginModule required</span><br><span class="line">  useKeyTab=true</span><br><span class="line">  keyTab=&quot;/etc/zookeeper/conf/zkcli.keytab&quot;</span><br><span class="line">  storeKey=true</span><br><span class="line">  useTicketCache=false</span><br><span class="line">  principal=&quot;zkcli@JAVACHEN.COM&quot;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="http://www.voidcn.com/article/p-hnbafumk-bez.html">http://www.voidcn.com/article/p-hnbafumk-bez.html</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>大数据</category>
+      </categories>
+      <tags>
+        <tag>kerberos</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>java.util.concurrency 包</title>
     <url>/2018/11/12/java-util-concurrency/</url>
     <content><![CDATA[<blockquote>
@@ -736,72 +882,6 @@ MySQL服务初始化(仅适用5.7)</li>
         <tag>Java</tag>
         <tag>Concurrency</tag>
         <tag>源码</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>linux-Firewall 配置</title>
-    <url>/2018/10/17/linux-Firewall/</url>
-    <content><![CDATA[<blockquote>
-<p><code>iptables</code> 主要用于<code>centos 7</code>一下,<code>Firewall</code>用于<code>centos7</code>以上.</p>
-</blockquote>
-<h1 id="Firewall"><a href="#Firewall" class="headerlink" title="Firewall"></a>Firewall</h1><p>FirewallD 是 iptables 的前端控制器，用于实现持久的网络流量规则。它提供命令行和图形界面，在大多数 Linux 发行版的仓库中都有。与直接控制 iptables 相比，使用 FirewallD 有两个主要区别：</p>
-<p>1、FirewallD 使用区域和服务而不是链式规则。</p>
-<p>2、它动态管理规则集，允许更新规则而不破坏现有会话和连接。</p>
-<p>FirewallD 是 iptables 的一个封装，可以让你更容易地管理 iptables 规则 - 它并不是 iptables 的替代品。虽然 iptables 命令仍可用于 FirewallD，但建议使用 FirewallD 时仅使用 FirewallD 命令。</p>
-<p>本指南将向您介绍 FirewallD 的区域和服务的概念，以及一些基本的配置步骤。</p>
-<h2 id="安装与管理-FirewallD"><a href="#安装与管理-FirewallD" class="headerlink" title="安装与管理 FirewallD"></a>安装与管理 FirewallD</h2><p>CentOS 7 和 Fedora 20+ 已经包含了 FirewallD，但是默认没有激活。可以像其它的 systemd 单元那样控制它。</p>
-<p>1、 启动服务，并在系统引导时启动该服务：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo systemctl start firewalld</span><br><span class="line">sudo systemctl enable firewalld</span><br></pre></td></tr></table></figure><br>要停止并禁用：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo systemctl stop firewalld</span><br><span class="line">sudo systemctl disable firewalld</span><br></pre></td></tr></table></figure><br>2、 检查防火墙状态。输出应该是 running 或者 not running。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --state</span><br></pre></td></tr></table></figure><br>3、 要查看 FirewallD 守护进程的状态：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo systemctl status firewalld</span><br><span class="line">示例输出</span><br><span class="line"></span><br><span class="line">firewalld.service - firewalld - dynamic firewall daemon</span><br><span class="line">   Loaded: loaded (/usr/lib/systemd/system/firewalld.service; disabled)</span><br><span class="line">   Active: active (running) since Wed 2015-09-02 18:03:22 UTC; 1min 12s ago</span><br><span class="line"> Main PID: 11954 (firewalld)</span><br><span class="line">   CGroup: /system.slice/firewalld.service</span><br><span class="line">   └─11954 /usr/bin/python -Es /usr/sbin/firewalld --nofork --nopid</span><br></pre></td></tr></table></figure><br>4、 重新加载 FirewallD 配置：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --reload</span><br></pre></td></tr></table></figure></p>
-<h2 id="配置-FirewallD"><a href="#配置-FirewallD" class="headerlink" title="配置 FirewallD"></a>配置 FirewallD</h2><p>FirewallD 使用 XML 进行配置。除非是非常特殊的配置，你不必处理它们，而应该使用 firewall-cmd。</p>
-<p>配置文件位于两个目录中：</p>
-<ul>
-<li><code>/usr/lib/FirewallD</code> 下保存默认配置，如默认区域和公用服务。 避免修改它们，因为每次 firewall 软件包更新时都会覆盖这些文件。</li>
-<li><code>/etc/firewalld</code> 下保存系统配置文件。 这些文件将覆盖默认配置。</li>
-</ul>
-<h2 id="配置集"><a href="#配置集" class="headerlink" title="配置集"></a>配置集</h2><p><code>FirewallD</code> 使用两个配置集：“运行时”和“持久”。 在系统重新启动或重新启动 <code>FirewallD</code> 时，不会保留运行时的配置更改，而对持久配置集的更改不会应用于正在运行的系统。</p>
-<p>默认情况下，<code>firewall-cmd</code> 命令适用于运行时配置，但使用 <code>--permanent</code> 标志将保存到持久配置中。要添加和激活持久性规则，你可以使用两种方法之一。</p>
-<p>1、 将规则同时添加到持久规则集和运行时规则集中。 <br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-service=http --permanent</span><br><span class="line">sudo firewall-cmd --zone=public --add-service=http</span><br></pre></td></tr></table></figure><br>2、 将规则添加到持久规则集中并重新加载 FirewallD。 <br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-service=http --permanent</span><br><span class="line">sudo firewall-cmd --reload</span><br></pre></td></tr></table></figure><br><em><code>reload</code> 命令会删除所有运行时配置并应用永久配置。因为 firewalld 动态管理规则集，所以它不会破坏现有的连接和会话。</em></p>
-<h2 id="防火墙的区域"><a href="#防火墙的区域" class="headerlink" title="防火墙的区域"></a>防火墙的区域</h2><p>“区域”是针对给定位置或场景（例如家庭、公共、受信任等）可能具有的各种信任级别的预构建规则集。不同的区域允许不同的网络服务和入站流量类型，而拒绝其他任何流量。 首次启用 FirewallD 后，public 将是默认区域。</p>
-<p>区域也可以用于不同的网络接口。例如，要分离内部网络和互联网的接口，你可以在 internal 区域上允许 DHCP，但在external 区域仅允许 HTTP 和 SSH。未明确设置为特定区域的任何接口将添加到默认区域。</p>
-<p>要找到默认区域： <br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --get-default-zone</span><br></pre></td></tr></table></figure><br>要修改默认区域：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --set-default-zone=internal</span><br></pre></td></tr></table></figure><br>要查看你网络接口使用的区域：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --get-active-zones</span><br></pre></td></tr></table></figure><br>示例输出：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">public</span><br><span class="line">  interfaces: eth0</span><br></pre></td></tr></table></figure><br>要得到特定区域的所有配置：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --list-all</span><br></pre></td></tr></table></figure><br>示例输出：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">public (default, active)</span><br><span class="line">  interfaces: ens160</span><br><span class="line">  sources:</span><br><span class="line">  services: dhcpv6-client http ssh</span><br><span class="line">  ports: 12345/tcp</span><br><span class="line">  masquerade: no</span><br><span class="line">  forward-ports:</span><br><span class="line">  icmp-blocks:</span><br><span class="line">  rich rules:</span><br></pre></td></tr></table></figure><br>要得到所有区域的配置： <br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --list-all-zones</span><br></pre></td></tr></table></figure><br>示例输出：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">block</span><br><span class="line">  interfaces:</span><br><span class="line">  sources:</span><br><span class="line">  services:</span><br><span class="line">  ports:</span><br><span class="line">  masquerade: no</span><br><span class="line">  forward-ports:</span><br><span class="line">  icmp-blocks:</span><br><span class="line">  rich rules:</span><br><span class="line">  ...</span><br><span class="line">work</span><br><span class="line">  interfaces:</span><br><span class="line">  sources:</span><br><span class="line">  services: dhcpv6-client ipp-client ssh</span><br><span class="line">  ports:</span><br><span class="line">  masquerade: no</span><br><span class="line">  forward-ports:</span><br><span class="line">  icmp-blocks:</span><br><span class="line">  rich rules:</span><br></pre></td></tr></table></figure></p>
-<h2 id="与服务一起使用"><a href="#与服务一起使用" class="headerlink" title="与服务一起使用"></a>与服务一起使用</h2><p><code>FirewallD</code> 可以根据特定网络服务的预定义规则来允许相关流量。你可以创建自己的自定义系统规则，并将它们添加到任何区域。 默认支持的服务的配置文件位于 <code>/usr/lib /firewalld/services</code>，用户创建的服务文件在 <code>/etc/firewalld/services</code> 中。</p>
-<p>要查看默认的可用服务：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --get-services</span><br></pre></td></tr></table></figure><br>比如，要启用或禁用 HTTP 服务： <br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-service=http --permanent</span><br><span class="line">sudo firewall-cmd --zone=public --remove-service=http --permanent</span><br></pre></td></tr></table></figure><br>允许或者拒绝任意端口/协议<br>比如：允许或者禁用 12345 端口的 TCP 流量。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-port=12345/tcp --permanent</span><br><span class="line">sudo firewall-cmd --zone=public --remove-port=12345/tcp --permanent</span><br></pre></td></tr></table></figure><br>端口转发<br>下面是在同一台服务器上将 80 端口的流量转发到 12345 端口。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=&quot;public&quot; --add-forward-port=port=80:proto=tcp:toport=12345</span><br></pre></td></tr></table></figure><br>要将端口转发到另外一台服务器上：</p>
-<p>1、 在需要的区域中激活 masquerade。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-masquerade</span><br></pre></td></tr></table></figure><br>2、 添加转发规则。例子中是将本地的 80 端口的流量转发到 IP 地址为 ：123.456.78.9 的远程服务器上的  8080 端口。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=&quot;public&quot; --add-forward-port=port=80:proto=tcp:toport=8080:toaddr=123.456.78.9</span><br></pre></td></tr></table></figure><br>要删除规则，用 –remove 替换 –add。比如：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --remove-masquerade</span><br></pre></td></tr></table></figure><br>用 <code>FirewallD</code> 构建规则集<br>例如，以下是如何使用<code>FirewallD</code> 为你的服务器配置基本规则（如果您正在运行 web 服务器）。</p>
-<p>将 <code>eth0</code> 的默认区域设置为 <code>dmz</code>。 在所提供的默认区域中，<code>dmz</code>（非军事区）是最适合于这个程序的，因为它只允许 <code>SSH</code> 和 <code>ICM</code>P。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --set-default-zone=dmz</span><br><span class="line">sudo firewall-cmd --zone=dmz --add-interface=eth0</span><br></pre></td></tr></table></figure><br>2、 把 <code>HTTP</code> 和 <code>HTTS</code> 添加永久的服务规则到 <code>dmz</code> 区域中：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=dmz --add-service=http --permanent</span><br><span class="line">sudo firewall-cmd --zone=dmz --add-service=https --permanent</span><br></pre></td></tr></table></figure><br> 3、 重新加载 <code>FirewallD</code> 让规则立即生效：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --reload</span><br></pre></td></tr></table></figure><br> 如果你运行 <code>firewall-cmd --zone=dmz --list-all</code>， 会有下面的输出：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">dmz (default)</span><br><span class="line">  interfaces: eth0</span><br><span class="line">  sources:</span><br><span class="line">  services: http https ssh</span><br><span class="line">  ports:</span><br><span class="line">  masquerade: no</span><br><span class="line">  forward-ports:</span><br><span class="line">  icmp-blocks:</span><br><span class="line">  rich rules:</span><br></pre></td></tr></table></figure><br> 这告诉我们，<code>dmz</code> 区域是我们的默认区域，它被用于 <code>eth0</code> 接口中所有网络的源地址和端口。 允许传入 <code>HTTP</code>（端口 80）、<code>HTTPS</code>（端口 443）和 SSH（端口 22）的流量，并且由于没有 <code>IP</code> 版本控制的限制，这些适用于 <code>IPv4</code> 和 <code>IPv6</code>。 不允许IP 伪装以及端口转发。 我们没有 <code>ICMP</code> 块，所以 <code>ICMP</code> 流量是完全允许的。没有丰富Rich规则，允许所有出站流量。</p>
-<h2 id="高级配置"><a href="#高级配置" class="headerlink" title="高级配置"></a>高级配置</h2><p>服务和端口适用于基本配置，但对于高级情景可能会限制较多。 丰富Rich规则和直接Direct接口允许你为任何端口、协议、地址和操作向任何区域 添加完全自定义的防火墙规则。</p>
-<h2 id="丰富规则"><a href="#丰富规则" class="headerlink" title="丰富规则"></a>丰富规则</h2><p>丰富规则的语法有很多，但都完整地记录在 <code>firewalld.richlanguage(5)</code> 的手册页中（或在终端中 man firewalld.richlanguage）。 使用 <code>--add-rich-rule</code>、<code>--list-rich-rules</code> 、 <code>--remove-rich-rule</code> 和 <code>firewall-cmd</code> 命令来管理它们。</p>
-<p>这里有一些常见的例子：</p>
-<p>允许来自主机 <code>192.168.0.14</code> 的所有 IPv4 流量。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-rich-rule &#x27;rule family=&quot;ipv4&quot; source address=192.168.0.14 accept&#x27;</span><br></pre></td></tr></table></figure><br>拒绝来自主机 192.168.1.10 到 22 端口的 IPv4 的 TCP 流量。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-rich-rule &#x27;rule family=&quot;ipv4&quot; source address=&quot;192.168.1.10&quot; port port=22 protocol=tcp reject&#x27;</span><br></pre></td></tr></table></figure><br>允许来自主机 10.1.0.3 到 80 端口的 IPv4 的 TCP 流量，并将流量转发到 6532 端口上。 <br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-rich-rule &#x27;rule family=ipv4 source address=10.1.0.3 forward-port port=80 protocol=tcp to-port=6532&#x27;</span><br></pre></td></tr></table></figure><br>将主机 172.31.4.2 上 80 端口的 IPv4 流量转发到 8080 端口（需要在区域上激活 <code>masquerade</code>）。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --zone=public --add-rich-rule &#x27;rule family=ipv4 forward-port port=80 protocol=tcp to-port=8080 to-addr=172.31.4.2&#x27;</span><br></pre></td></tr></table></figure><br>列出你目前的丰富规则：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo firewall-cmd --list-rich-rules</span><br></pre></td></tr></table></figure><br><code>iptables</code> 的直接接口<br>对于最高级的使用，或对于 <code>iptables</code> 专家，<code>FirewallD</code> 提供了一个直接Direct接口，允许你给它传递原始 <code>iptables</code>命令。 直接接口规则不是持久的，除非使用 <code>--permanent</code>。</p>
-<p>要查看添加到 <code>FirewallD</code> 的所有自定义链或规则：<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">firewall-cmd --direct --get-all-chains</span><br><span class="line">firewall-cmd --direct --get-all-rules</span><br></pre></td></tr></table></figure><br>讨论 <code>iptables</code> 的具体语法已经超出了这篇文章的范围。如果你想学习更多，你可以查看我们的 <code>iptables</code> 指南。</p>
-<h2 id="更多信息"><a href="#更多信息" class="headerlink" title="更多信息"></a>更多信息</h2><ul>
-<li><a href="https://firewalld.org/">FirewallD 官方网站</a></li>
-<li><a href="https://access.redhat.com/documentation/zh-cn/red_hat_enterprise_linux/7/html/security_guide/">RHEL 7 安全指南：FirewallD 简介</a></li>
-</ul>
-<h1 id="iptables"><a href="#iptables" class="headerlink" title="iptables"></a>iptables</h1><ul>
-<li><code>root</code> 用户登录</li>
-<li>编辑防火墙文件</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cat /etc/sysconfig/iptables</span><br></pre></td></tr></table></figure>
-<ul>
-<li>设置禁止进入</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">-A INPUT -m state --state NEW -m tcp -p tcp -s 10.1.4.0/24 --dport 5601 -j ACCEPT</span><br><span class="line">解释: -s 可以访问的ip端</span><br><span class="line">      -dport 5601 可以访问此服务器上的某个端口，如果全部就不用设置这个参数 </span><br></pre></td></tr></table></figure>
-<ul>
-<li>命令 <code>service iptables</code></li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">Usage: iptables &#123;start|stop|reload|restart|condrestart|status|panic|save&#125;</span><br><span class="line">查询iptables状态: service iptables status</span><br><span class="line">重启iptables状态: service iptables restart</span><br><span class="line">启动iptables状态: service iptables start</span><br><span class="line">停止iptables状态: service iptables stop</span><br></pre></td></tr></table></figure>
-<ul>
-<li>FORWAD<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">iptables -t nat -A PREROUTING -d 61.129.93.38 -p tcp -j DNAT --to-destination localhost:8080</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>iptables -t nat -A PREROUTING -d 61.129.93.38 -p tcp –dport 80 -j DNAT –to-destination 10.1.4.172:8080</p>
-]]></content>
-      <categories>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>linux</tag>
-        <tag>Firewall</tag>
-        <tag>iptables</tag>
       </tags>
   </entry>
   <entry>
@@ -835,6 +915,23 @@ MySQL服务初始化(仅适用5.7)</li>
       <tags>
         <tag>docker</tag>
         <tag>network</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>es-xpack-machinelean</title>
+    <url>/2018/11/16/es-xpack-machinelean/</url>
+    <content><![CDATA[<ul>
+<li>加载数据到<code>Elasticsearch</code>中</li>
+<li>创建一个机器学习<code>job</code></li>
+<li>使用结果来识别数据中可能存储的异常</li>
+</ul>
+]]></content>
+      <categories>
+        <category>es</category>
+      </categories>
+      <tags>
+        <tag>xpack</tag>
+        <tag>machinelean</tag>
       </tags>
   </entry>
   <entry>
@@ -980,20 +1077,20 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
-    <title>es-xpack-machinelean</title>
-    <url>/2018/11/16/es-xpack-machinelean/</url>
-    <content><![CDATA[<ul>
-<li>加载数据到<code>Elasticsearch</code>中</li>
-<li>创建一个机器学习<code>job</code></li>
-<li>使用结果来识别数据中可能存储的异常</li>
+    <title>Container Networking 标准</title>
+    <url>/2018/12/05/Container-Networking-Standards/</url>
+    <content><![CDATA[<h1 id="容器网络概括"><a href="#容器网络概括" class="headerlink" title="容器网络概括"></a>容器网络概括</h1><p>容器正在改变应用程序的开发方式以及应用程序连接网络的方式，大多数讨论容器都是在讨论容器编排，比如：<code>k8s</code>,<code>swarm</code>,这是因为开发首先能接触到的就是容器的编排，但是，网络对于生产部署至关重要，因为网络需要自动化，可扩展且安全，以适应于下一代的混合云的应用架构。</p>
+<h1 id="容器与虚拟机的网络连接"><a href="#容器与虚拟机的网络连接" class="headerlink" title="容器与虚拟机的网络连接"></a>容器与虚拟机的网络连接</h1><h1 id="参考指南"><a href="#参考指南" class="headerlink" title="参考指南"></a>参考指南</h1><ul>
+<li><a href="http://www.nuagenetworks.net/blog/container-networking-standards/">http://www.nuagenetworks.net/blog/container-networking-standards/</a></li>
 </ul>
 ]]></content>
       <categories>
-        <category>es</category>
+        <category>学习</category>
       </categories>
       <tags>
-        <tag>xpack</tag>
-        <tag>machinelean</tag>
+        <tag>Container Networking</tag>
+        <tag>CNM</tag>
+        <tag>CNI</tag>
       </tags>
   </entry>
   <entry>
@@ -1048,28 +1145,6 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
-    <title>ZooKeeper kerberos 客户端认证</title>
-    <url>/2018/10/31/ZooKeeper-kerberos/</url>
-    <content><![CDATA[<blockquote>
-<p><code>Hadoop</code>中的<code>ZooKeeper</code> 添加了<code>kerberos</code> 认证，写的代码需要操作<code>Hadoop</code>中的<code>ZooKeeper</code>,因此代码需要进行认证才能操作<code>ZooKeeper</code>。</p>
-</blockquote>
-<h1 id="spring-boot-项目进行认证"><a href="#spring-boot-项目进行认证" class="headerlink" title="spring boot 项目进行认证"></a>spring boot 项目进行认证</h1><p>项目不需要进行任何修改和添加，在启动参数中加入认证即可，认证方式和<code>Hbase</code>的<code>kerberos</code>认证不一样，所以实现方式也不一样。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> -Dsun.security.krb5.debug=<span class="literal">true</span> 开启认证调试日志，这样有助于分析认证失败原因，可以达到事半功倍的效果</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> -Djava.security.auth.login.config=./jaas.conf 这是zookeeper的认证文件</span></span><br><span class="line">java -jar -Djava.security.auth.login.config=./jaas.conf -Dsun.security.krb5.debug=true demo.jar</span><br></pre></td></tr></table></figure></p>
-<h1 id="tomcat-项目进行认证"><a href="#tomcat-项目进行认证" class="headerlink" title="tomcat 项目进行认证"></a>tomcat 项目进行认证</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> tomcat 进行认证需要进行配置到 catalina.sh 中</span></span><br><span class="line">CATALINA_OPTS=&quot;$CATALINA_OPTS-Djava.security.auth.login.config=./jaas.conf&quot;</span><br><span class="line">CATALINA_OPTS=&quot;$CATALINA_OPTS -Dsun.security.krb5.debug=true&quot;</span><br></pre></td></tr></table></figure>
-<p>重启项目即可进行认证。</p>
-<h1 id="ZooKeeper-kerberos"><a href="#ZooKeeper-kerberos" class="headerlink" title="ZooKeeper kerberos"></a>ZooKeeper kerberos</h1><p>在使用<code>jaas.conf</code>文件中要注意，此文件分为服务端和客户端的配置文件，不能给错了，如果使用错误也是不能进行认证，<code>keytab</code>也是不一样的，用错了也是不能进行认证通过的。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 服务端</span></span><br><span class="line">Server &#123;</span><br><span class="line">  com.sun.security.auth.module.Krb5LoginModule required</span><br><span class="line">  useKeyTab=true</span><br><span class="line">  keyTab=&quot;/etc/zookeeper/conf/zookeeper.keytab&quot;</span><br><span class="line">  storeKey=true</span><br><span class="line">  useTicketCache=false</span><br><span class="line">  principal=&quot;zookeeper/cdh1@JAVACHEN.COM&quot;;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 客户端</span></span><br><span class="line">Client &#123;</span><br><span class="line">  com.sun.security.auth.module.Krb5LoginModule required</span><br><span class="line">  useKeyTab=true</span><br><span class="line">  keyTab=&quot;/etc/zookeeper/conf/zkcli.keytab&quot;</span><br><span class="line">  storeKey=true</span><br><span class="line">  useTicketCache=false</span><br><span class="line">  principal=&quot;zkcli@JAVACHEN.COM&quot;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
-<li><a href="http://www.voidcn.com/article/p-hnbafumk-bez.html">http://www.voidcn.com/article/p-hnbafumk-bez.html</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>大数据</category>
-      </categories>
-      <tags>
-        <tag>kerberos</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Kubernetes 入门学习</title>
     <url>/2018/12/12/Kubernetes-Setup/</url>
     <content><![CDATA[<h1 id="Kubernetes创建一个集群"><a href="#Kubernetes创建一个集群" class="headerlink" title="Kubernetes创建一个集群"></a>Kubernetes创建一个集群</h1><h3 id="Kubernetes-集群"><a href="#Kubernetes-集群" class="headerlink" title="Kubernetes 集群"></a>Kubernetes 集群</h3><p><code>Kubernetes</code>是一个计算机资源的协调器，将这些计算机连接起来作为一个工作单元。<code>Kubernetes</code>以更有效的方式自动化跨集群分发和调度应用程序容器。<code>Kubernetes</code>主要由两部分组成，<code>Master</code>协调集群，<code>Nodes</code>是应用程序的工作节点。</p>
@@ -1083,23 +1158,6 @@ MySQL服务初始化(仅适用5.7)</li>
       <tags>
         <tag>Kubernetes</tag>
         <tag>云计算</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Container Networking 标准</title>
-    <url>/2018/12/05/Container-Networking-Standards/</url>
-    <content><![CDATA[<h1 id="容器网络概括"><a href="#容器网络概括" class="headerlink" title="容器网络概括"></a>容器网络概括</h1><p>容器正在改变应用程序的开发方式以及应用程序连接网络的方式，大多数讨论容器都是在讨论容器编排，比如：<code>k8s</code>,<code>swarm</code>,这是因为开发首先能接触到的就是容器的编排，但是，网络对于生产部署至关重要，因为网络需要自动化，可扩展且安全，以适应于下一代的混合云的应用架构。</p>
-<h1 id="容器与虚拟机的网络连接"><a href="#容器与虚拟机的网络连接" class="headerlink" title="容器与虚拟机的网络连接"></a>容器与虚拟机的网络连接</h1><h1 id="参考指南"><a href="#参考指南" class="headerlink" title="参考指南"></a>参考指南</h1><ul>
-<li><a href="http://www.nuagenetworks.net/blog/container-networking-standards/">http://www.nuagenetworks.net/blog/container-networking-standards/</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>学习</category>
-      </categories>
-      <tags>
-        <tag>Container Networking</tag>
-        <tag>CNM</tag>
-        <tag>CNI</tag>
       </tags>
   </entry>
   <entry>
@@ -1224,35 +1282,6 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
-    <title>ES cluster reroute</title>
-    <url>/2019/01/24/es-cluster-reroute/</url>
-    <content><![CDATA[<blockquote>
-<p><code>ES</code>集群重新路由命令可以显示的执行包括特定命令的集群重新路由分配命令。例如，可以显示地将分片从一个节点移动到另一个节点，可以取消分配。</p>
-</blockquote>
-<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><h2 id="支持的命令如下"><a href="#支持的命令如下" class="headerlink" title="支持的命令如下"></a>支持的命令如下</h2><ul>
-<li><code>move</code><br>  将现有的分片迁移到其他节点。接受 <code>index</code>和<code>shard</code>索引名称和分片编号，<code>from_node</code>节点移动分片<code>from</code>，以及<code>to_node</code>节点将分片移动到。</li>
-<li><code>cancel</code><br>  取消分享碎片（或恢复）。接受<code>index</code>和<code>shard</code>索引名称和分片编号，以及<code>node</code>取消分片分配的节点。它还接受<code>allow_primary</code>标志以明确指定允许取消主分片的分配。这可以用于强制从主分片重新同步现有副本，方法是取消它们并允许它们通过标准重新分配过程重新初始化。</li>
-<li><p><code>allocate_replica</code><br>  将未分配的副本分片分配给节点。接受<code>index</code>和<code>shard</code>索引名称和分片编号，并将分片分配给<code>node</code>。</p>
-<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2></li>
-<li><p><code>move</code><br>  主要是想要手动控制分片分配到某台固定的机器上。把<code>node_1</code>上的<code>index_name</code>移动到<code>node_2</code>节点上，可能会有各种原因需要进行迁移，比如<code>node_1</code>机器的磁盘不够了或者是其他原因等。</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST _cluster/reroute</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;commands&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;move&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;index&quot;</span>: <span class="string">&quot;index_name&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;shard&quot;</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="attr">&quot;from_node&quot;</span>: <span class="string">&quot;node_1&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;to_node&quot;</span>: <span class="string">&quot;node_2&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><code>cancel</code><br>  主要是把移动中的分片取消，这个是因为其他原因导致分片重新分配了，但是又不想让它重新分配，所以只能取消分片分配的过程。如下是<code>node_1</code>这台机器上的<code>index_name</code>的分片号<code>0</code>进行了移动，所以取消它。</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST _cluster/reroute</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;commands&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;cancel&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;index&quot;</span>: <span class="string">&quot;index_name&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;shard&quot;</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="attr">&quot;node&quot;</span>: <span class="string">&quot;node_1&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><ul>
-<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.4/cluster-reroute.html">https://www.elastic.co/guide/en/elasticsearch/reference/5.4/cluster-reroute.html</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>es</category>
-      </categories>
-      <tags>
-        <tag>es cluster manage</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>18年的回顾,19年的展望</title>
     <url>/2019/01/04/2018-2019/</url>
     <content><![CDATA[<h1 id="18年的计划"><a href="#18年的计划" class="headerlink" title="18年的计划"></a>18年的计划</h1><ul>
@@ -1281,6 +1310,35 @@ MySQL服务初始化(仅适用5.7)</li>
       <categories>
         <category>生活</category>
       </categories>
+  </entry>
+  <entry>
+    <title>ES cluster reroute</title>
+    <url>/2019/01/24/es-cluster-reroute/</url>
+    <content><![CDATA[<blockquote>
+<p><code>ES</code>集群重新路由命令可以显示的执行包括特定命令的集群重新路由分配命令。例如，可以显示地将分片从一个节点移动到另一个节点，可以取消分配。</p>
+</blockquote>
+<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><h2 id="支持的命令如下"><a href="#支持的命令如下" class="headerlink" title="支持的命令如下"></a>支持的命令如下</h2><ul>
+<li><code>move</code><br>  将现有的分片迁移到其他节点。接受 <code>index</code>和<code>shard</code>索引名称和分片编号，<code>from_node</code>节点移动分片<code>from</code>，以及<code>to_node</code>节点将分片移动到。</li>
+<li><code>cancel</code><br>  取消分享碎片（或恢复）。接受<code>index</code>和<code>shard</code>索引名称和分片编号，以及<code>node</code>取消分片分配的节点。它还接受<code>allow_primary</code>标志以明确指定允许取消主分片的分配。这可以用于强制从主分片重新同步现有副本，方法是取消它们并允许它们通过标准重新分配过程重新初始化。</li>
+<li><p><code>allocate_replica</code><br>  将未分配的副本分片分配给节点。接受<code>index</code>和<code>shard</code>索引名称和分片编号，并将分片分配给<code>node</code>。</p>
+<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2></li>
+<li><p><code>move</code><br>  主要是想要手动控制分片分配到某台固定的机器上。把<code>node_1</code>上的<code>index_name</code>移动到<code>node_2</code>节点上，可能会有各种原因需要进行迁移，比如<code>node_1</code>机器的磁盘不够了或者是其他原因等。</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST _cluster/reroute</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;commands&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;move&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;index&quot;</span>: <span class="string">&quot;index_name&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;shard&quot;</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="attr">&quot;from_node&quot;</span>: <span class="string">&quot;node_1&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;to_node&quot;</span>: <span class="string">&quot;node_2&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>cancel</code><br>  主要是把移动中的分片取消，这个是因为其他原因导致分片重新分配了，但是又不想让它重新分配，所以只能取消分片分配的过程。如下是<code>node_1</code>这台机器上的<code>index_name</code>的分片号<code>0</code>进行了移动，所以取消它。</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST _cluster/reroute</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;commands&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;cancel&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;index&quot;</span>: <span class="string">&quot;index_name&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;shard&quot;</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="attr">&quot;node&quot;</span>: <span class="string">&quot;node_1&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><ul>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.4/cluster-reroute.html">https://www.elastic.co/guide/en/elasticsearch/reference/5.4/cluster-reroute.html</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>es</category>
+      </categories>
+      <tags>
+        <tag>es cluster manage</tag>
+      </tags>
   </entry>
   <entry>
     <title>go1.12 发行说明</title>
@@ -1320,6 +1378,139 @@ MySQL服务初始化(仅适用5.7)</li>
       <tags>
         <tag>golang</tag>
         <tag>go1.12</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Prometheus 初探一</title>
+    <url>/2019/03/16/Prometheus-1/</url>
+    <content><![CDATA[<h1 id="Prometheus-初探一"><a href="#Prometheus-初探一" class="headerlink" title="Prometheus 初探一"></a><a href="https://github.com/prometheus">Prometheus</a> 初探一</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><h3 id="主要特性"><a href="#主要特性" class="headerlink" title="主要特性"></a>主要特性</h3><ul>
+<li>由指标名和<code>k/v</code>对确定的一个多维的时序数据模型。</li>
+<li><code>PromQL</code>，灵活的查询语言，以利用此纬度。</li>
+<li>不依赖分布式存储，单个服务节点是可用的。</li>
+<li>时间序列集合通过HTTP上的拉模型发生。</li>
+<li>推送时许数据可通过中间网关支持。</li>
+<li>可通过服务发现或者静态配置发现目标。</li>
+<li>多种图形和仪表板支持模式。</li>
+</ul>
+<h3 id="组件"><a href="#组件" class="headerlink" title="组件"></a>组件</h3><p><code>Prometheus</code>生态系统由多个系统组件组成，其中许多组件是可选的。</p>
+<ul>
+<li><code>Prometheus server</code>用于存储时许数据。</li>
+<li><a href="https://prometheus.io/docs/instrumenting/clientlibs/">client libraries </a> 用于检测应用程序代码的客户端库。</li>
+<li><a href="https://github.com/prometheus/pushgateway">push gateway </a> 用于支持简短的任务。</li>
+<li>针对HAProxy，StatsD，Graphite等服务的特殊<code>exporters</code>.</li>
+<li><a href="https://github.com/prometheus/alertmanager">alertmanager</a> 处理<code>alter</code>。</li>
+<li>其他支持工具。</li>
+</ul>
+<h3 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h3><p>该图说明了<code>Prometheus</code>的体系结构及其一些生态系统组件。</p>
+<p><img src="https://prometheus.io/assets/architecture.png" alt="Prometheus architecture"></p>
+<h3 id="什么时候适用"><a href="#什么时候适用" class="headerlink" title="什么时候适用"></a>什么时候适用</h3><p><code>Prometheus</code>非常适合用来记录数字的时许数据，它适用于以机器为中心的监控以及高度动态的面向服务架构的监控，它对多维数据收集和查询的支持是一种特殊的优势，</p>
+<h3 id="什么时候不适用"><a href="#什么时候不适用" class="headerlink" title="什么时候不适用"></a>什么时候不适用</h3><p>如果需要收集<code>100%</code>的数据，并且系统出问题时也能正常的工作的话，<code>Prometheus</code>是不适用的，因为<code>Prometheus</code>收集数据时可能会丢失数据。</p>
+<h2 id="Prometheus-第一步"><a href="#Prometheus-第一步" class="headerlink" title="Prometheus 第一步"></a>Prometheus 第一步</h2><p>下载相关平台的最新稳定版,<code>https://github.com/prometheus/prometheus/releases/download/v2.7.2/prometheus-2.7.2.linux-amd64.tar.gz</code>。</p>
+<blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash">tar xvfz prometheus-*.tar.gz</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"><span class="built_in">cd</span> prometheus-*</span></span><br></pre></td></tr></table></figure>
+</blockquote>
+<p><code>Prometheus server</code>再<code>linux</code>平台下是一个可执行的二进制文件，可以运行<code>Prometheus</code>命令来查看帮助命令。</p>
+<blockquote>
+<p>[<a href="mailto:developer@prometheus-2.7.2.linux-amd64">developer@prometheus-2.7.2.linux-amd64</a>]$ ./prometheus –help</p>
+<p>usage: prometheus [<flags>]</flags></p>
+<p>The Prometheus monitoring server</p>
+<p>Flags:</p>
+<p>  -h, –help                     Show context-sensitive help (also try –help-long and –help-man).</p>
+<p>​      –version                  Show application version.</p>
+<p>​      –config.file=”prometheus.yml”  </p>
+<p>​                                 Prometheus configuration file path.</p>
+<p>​      –web.listen-address=”0.0.0.0:9090”  </p>
+<p>​                                 Address to listen on for UI, API, and telemetry.</p>
+<p>​      –web.read-timeout=5m      Maximum duration before timing out read of the request, and closing idle connections.</p>
+<p>​      –web.max-connections=512  Maximum number of simultaneous connections.</p>
+<p>​      –web.external-url=<URL>   The URL under which Prometheus is externally reachable (for example, if Prometheus is served via a reverse proxy). Used for generating relative and absolute links back to</URL></p>
+<p>​                                 Prometheus itself. If the URL has a path portion, it will be used to prefix all HTTP endpoints served by Prometheus. If omitted, relevant URL components will be derived</p>
+<p>​                                 automatically.</p>
+<p>​      –web.route-prefix=<path></path>  Prefix for the internal routes of web endpoints. Defaults to path of –web.external-url.</p>
+<p>​      –web.user-assets=<path></path>   Path to static asset directory, available at /user.</p>
+</blockquote>
+<h3 id="配置prometheus"><a href="#配置prometheus" class="headerlink" title="配置prometheus"></a>配置prometheus</h3><p><code>prometheus</code>通过<code>prometheus.yml</code>来进行配置。</p>
+<blockquote>
+<p>global:</p>
+<p>  scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.</p>
+<p>  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.</p>
+<p>alerting:</p>
+<p>  alertmanagers:</p>
+<ul>
+<li>static_configs:</li>
+</ul>
+<p>​    - targets:</p>
+<p>rule_files:</p>
+<p>scrape_configs:</p>
+<ul>
+<li>job_name: ‘prometheus’</li>
+</ul>
+<p>​    static_configs:</p>
+<p>​    - targets: [‘localhost:9090’]</p>
+</blockquote>
+<p>配置由四个模块组成，<code>global</code>,<code>alerting</code>,<code>rule_files</code>，<code>scrape_configs</code>.这个<code>global</code>模块用于配置<code>prometheus server</code>的全局配置，有两个选择，<code>scrape_interval</code>控制普罗米修斯收集目标的频率，可以为单个目标覆盖这个值，<code>evaluation_interval</code>选项控制<code>prometheus</code>多久校验规则的能力，Prometheus使用规则创建新的时间序列并生成警报。</p>
+<p><code>alerting</code>模块是配置<code>Alertmanager</code>的。</p>
+<p><code>rule_files</code>，模块指定我们希望<code>Prometheus</code>服务器加载的任何规则的位置。现在我们没有规则.</p>
+<p><code>scrape_configs</code>模块配置<code>prometheus</code>要收集的监控资源，由于<code>Prometheus</code>还将自己的数据公开为<code>HTTP</code>端点，因此它可以抓取并监控自身的健康状况。在默认中有一个叫<code>prometheus</code>的<code>job</code>,这个是用于收集<code>Prometheus</code>自身产生的数据，<code>static_configs</code>用于配置服务暴露的端口。 </p>
+<h3 id="启动prometheus"><a href="#启动prometheus" class="headerlink" title="启动prometheus"></a>启动prometheus</h3><blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">./prometheus --config.file=prometheus.yml</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>通过访问<a href="http://localhost:9090/">http://localhost:9090</a>. 来验证是否启动成功，<code>Prometheus</code>每三十秒向自己请求一次收集数据，请求地址为<code>http://localhost:9090/metrics</code>.</p>
+<h3 id="使用表达式浏览"><a href="#使用表达式浏览" class="headerlink" title="使用表达式浏览"></a>使用表达式浏览</h3><p><code>http://localhost:9090/graph</code>请求此地址就可以进行页面搜索，比如查询<code>promhttp_metric_handler_requests_total</code>这个指标的值，这个指标上有不同的级别，可以通过<code>promhttp_metric_handler_requests_total&#123;code=&quot;200&quot;&#125;</code>这种方式查看<code>http</code>状态码是<code>200</code>的指标，可以执行运算<code>count(promhttp_metric_handler_requests_total)</code>统计这个指标有多少个不同的级别。</p>
+<p>更多关于表达式的部分，查看<code>https://prometheus.io/docs/querying/basics/</code>详细文档。</p>
+<h3 id="使用图形界面"><a href="#使用图形界面" class="headerlink" title="使用图形界面"></a>使用图形界面</h3><p>在<code>Graph</code>标签中，如下一个为统计普罗米修斯每分钟返回<code>http</code>状态码是<code>200</code>的请求数率。</p>
+<blockquote>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">rate(promhttp_metric_handler_requests_total&#123;code=&quot;200&quot;&#125;[1m])</span><br></pre></td></tr></table></figure>
+</blockquote>
+<h3 id="监控其他目标"><a href="#监控其他目标" class="headerlink" title="监控其他目标"></a>监控其他目标</h3><p>仅仅查看<code>prometheus</code>自身的数据是体现不了它的强大的，可以查看监控一些主机信息<a href="https://prometheus.io/docs/guides/node-exporter">Monitoring Linux or macOS host metrics using a node exporter</a></p>
+<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><h3 id="数据模型"><a href="#数据模型" class="headerlink" title="数据模型"></a>数据模型</h3><h4 id="指标名称和级别名称"><a href="#指标名称和级别名称" class="headerlink" title="指标名称和级别名称"></a>指标名称和级别名称</h4><ul>
+<li><p>指标名称和级别,指标名称是必须能被正则匹配到的：<code>[a-zA-Z_:][a-zA-Z0-9_:]*</code>,<code>:</code>是一个预留符号。</p>
+</li>
+<li><p>级别名字也必须匹配这个正则:<code>[a-zA-Z_][a-zA-Z0-9_]*</code>,以<code>__</code>开头的标签名称保留供内部使用</p>
+</li>
+</ul>
+<h4 id="样本"><a href="#样本" class="headerlink" title="样本"></a>样本</h4><p>每个样本包括如下的数据。</p>
+<ul>
+<li><p>一个<code>float64</code>的值。</p>
+</li>
+<li><p>毫秒级别的时间戳。</p>
+<p>| Element                                                      | Value               |<br>| ———————————————————— | ——————- |<br>| prometheus_http_request_duration_seconds_count{handler=”/api/v1/query”,instance=”10.40.10.203:9090”,job=”prometheus”} | 146 @1552299953.836 |</p>
+</li>
+</ul>
+<h4 id="符号"><a href="#符号" class="headerlink" title="符号"></a>符号</h4><blockquote>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;metric name&gt;&#123;&lt;label name&gt;=&lt;label value&gt;, ...&#125;使用这种方式来进行标示。  </span><br></pre></td></tr></table></figure>
+</blockquote>
+<h3 id="指标类型"><a href="#指标类型" class="headerlink" title="指标类型"></a>指标类型</h3><p><code>Prometheus</code>客户端库提供四种核心度量标准类型。</p>
+<h4 id="Counter"><a href="#Counter" class="headerlink" title="Counter"></a>Counter</h4><p>计算器是一种只加不减的计数器，除非发生充值，一般在定义<code>Counter</code>类型指标的名称时推荐使用<code>_total</code>作为后缀。</p>
+<h4 id="Gauge"><a href="#Gauge" class="headerlink" title="Gauge"></a>Gauge</h4><p>可增可减的仪表盘,<code>Gauge</code>类型的指标侧重于反应系统的当前状态,因此这类指标的样本数据可增可减。</p>
+<h4 id="Histogram"><a href="#Histogram" class="headerlink" title="Histogram"></a>Histogram</h4><p><code>Histogram</code>和<code>Summary</code>主用用于统计和分析样本的分布情况。</p>
+<h2 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h2><h2 id="指南"><a href="#指南" class="headerlink" title="指南"></a>指南</h2><h3 id="Go应用程序监控"><a href="#Go应用程序监控" class="headerlink" title="Go应用程序监控"></a>Go应用程序监控</h3><ul>
+<li><p>添加到代码中</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">        <span class="string">&quot;net/http&quot;</span></span><br><span class="line"></span><br><span class="line">        <span class="string">&quot;github.com/prometheus/client_golang/prometheus/promhttp&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">        http.Handle(<span class="string">&quot;/metrics&quot;</span>, promhttp.Handler())</span><br><span class="line">        http.ListenAndServe(<span class="string">&quot;:2112&quot;</span>, <span class="literal">nil</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动<code>go run main.go</code>函数</p>
+</li>
+<li><p>查看指标：<code>curl http://localhost:2112/metrics</code></p>
+</li>
+</ul>
+<h3 id="配置文件来做scrape-configs的服务发现"><a href="#配置文件来做scrape-configs的服务发现" class="headerlink" title="配置文件来做scrape_configs的服务发现"></a>配置文件来做<code>scrape_configs</code>的服务发现</h3><ul>
+<li><p>在<code>prometheus.yml</code>中添加一个<code>scrape_configs</code>的子配置项</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">scrape_configs:</span><br><span class="line">- job_name: &#x27;redis3.2&#x27;</span><br><span class="line">  file_sd_configs:</span><br><span class="line">  - files:</span><br><span class="line">    - &#x27;redis_targets.json&#x27;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>添加一个<code>redis_targets.json</code>的文件</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">[</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">&quot;labels&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;job&quot;</span>: <span class="string">&quot;redis205&quot;</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">&quot;targets&quot;</span>: [</span><br><span class="line">      <span class="string">&quot;localhost:9100&quot;</span></span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>当更改了<code>redis_targets.json</code>是不用重启服务，<code>prometheus</code>会自动添加服务</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">[</span><br><span class="line">    &#123;</span><br><span class="line">    <span class="attr">&quot;labels&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;job&quot;</span>: <span class="string">&quot;redis205&quot;</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">&quot;targets&quot;</span>: [</span><br><span class="line">      <span class="string">&quot;localhost:9100&quot;</span></span><br><span class="line">    ]</span><br><span class="line">  &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">    <span class="attr">&quot;targets&quot;</span>: [</span><br><span class="line">      <span class="string">&quot;localhost:9200&quot;</span></span><br><span class="line">    ],</span><br><span class="line">    <span class="attr">&quot;labels&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;job&quot;</span>: <span class="string">&quot;redis206&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Prometheus</category>
+      </categories>
+      <tags>
+        <tag>概念</tag>
+        <tag>监控基础</tag>
       </tags>
   </entry>
   <entry>
@@ -1508,251 +1699,6 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
-    <title>Prometheus 初探一</title>
-    <url>/2019/03/16/Prometheus-1/</url>
-    <content><![CDATA[<h1 id="Prometheus-初探一"><a href="#Prometheus-初探一" class="headerlink" title="Prometheus 初探一"></a><a href="https://github.com/prometheus">Prometheus</a> 初探一</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><h3 id="主要特性"><a href="#主要特性" class="headerlink" title="主要特性"></a>主要特性</h3><ul>
-<li>由指标名和<code>k/v</code>对确定的一个多维的时序数据模型。</li>
-<li><code>PromQL</code>，灵活的查询语言，以利用此纬度。</li>
-<li>不依赖分布式存储，单个服务节点是可用的。</li>
-<li>时间序列集合通过HTTP上的拉模型发生。</li>
-<li>推送时许数据可通过中间网关支持。</li>
-<li>可通过服务发现或者静态配置发现目标。</li>
-<li>多种图形和仪表板支持模式。</li>
-</ul>
-<h3 id="组件"><a href="#组件" class="headerlink" title="组件"></a>组件</h3><p><code>Prometheus</code>生态系统由多个系统组件组成，其中许多组件是可选的。</p>
-<ul>
-<li><code>Prometheus server</code>用于存储时许数据。</li>
-<li><a href="https://prometheus.io/docs/instrumenting/clientlibs/">client libraries </a> 用于检测应用程序代码的客户端库。</li>
-<li><a href="https://github.com/prometheus/pushgateway">push gateway </a> 用于支持简短的任务。</li>
-<li>针对HAProxy，StatsD，Graphite等服务的特殊<code>exporters</code>.</li>
-<li><a href="https://github.com/prometheus/alertmanager">alertmanager</a> 处理<code>alter</code>。</li>
-<li>其他支持工具。</li>
-</ul>
-<h3 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h3><p>该图说明了<code>Prometheus</code>的体系结构及其一些生态系统组件。</p>
-<p><img src="https://prometheus.io/assets/architecture.png" alt="Prometheus architecture"></p>
-<h3 id="什么时候适用"><a href="#什么时候适用" class="headerlink" title="什么时候适用"></a>什么时候适用</h3><p><code>Prometheus</code>非常适合用来记录数字的时许数据，它适用于以机器为中心的监控以及高度动态的面向服务架构的监控，它对多维数据收集和查询的支持是一种特殊的优势，</p>
-<h3 id="什么时候不适用"><a href="#什么时候不适用" class="headerlink" title="什么时候不适用"></a>什么时候不适用</h3><p>如果需要收集<code>100%</code>的数据，并且系统出问题时也能正常的工作的话，<code>Prometheus</code>是不适用的，因为<code>Prometheus</code>收集数据时可能会丢失数据。</p>
-<h2 id="Prometheus-第一步"><a href="#Prometheus-第一步" class="headerlink" title="Prometheus 第一步"></a>Prometheus 第一步</h2><p>下载相关平台的最新稳定版,<code>https://github.com/prometheus/prometheus/releases/download/v2.7.2/prometheus-2.7.2.linux-amd64.tar.gz</code>。</p>
-<blockquote>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash">tar xvfz prometheus-*.tar.gz</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"><span class="built_in">cd</span> prometheus-*</span></span><br></pre></td></tr></table></figure>
-</blockquote>
-<p><code>Prometheus server</code>再<code>linux</code>平台下是一个可执行的二进制文件，可以运行<code>Prometheus</code>命令来查看帮助命令。</p>
-<blockquote>
-<p>[<a href="mailto:developer@prometheus-2.7.2.linux-amd64">developer@prometheus-2.7.2.linux-amd64</a>]$ ./prometheus –help</p>
-<p>usage: prometheus [<flags>]</flags></p>
-<p>The Prometheus monitoring server</p>
-<p>Flags:</p>
-<p>  -h, –help                     Show context-sensitive help (also try –help-long and –help-man).</p>
-<p>​      –version                  Show application version.</p>
-<p>​      –config.file=”prometheus.yml”  </p>
-<p>​                                 Prometheus configuration file path.</p>
-<p>​      –web.listen-address=”0.0.0.0:9090”  </p>
-<p>​                                 Address to listen on for UI, API, and telemetry.</p>
-<p>​      –web.read-timeout=5m      Maximum duration before timing out read of the request, and closing idle connections.</p>
-<p>​      –web.max-connections=512  Maximum number of simultaneous connections.</p>
-<p>​      –web.external-url=<URL>   The URL under which Prometheus is externally reachable (for example, if Prometheus is served via a reverse proxy). Used for generating relative and absolute links back to</URL></p>
-<p>​                                 Prometheus itself. If the URL has a path portion, it will be used to prefix all HTTP endpoints served by Prometheus. If omitted, relevant URL components will be derived</p>
-<p>​                                 automatically.</p>
-<p>​      –web.route-prefix=<path></path>  Prefix for the internal routes of web endpoints. Defaults to path of –web.external-url.</p>
-<p>​      –web.user-assets=<path></path>   Path to static asset directory, available at /user.</p>
-</blockquote>
-<h3 id="配置prometheus"><a href="#配置prometheus" class="headerlink" title="配置prometheus"></a>配置prometheus</h3><p><code>prometheus</code>通过<code>prometheus.yml</code>来进行配置。</p>
-<blockquote>
-<p>global:</p>
-<p>  scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.</p>
-<p>  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.</p>
-<p>alerting:</p>
-<p>  alertmanagers:</p>
-<ul>
-<li>static_configs:</li>
-</ul>
-<p>​    - targets:</p>
-<p>rule_files:</p>
-<p>scrape_configs:</p>
-<ul>
-<li>job_name: ‘prometheus’</li>
-</ul>
-<p>​    static_configs:</p>
-<p>​    - targets: [‘localhost:9090’]</p>
-</blockquote>
-<p>配置由四个模块组成，<code>global</code>,<code>alerting</code>,<code>rule_files</code>，<code>scrape_configs</code>.这个<code>global</code>模块用于配置<code>prometheus server</code>的全局配置，有两个选择，<code>scrape_interval</code>控制普罗米修斯收集目标的频率，可以为单个目标覆盖这个值，<code>evaluation_interval</code>选项控制<code>prometheus</code>多久校验规则的能力，Prometheus使用规则创建新的时间序列并生成警报。</p>
-<p><code>alerting</code>模块是配置<code>Alertmanager</code>的。</p>
-<p><code>rule_files</code>，模块指定我们希望<code>Prometheus</code>服务器加载的任何规则的位置。现在我们没有规则.</p>
-<p><code>scrape_configs</code>模块配置<code>prometheus</code>要收集的监控资源，由于<code>Prometheus</code>还将自己的数据公开为<code>HTTP</code>端点，因此它可以抓取并监控自身的健康状况。在默认中有一个叫<code>prometheus</code>的<code>job</code>,这个是用于收集<code>Prometheus</code>自身产生的数据，<code>static_configs</code>用于配置服务暴露的端口。 </p>
-<h3 id="启动prometheus"><a href="#启动prometheus" class="headerlink" title="启动prometheus"></a>启动prometheus</h3><blockquote>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">./prometheus --config.file=prometheus.yml</span><br></pre></td></tr></table></figure>
-</blockquote>
-<p>通过访问<a href="http://localhost:9090/">http://localhost:9090</a>. 来验证是否启动成功，<code>Prometheus</code>每三十秒向自己请求一次收集数据，请求地址为<code>http://localhost:9090/metrics</code>.</p>
-<h3 id="使用表达式浏览"><a href="#使用表达式浏览" class="headerlink" title="使用表达式浏览"></a>使用表达式浏览</h3><p><code>http://localhost:9090/graph</code>请求此地址就可以进行页面搜索，比如查询<code>promhttp_metric_handler_requests_total</code>这个指标的值，这个指标上有不同的级别，可以通过<code>promhttp_metric_handler_requests_total&#123;code=&quot;200&quot;&#125;</code>这种方式查看<code>http</code>状态码是<code>200</code>的指标，可以执行运算<code>count(promhttp_metric_handler_requests_total)</code>统计这个指标有多少个不同的级别。</p>
-<p>更多关于表达式的部分，查看<code>https://prometheus.io/docs/querying/basics/</code>详细文档。</p>
-<h3 id="使用图形界面"><a href="#使用图形界面" class="headerlink" title="使用图形界面"></a>使用图形界面</h3><p>在<code>Graph</code>标签中，如下一个为统计普罗米修斯每分钟返回<code>http</code>状态码是<code>200</code>的请求数率。</p>
-<blockquote>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">rate(promhttp_metric_handler_requests_total&#123;code=&quot;200&quot;&#125;[1m])</span><br></pre></td></tr></table></figure>
-</blockquote>
-<h3 id="监控其他目标"><a href="#监控其他目标" class="headerlink" title="监控其他目标"></a>监控其他目标</h3><p>仅仅查看<code>prometheus</code>自身的数据是体现不了它的强大的，可以查看监控一些主机信息<a href="https://prometheus.io/docs/guides/node-exporter">Monitoring Linux or macOS host metrics using a node exporter</a></p>
-<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><h3 id="数据模型"><a href="#数据模型" class="headerlink" title="数据模型"></a>数据模型</h3><h4 id="指标名称和级别名称"><a href="#指标名称和级别名称" class="headerlink" title="指标名称和级别名称"></a>指标名称和级别名称</h4><ul>
-<li><p>指标名称和级别,指标名称是必须能被正则匹配到的：<code>[a-zA-Z_:][a-zA-Z0-9_:]*</code>,<code>:</code>是一个预留符号。</p>
-</li>
-<li><p>级别名字也必须匹配这个正则:<code>[a-zA-Z_][a-zA-Z0-9_]*</code>,以<code>__</code>开头的标签名称保留供内部使用</p>
-</li>
-</ul>
-<h4 id="样本"><a href="#样本" class="headerlink" title="样本"></a>样本</h4><p>每个样本包括如下的数据。</p>
-<ul>
-<li><p>一个<code>float64</code>的值。</p>
-</li>
-<li><p>毫秒级别的时间戳。</p>
-<p>| Element                                                      | Value               |<br>| ———————————————————— | ——————- |<br>| prometheus_http_request_duration_seconds_count{handler=”/api/v1/query”,instance=”10.40.10.203:9090”,job=”prometheus”} | 146 @1552299953.836 |</p>
-</li>
-</ul>
-<h4 id="符号"><a href="#符号" class="headerlink" title="符号"></a>符号</h4><blockquote>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;metric name&gt;&#123;&lt;label name&gt;=&lt;label value&gt;, ...&#125;使用这种方式来进行标示。  </span><br></pre></td></tr></table></figure>
-</blockquote>
-<h3 id="指标类型"><a href="#指标类型" class="headerlink" title="指标类型"></a>指标类型</h3><p><code>Prometheus</code>客户端库提供四种核心度量标准类型。</p>
-<h4 id="Counter"><a href="#Counter" class="headerlink" title="Counter"></a>Counter</h4><p>计算器是一种只加不减的计数器，除非发生充值，一般在定义<code>Counter</code>类型指标的名称时推荐使用<code>_total</code>作为后缀。</p>
-<h4 id="Gauge"><a href="#Gauge" class="headerlink" title="Gauge"></a>Gauge</h4><p>可增可减的仪表盘,<code>Gauge</code>类型的指标侧重于反应系统的当前状态,因此这类指标的样本数据可增可减。</p>
-<h4 id="Histogram"><a href="#Histogram" class="headerlink" title="Histogram"></a>Histogram</h4><p><code>Histogram</code>和<code>Summary</code>主用用于统计和分析样本的分布情况。</p>
-<h2 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h2><h2 id="指南"><a href="#指南" class="headerlink" title="指南"></a>指南</h2><h3 id="Go应用程序监控"><a href="#Go应用程序监控" class="headerlink" title="Go应用程序监控"></a>Go应用程序监控</h3><ul>
-<li><p>添加到代码中</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">        <span class="string">&quot;net/http&quot;</span></span><br><span class="line"></span><br><span class="line">        <span class="string">&quot;github.com/prometheus/client_golang/prometheus/promhttp&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">        http.Handle(<span class="string">&quot;/metrics&quot;</span>, promhttp.Handler())</span><br><span class="line">        http.ListenAndServe(<span class="string">&quot;:2112&quot;</span>, <span class="literal">nil</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>启动<code>go run main.go</code>函数</p>
-</li>
-<li><p>查看指标：<code>curl http://localhost:2112/metrics</code></p>
-</li>
-</ul>
-<h3 id="配置文件来做scrape-configs的服务发现"><a href="#配置文件来做scrape-configs的服务发现" class="headerlink" title="配置文件来做scrape_configs的服务发现"></a>配置文件来做<code>scrape_configs</code>的服务发现</h3><ul>
-<li><p>在<code>prometheus.yml</code>中添加一个<code>scrape_configs</code>的子配置项</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">scrape_configs:</span><br><span class="line">- job_name: &#x27;redis3.2&#x27;</span><br><span class="line">  file_sd_configs:</span><br><span class="line">  - files:</span><br><span class="line">    - &#x27;redis_targets.json&#x27;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>添加一个<code>redis_targets.json</code>的文件</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">[</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">&quot;labels&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;job&quot;</span>: <span class="string">&quot;redis205&quot;</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">&quot;targets&quot;</span>: [</span><br><span class="line">      <span class="string">&quot;localhost:9100&quot;</span></span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>当更改了<code>redis_targets.json</code>是不用重启服务，<code>prometheus</code>会自动添加服务</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">[</span><br><span class="line">    &#123;</span><br><span class="line">    <span class="attr">&quot;labels&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;job&quot;</span>: <span class="string">&quot;redis205&quot;</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">&quot;targets&quot;</span>: [</span><br><span class="line">      <span class="string">&quot;localhost:9100&quot;</span></span><br><span class="line">    ]</span><br><span class="line">  &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">    <span class="attr">&quot;targets&quot;</span>: [</span><br><span class="line">      <span class="string">&quot;localhost:9200&quot;</span></span><br><span class="line">    ],</span><br><span class="line">    <span class="attr">&quot;labels&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;job&quot;</span>: <span class="string">&quot;redis206&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>Prometheus</category>
-      </categories>
-      <tags>
-        <tag>概念</tag>
-        <tag>监控基础</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>ES X-Pack 5.4.3破解安装</title>
-    <url>/2018/10/17/es-xpack-install/</url>
-    <content><![CDATA[<p>假如已经有<code>es</code>和<code>kibana</code>了。</p>
-<p>下面的为安装路径.<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">esHome=/data/home/elastic/elasticsearch-5.4.3</span><br><span class="line">xpackHome=/data/home/xpack</span><br><span class="line">kibanaHome=/data/home/kibana</span><br></pre></td></tr></table></figure></p>
-<h2 id="1、下载xpakc"><a href="#1、下载xpakc" class="headerlink" title="1、下载xpakc"></a>1、下载xpakc</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 下载xpack压缩包</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;xpackHome&#125;</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> wget -c <span class="string">&#x27;https://artifacts.elastic.co/downloads/packs/x-pack/x-pack-5.4.3.zip</span></span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h2 id="2、Elasticsearch安装X-Pack"><a href="#2、Elasticsearch安装X-Pack" class="headerlink" title="2、Elasticsearch安装X-Pack"></a>2、Elasticsearch安装X-Pack</h2><p><code>ES</code>安装<code>x-pack</code>有两种方法。</p>
-<h3 id="一、手动安装"><a href="#一、手动安装" class="headerlink" title="一、手动安装"></a>一、手动安装</h3><ul>
-<li>安装插件</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ./bin/elasticsearch-plugin install file://<span class="variable">$&#123;xpackHome&#125;</span>/x-pack-5.4.3.zip</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>破解<code>xpack</code></li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;esHome&#125;</span>/plugins</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> touch LicenseVerifier.java</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> vim LicenseVerifier.java</span></span><br><span class="line"></span><br><span class="line">package org.elasticsearch.license;</span><br><span class="line"></span><br><span class="line">import java.nio.*;</span><br><span class="line">import java.util.*;</span><br><span class="line">import java.security.*;</span><br><span class="line">import org.elasticsearch.common.xcontent.*;</span><br><span class="line">import org.apache.lucene.util.*;</span><br><span class="line">import org.elasticsearch.common.io.*;</span><br><span class="line">import java.io.*;</span><br><span class="line"></span><br><span class="line">public class LicenseVerifier</span><br><span class="line">&#123;</span><br><span class="line">    public static boolean verifyLicense(final License license, final byte[] encryptedPublicKeyData) &#123;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static boolean verifyLicense(final License license) &#123;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<ul>
-<li>编译</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;esHome&#125;</span>/plugins</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> javac -cp <span class="string">&quot;<span class="variable">$&#123;esHome&#125;</span>/lib/elasticsearch-5.4.3.jar:<span class="variable">$&#123;esHome&#125;</span>/lib/lucene-core-6.5.1.jar:<span class="variable">$&#123;esHome&#125;</span>/plugins/x-pack/x-pack-5.4.3.jar&quot;</span> LicenseVerifier.java</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<ul>
-<li>替换class文件</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 解压</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;esHome&#125;</span>/plugins/x-pack/</span></span><br><span class="line">mkdir test</span><br><span class="line">mv x-pack-5.4.3.jar test/</span><br><span class="line">cd test/</span><br><span class="line">jar xvf x-pack-5.4.3.jar</span><br><span class="line"><span class="meta">#</span><span class="bash">替换</span></span><br><span class="line">cd ./org/elasticsearch/license</span><br><span class="line">rm -f LicenseVerifier.class</span><br><span class="line">mv $&#123;esHome&#125;/plugins/LicenseVerifier.class .</span><br><span class="line"><span class="meta">#</span><span class="bash"> 打包</span></span><br><span class="line">cd $&#123;esHome&#125;/plugins/x-pack/test</span><br><span class="line">jar cvf x-pack-5.4.3.jar .</span><br><span class="line">mv x-pack-5.4.3.jar ../</span><br><span class="line"><span class="meta">#</span><span class="bash">删除临时文件</span></span><br><span class="line">cd ../</span><br><span class="line">rm -rf test</span><br><span class="line">cd ../</span><br><span class="line">rm LicenseVerifier.java</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>申请license</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">来此注册，并下载license文件</span></span><br><span class="line">https://license.elastic.co/registration</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>修改license</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;                                                                                                                                                                                                       </span><br><span class="line">       <span class="attr">&quot;license&quot;</span>: &#123;</span><br><span class="line">           <span class="attr">&quot;uid&quot;</span>: <span class="string">&quot;01957577-fa6e-426f-9257-200ccdfaee73&quot;</span>,</span><br><span class="line">           <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;platinum&quot;</span>,</span><br><span class="line">           <span class="attr">&quot;issue_date_in_millis&quot;</span>: <span class="number">1534464000000</span>,</span><br><span class="line">           <span class="attr">&quot;expiry_date_in_millis&quot;</span>: <span class="number">2524579200999</span>,</span><br><span class="line">           <span class="attr">&quot;max_nodes&quot;</span>: <span class="number">100</span>,</span><br><span class="line">           <span class="attr">&quot;issued_to&quot;</span>: <span class="string">&quot;leng rongfu (no)&quot;</span>,</span><br><span class="line">           <span class="attr">&quot;issuer&quot;</span>: <span class="string">&quot;Web Form&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;signature&quot;</span>: <span class="string">&quot;AAAAAwAAAA0p6LA0HKNGcIOkCCRqAAABmC9ZN0hjZDBGYnVyRXpCOW5Bb3FjZDAxOWpSbTVoMVZwUzRxVk1PSmkxaktJRVl5MUYvUWh3bHZVUTllbXNPbzBUemtnbWpBbmlWRmRZb25KNFlBR2x0TXc2K2p1Y1VtMG1UQU9TRGZVSGRwaE   JGUjE3bXd3LzRqZ05iLzRteWFNekdxRGpIYlFwYkJiNUs0U1hTVlJKNVlXekMrSlVUdFIvV0FNeWdOYnlESDc3MWhlY3hSQmdKSjJ2ZTcvYlBFOHhPQlV3ZHdDQ0tHcG5uOElCaDJ4K1hob29xSG85N0kvTWV3THhlQk9NL01VMFRjNDZpZEVXeUtUMXIyMlIveFpJUk    k2WUdveEZaME9XWitGUi9WNTZVQW1FMG1DenhZU0ZmeXlZakVEMjZFT2NvOWxpZGlqVmlHNC8rWVVUYzMwRGVySHpIdURzKzFiRDl4TmM1TUp2VTBOUlJZUlAyV0ZVL2kvVk10L0NsbXNFYVZwT3NSU082dFNNa2prQ0ZsclZ4NTltbU1CVE5lR09Bck93V2J1Y3c9PQ    AAAQBENsHqhC2OW/yYxaKP5tS/GHT9TrEbcEtI62k//Id9p2DzSHUv+xekDbfiu550wMrBnoeOi4xV4X6C2WcJCYLSM/QRTotlm11SGvWnUgRXFst83n/nceh3l3Y9D3Odec4zAhrhrYynisls2WfCFGSEW5EUO1II+3C5xhyKMyLROlAxkwNco0H4zD3GlEjZNqC3CK    8cQRRmeJ1lIPvb/Tw8JbbG5zjQuYhQakMAbXqIeL9BLla7sAP4+M8lmvh4Z6bwUGy1MQ9j1+ijdswWMNVs8Vr7CnxZ1j4pla2ZWkGSr4sNfI0LF6U25HC4ofb8CQkrKoAq80EPdINnrfyr56CU&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;start_date_in_millis&quot;</span>: <span class="number">1534464000000</span></span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">&quot;license&quot;</span>:&#123;</span><br><span class="line">        <span class="attr">&quot;uid&quot;</span>:<span class="string">&quot;01957577-fa6e-426f-9257-200ccdfaee73&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;type&quot;</span>:<span class="string">&quot;platinum&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;issue_date_in_millis&quot;</span>:<span class="number">1534464000000</span>,</span><br><span class="line">        <span class="attr">&quot;expiry_date_in_millis&quot;</span>:<span class="number">2524579200999</span>,</span><br><span class="line">        <span class="attr">&quot;max_nodes&quot;</span>:<span class="number">100</span>,</span><br><span class="line">        <span class="attr">&quot;issued_to&quot;</span>:<span class="string">&quot;leng rongfu (no)&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;issuer&quot;</span>:<span class="string">&quot;Web Form&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;signature&quot;</span>:<span class="string">&quot;AAAAAwAAAA0p6LA0HKNGcIOkCCRqAAABmC9ZN0hjZDBGYnVyRXpCOW5Bb3FjZDAxOWpSbTVoMVZwUzRxVk1PSmkxaktJRVl5MUYvUWh3bHZVUTllbXNPbzBUemtnbWpBbmlWRmRZb25KNFlBR2x0TXc2K2p1Y1VtMG1UQU9TRGZVSGRwaEJGUjE3bXd3LzRqZ05iLzRteWFNekdxRGpIYlFwYkJiNUs0U1hTVlJKNVlXekMrSlVUdFIvV0FNeWdOYnlESDc3MWhlY3hSQmdKSjJ2ZTcvYlBFOHhPQlV3ZHdDQ0tHcG5uOElCaDJ4K1hob29xSG85N0kvTWV3THhlQk9NL01VMFRjNDZpZEVXeUtUMXIyMlIveFpJUkk2WUdveEZaME9XWitGUi9WNTZVQW1FMG1DenhZU0ZmeXlZakVEMjZFT2NvOWxpZGlqVmlHNC8rWVVUYzMwRGVySHpIdURzKzFiRDl4TmM1TUp2VTBOUlJZUlAyV0ZVL2kvVk10L0NsbXNFYVZwT3NSU082dFNNa2prQ0ZsclZ4NTltbU1CVE5lR09Bck93V2J1Y3c9PQAAAQBENsHqhC2OW/yYxaKP5tS/GHT9TrEbcEtI62k//Id9p2DzSHUv+xekDbfiu550wMrBnoeOi4xV4X6C2WcJCYLSM/QRTotlm11SGvWnUgRXFst83n/nceh3l3Y9D3Odec4zAhrhrYynisls2WfCFGSEW5EUO1II+3C5xhyKMyLROlAxkwNco0H4zD3GlEjZNqC3CK8cQRRmeJ1lIPvb/Tw8JbbG5zjQuYhQakMAbXqIeL9BLla7sAP4+M8lmvh4Z6bwUGy1MQ9j1+ijdswWMNVs8Vr7CnxZ1j4pla2ZWkGSr4sNfI0LF6U25HC4ofb8CQkrKoAq80EPdINnrfyr56CU&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;start_date_in_millis&quot;</span>:<span class="number">1534464000000</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>ps：<code>platinum</code>表示白金版，可以使用所有功能。其他的如<code>expiry_date_in_millis</code>、<code>max_nodes</code>等根据自己需要修改即可,<code>expiry_date_in_millis</code>是过期时间,使用的是<code>uninx时间</code>,我设置的是到<code>2049</code>年.</p>
-<ul>
-<li>查看lience</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> curl -XGET -u elastic:changeme <span class="string">&#x27;http://&#123;host&#125;:9200/_license&#x27;</span></span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>注册新修改的lience</li>
-<li><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> curl -XPUT -u elastic:changeme <span class="string">&#x27;http://&#123;host&#125;:9200/_xpack/license?acknowledge=true&#x27;</span> -d @lience.json</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="二、直接导入文件"><a href="#二、直接导入文件" class="headerlink" title="二、直接导入文件"></a>二、直接导入文件</h3><p>如果有破解好的文件，直接把<code>plugins</code>下的<code>x-pack</code>文件夹进行压缩，复制到其它节点的<code>plugins</code>路径下，重启就可以使用。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"># 下载地址</span><br><span class="line">$ wget -c https://note.youdao.com/yws/api/personal/file/WEBe693b8fab3b4cad482e5b354cd4176cd?method=download&amp;shareKey=a16d1e40a0ec4461a4f619f325c3f150</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h2 id="3、kibana安装X-Pack"><a href="#3、kibana安装X-Pack" class="headerlink" title="3、kibana安装X-Pack"></a>3、kibana安装X-Pack</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;kibanaHome&#125;</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./bin/kibana-plugin install file://<span class="variable">$&#123;xpackHome&#125;</span>/x-pack-5.4.3.zip</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><ul>
-<li><a href="https://my.oschina.net/guol/blog/1204258">https://my.oschina.net/guol/blog/1204258</a></li>
-<li><a href="https://mp.weixin.qq.com/s/NN01SalzLz2Ue6Q4exCfAw">https://mp.weixin.qq.com/s/NN01SalzLz2Ue6Q4exCfAw</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>es</category>
-      </categories>
-      <tags>
-        <tag>elasticsearch</tag>
-        <tag>install</tag>
-        <tag>X-pack</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>算法分析、插入排序、归并排序</title>
-    <url>/2019/03/30/Introduction-to-Algorithms-lecture-1/</url>
-    <content><![CDATA[<blockquote>
-<p>本系列文章是我学习算法概论(第三版)这本书的一些笔记和感悟，我没有纯看书，而是结合了<code>MIT</code>的公开课，把书籍作为课本，查看具体细节，主要是看课程，每节课时长<code>60</code>分钟左右，视频在网易公开课上有中文字母。次课程会从数学的角度去分析运行时，课程总共有<code>21</code>，前<code>6</code>课讲解都是排序算法，对应课本上的前三章，这部分不涉及到数据结构,后面的章节都涉及数据结构以及应用。</p>
-</blockquote>
-<h1 id="算法分析"><a href="#算法分析" class="headerlink" title="算法分析"></a>算法分析</h1><h2 id="为什么学习算法和性能"><a href="#为什么学习算法和性能" class="headerlink" title="为什么学习算法和性能"></a>为什么学习算法和性能</h2><ul>
-<li>算法帮助我们去理解可扩展性。</li>
-<li>性能常常用来划分什么是可行的什么是不可行的。</li>
-<li>算法数学提供了一个讨论程序特性的语言。(用数学来刻画程序的特性，比如运行时)。</li>
-<li>性能是计算机的共性。</li>
-<li>程序性能和计算机资源是无关的。比如一台很老的电脑和一台现代的电脑相比，不能说现代电脑就一定比旧电脑运行的快，如果旧电脑运行的算法比较高效的话，一定会在某一时刻运行时间会小于新电脑。</li>
-</ul>
-<h1 id="排序问题"><a href="#排序问题" class="headerlink" title="排序问题"></a>排序问题</h1><p><strong>Input:</strong> 一个序列 <code>&lt;a1,a2,a3,.....,an&gt;</code><br><strong>Output:</strong> 输出一个排序后的序列<code>&lt;a1&#39;,a2&#39;,a3&#39;,......,an&#39;&gt;</code>, 使得 <code>a1&#39; &lt; a2&#39; &lt; a3&#39; &lt; .... &lt; an&#39;</code></p>
-<h2 id="插入排序"><a href="#插入排序" class="headerlink" title="插入排序"></a>插入排序</h2><h2 id="伪代码"><a href="#伪代码" class="headerlink" title="伪代码"></a>伪代码</h2><figure class="highlight c"><table><tr><td class="code"><pre><span class="line">Insertion-SORT(A,n)</span><br><span class="line">    <span class="keyword">for</span> j ← <span class="number">2</span> to n</span><br><span class="line">        <span class="keyword">do</span> key←A[j]</span><br><span class="line">            i←j–<span class="number">1</span></span><br><span class="line">            <span class="keyword">while</span> i &gt; <span class="number">0</span> <span class="keyword">and</span> A[i] &gt; key</span><br><span class="line">                <span class="keyword">do</span> A[i+<span class="number">1</span>] ← A[i] </span><br><span class="line">                i←i–<span class="number">1</span></span><br><span class="line">        A[i+<span class="number">1</span>] = key</span><br></pre></td></tr></table></figure>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">InsertionSort</span><span class="params">(A []<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">for</span> i:= <span class="number">1</span>; i &lt; <span class="built_in">len</span>(A) ; i++  &#123;</span><br><span class="line">		key := A[i]</span><br><span class="line">		j := i<span class="number">-1</span></span><br><span class="line">		<span class="keyword">for</span> ; j &gt;=<span class="number">0</span> &amp;&amp; A[j] &gt; key ; &#123;</span><br><span class="line">			A[j+<span class="number">1</span>] = A[j]</span><br><span class="line">			j = j<span class="number">-1</span></span><br><span class="line">		&#125;</span><br><span class="line">		A[j+<span class="number">1</span>] = key</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="运行时分析"><a href="#运行时分析" class="headerlink" title="运行时分析"></a>运行时分析</h3><ul>
-<li>运行时依赖输入，如果输入是排好序的，那是很容易排序的。</li>
-<li>输入元素的个数，短序列比长序列更好排序。</li>
-<li>通常来说，我们分析的是运行时的上限。</li>
-</ul>
-<p>分析的方式</p>
-<ul>
-<li>最差情况(通常用次分析)<br>T(n) = 算法的最长运行时在任何的输入下。</li>
-<li><p>平均情况<br>T(n) = 算法的预期时间在总体输入下。</p>
-</li>
-<li><p>最好情况<br>T(n) = 在某些输入下运行时间比较好。</p>
-</li>
-</ul>
-<h3 id="插入排序分析"><a href="#插入排序分析" class="headerlink" title="插入排序分析"></a>插入排序分析</h3><p>$$<br>T(n)=\sum_{j=2}^{n} \Theta(j)=\Theta\left(n^{2}\right)<br>$$</p>
-<p>我们分析最差情况，如果输入是逆序的，那么执行的次数就是<code>n+(n-1)+(n-2)+...+1=n(n-1)/2</code> 就是一个等差数列求和，就得到如上的公式，</p>
-<p>$$<br>T(n)=\Theta\left(n^{2}/2\right) + \Theta\left(n-1\right)<br>$$</p>
-<p>忽略低阶项和高价项的常数，就得到如下运行时间，所以插入排序是和输入大小成平方比。</p>
-<p>$$<br>T(n) = \Theta\left(n^{2}\right)<br>$$</p>
-<h2 id="归并排序"><a href="#归并排序" class="headerlink" title="归并排序"></a>归并排序</h2><h3 id="伪代码-1"><a href="#伪代码-1" class="headerlink" title="伪代码"></a>伪代码</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"># MERGE-SORT(A)</span><br><span class="line">    <span class="number">1.</span> Ifn=<span class="number">1</span>,done.</span><br><span class="line">    <span class="number">2.</span> 递归排序 A[ <span class="number">1</span> . . ⎡n/<span class="number">2</span>⎤ ] <span class="keyword">and</span> A[ ⎡n/<span class="number">2</span>⎤+<span class="number">1</span> . . n ] . # ⎡n/<span class="number">2</span>⎤ 向下取整</span><br><span class="line">    <span class="number">3.</span> 合并这两个`<span class="built_in">list</span>`</span><br></pre></td></tr></table></figure>
-<h3 id="归并排序分析"><a href="#归并排序分析" class="headerlink" title="归并排序分析"></a>归并排序分析</h3><p><img src="/2019/03/30/Introduction-to-Algorithms-lecture-1/1557153490587.jpg" alt="公式"></p>
-<p>这个公式在后面会用主方法来进行分析运行的上界。</p>
-<p><img src="/2019/03/30/Introduction-to-Algorithms-lecture-1/2.png" alt="2"></p>
-<p>递归树的高度是<code>lgn</code>，每一个层级运行时为<code>cn</code>，所以<code>Tn = O(cn*lgn)</code>,就是高度乘以每一层的时间，前面的<code>c</code>为常量，可以忽略。</p>
-<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><ul>
-<li><code>Θ(nlgn)</code>比<code>Θ(n2)</code>慢的多。</li>
-<li>归并排序在最坏情况下比插入排序好的多。</li>
-<li>实践中，当<code>n &gt; 30</code> 时，归并排序就比插入排序好的多。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>Algorithms and Datastructure</category>
-      </categories>
-      <tags>
-        <tag>course 学习</tag>
-        <tag>Introduction to Algorithms</tag>
-        <tag>lecture1</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Inverted-index</title>
     <url>/2019/03/24/Inverted-index/</url>
     <content><![CDATA[<h1 id="倒排索引-Inverted-index"><a href="#倒排索引-Inverted-index" class="headerlink" title="倒排索引(Inverted index)"></a>倒排索引(Inverted index)</h1><p>文章写的有点粗糙，都是只描述了思想，没有去抠具体的细节部分，对这些项目的作者刚到敬仰，把一个理论上的技术用在工程上会遇到很多问题。如果文章中有不妥之处，欢迎去我的<code>github</code>提交 <a href="https://github.com/lengrongfu/lengrongfu.github.io/issues">issues</a>.</p>
@@ -1817,6 +1763,60 @@ MySQL服务初始化(仅适用5.7)</li>
         <tag>倒排索引</tag>
         <tag>mysql全文索引</tag>
         <tag>Lucene索引</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>算法分析、插入排序、归并排序</title>
+    <url>/2019/03/30/Introduction-to-Algorithms-lecture-1/</url>
+    <content><![CDATA[<blockquote>
+<p>本系列文章是我学习算法概论(第三版)这本书的一些笔记和感悟，我没有纯看书，而是结合了<code>MIT</code>的公开课，把书籍作为课本，查看具体细节，主要是看课程，每节课时长<code>60</code>分钟左右，视频在网易公开课上有中文字母。次课程会从数学的角度去分析运行时，课程总共有<code>21</code>，前<code>6</code>课讲解都是排序算法，对应课本上的前三章，这部分不涉及到数据结构,后面的章节都涉及数据结构以及应用。</p>
+</blockquote>
+<h1 id="算法分析"><a href="#算法分析" class="headerlink" title="算法分析"></a>算法分析</h1><h2 id="为什么学习算法和性能"><a href="#为什么学习算法和性能" class="headerlink" title="为什么学习算法和性能"></a>为什么学习算法和性能</h2><ul>
+<li>算法帮助我们去理解可扩展性。</li>
+<li>性能常常用来划分什么是可行的什么是不可行的。</li>
+<li>算法数学提供了一个讨论程序特性的语言。(用数学来刻画程序的特性，比如运行时)。</li>
+<li>性能是计算机的共性。</li>
+<li>程序性能和计算机资源是无关的。比如一台很老的电脑和一台现代的电脑相比，不能说现代电脑就一定比旧电脑运行的快，如果旧电脑运行的算法比较高效的话，一定会在某一时刻运行时间会小于新电脑。</li>
+</ul>
+<h1 id="排序问题"><a href="#排序问题" class="headerlink" title="排序问题"></a>排序问题</h1><p><strong>Input:</strong> 一个序列 <code>&lt;a1,a2,a3,.....,an&gt;</code><br><strong>Output:</strong> 输出一个排序后的序列<code>&lt;a1&#39;,a2&#39;,a3&#39;,......,an&#39;&gt;</code>, 使得 <code>a1&#39; &lt; a2&#39; &lt; a3&#39; &lt; .... &lt; an&#39;</code></p>
+<h2 id="插入排序"><a href="#插入排序" class="headerlink" title="插入排序"></a>插入排序</h2><h2 id="伪代码"><a href="#伪代码" class="headerlink" title="伪代码"></a>伪代码</h2><figure class="highlight c"><table><tr><td class="code"><pre><span class="line">Insertion-SORT(A,n)</span><br><span class="line">    <span class="keyword">for</span> j ← <span class="number">2</span> to n</span><br><span class="line">        <span class="keyword">do</span> key←A[j]</span><br><span class="line">            i←j–<span class="number">1</span></span><br><span class="line">            <span class="keyword">while</span> i &gt; <span class="number">0</span> <span class="keyword">and</span> A[i] &gt; key</span><br><span class="line">                <span class="keyword">do</span> A[i+<span class="number">1</span>] ← A[i] </span><br><span class="line">                i←i–<span class="number">1</span></span><br><span class="line">        A[i+<span class="number">1</span>] = key</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">InsertionSort</span><span class="params">(A []<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">for</span> i:= <span class="number">1</span>; i &lt; <span class="built_in">len</span>(A) ; i++  &#123;</span><br><span class="line">		key := A[i]</span><br><span class="line">		j := i<span class="number">-1</span></span><br><span class="line">		<span class="keyword">for</span> ; j &gt;=<span class="number">0</span> &amp;&amp; A[j] &gt; key ; &#123;</span><br><span class="line">			A[j+<span class="number">1</span>] = A[j]</span><br><span class="line">			j = j<span class="number">-1</span></span><br><span class="line">		&#125;</span><br><span class="line">		A[j+<span class="number">1</span>] = key</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="运行时分析"><a href="#运行时分析" class="headerlink" title="运行时分析"></a>运行时分析</h3><ul>
+<li>运行时依赖输入，如果输入是排好序的，那是很容易排序的。</li>
+<li>输入元素的个数，短序列比长序列更好排序。</li>
+<li>通常来说，我们分析的是运行时的上限。</li>
+</ul>
+<p>分析的方式</p>
+<ul>
+<li>最差情况(通常用次分析)<br>T(n) = 算法的最长运行时在任何的输入下。</li>
+<li><p>平均情况<br>T(n) = 算法的预期时间在总体输入下。</p>
+</li>
+<li><p>最好情况<br>T(n) = 在某些输入下运行时间比较好。</p>
+</li>
+</ul>
+<h3 id="插入排序分析"><a href="#插入排序分析" class="headerlink" title="插入排序分析"></a>插入排序分析</h3><p>$$<br>T(n)=\sum_{j=2}^{n} \Theta(j)=\Theta\left(n^{2}\right)<br>$$</p>
+<p>我们分析最差情况，如果输入是逆序的，那么执行的次数就是<code>n+(n-1)+(n-2)+...+1=n(n-1)/2</code> 就是一个等差数列求和，就得到如上的公式，</p>
+<p>$$<br>T(n)=\Theta\left(n^{2}/2\right) + \Theta\left(n-1\right)<br>$$</p>
+<p>忽略低阶项和高价项的常数，就得到如下运行时间，所以插入排序是和输入大小成平方比。</p>
+<p>$$<br>T(n) = \Theta\left(n^{2}\right)<br>$$</p>
+<h2 id="归并排序"><a href="#归并排序" class="headerlink" title="归并排序"></a>归并排序</h2><h3 id="伪代码-1"><a href="#伪代码-1" class="headerlink" title="伪代码"></a>伪代码</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"># MERGE-SORT(A)</span><br><span class="line">    <span class="number">1.</span> Ifn=<span class="number">1</span>,done.</span><br><span class="line">    <span class="number">2.</span> 递归排序 A[ <span class="number">1</span> . . ⎡n/<span class="number">2</span>⎤ ] <span class="keyword">and</span> A[ ⎡n/<span class="number">2</span>⎤+<span class="number">1</span> . . n ] . # ⎡n/<span class="number">2</span>⎤ 向下取整</span><br><span class="line">    <span class="number">3.</span> 合并这两个`<span class="built_in">list</span>`</span><br></pre></td></tr></table></figure>
+<h3 id="归并排序分析"><a href="#归并排序分析" class="headerlink" title="归并排序分析"></a>归并排序分析</h3><p><img src="/2019/03/30/Introduction-to-Algorithms-lecture-1/1557153490587.jpg" alt="公式"></p>
+<p>这个公式在后面会用主方法来进行分析运行的上界。</p>
+<p><img src="/2019/03/30/Introduction-to-Algorithms-lecture-1/2.png" alt="2"></p>
+<p>递归树的高度是<code>lgn</code>，每一个层级运行时为<code>cn</code>，所以<code>Tn = O(cn*lgn)</code>,就是高度乘以每一层的时间，前面的<code>c</code>为常量，可以忽略。</p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><ul>
+<li><code>Θ(nlgn)</code>比<code>Θ(n2)</code>慢的多。</li>
+<li>归并排序在最坏情况下比插入排序好的多。</li>
+<li>实践中，当<code>n &gt; 30</code> 时，归并排序就比插入排序好的多。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Algorithms and Datastructure</category>
+      </categories>
+      <tags>
+        <tag>course 学习</tag>
+        <tag>Introduction to Algorithms</tag>
+        <tag>lecture1</tag>
       </tags>
   </entry>
   <entry>
@@ -2068,6 +2068,41 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
+    <title>linux sed</title>
+    <url>/2019/06/19/linux-sed/</url>
+    <content><![CDATA[<h1 id="Sed-Command"><a href="#Sed-Command" class="headerlink" title="Sed Command"></a>Sed Command</h1><p><code>sed</code>是一种流编辑器，它是文本处理中非常中的工具，能够完美的配合正则表达式使用，功能不同凡响。处理时，把当前处理的行存储在临时缓冲区中，称为“模式空间”<code>（pattern space</code>），接着用<code>sed</code>命令处理缓冲区中的内容，处理完成后，把缓冲区的内容送往屏幕。接着处理下一行，这样不断重复，直到文件末尾。文件内容并没有 改变，除非你使用重定向存储输出。<code>Sed</code>主要用来自动编辑一个或多个文件；简化对文件的反复操作；编写转换程序等。</p>
+<p><code>Sed</code>命令我目前主要是用在编写<code>dockerfile</code>时用于执行替换配置使用的，如果是这样的话，就不能用最小的<code>scratch</code>镜像，因为<code>sed</code>命令需要在有<code>sh</code>环境中执行，最小的就是<code>alpine</code>。</p>
+<p>当遇到不会使用的时在<code>Linux</code>系统上查看操作手册<code>man sed</code>.</p>
+<h2 id="替换文件中的内容"><a href="#替换文件中的内容" class="headerlink" title="替换文件中的内容"></a>替换文件中的内容</h2><h3 id="文件内容如下"><a href="#文件内容如下" class="headerlink" title="文件内容如下"></a>文件内容如下</h3><p>比如文件中的内容是<code>mysql</code>的配置，功能就是替换<code>mysql</code>的的配置。如下就是一个典型的<code>java</code>使用<code>mysql</code>的配置。</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="comment"># application.properties</span></span><br><span class="line"><span class="meta">spring.datasource.druid.url</span>=<span class="string">jdbc:mysql://127.0.0.1:3306/demo?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf8&amp;serverTimezone=GM    T&amp;allowMultiQueries=true&amp;useSSL=false</span></span><br><span class="line"><span class="meta">spring.datasource.druid.username</span>=<span class="string">test</span></span><br><span class="line"><span class="meta">spring.datasource.druid.password</span>=<span class="string">test</span></span><br></pre></td></tr></table></figure>
+<h3 id="替换脚本如下"><a href="#替换脚本如下" class="headerlink" title="替换脚本如下"></a>替换脚本如下</h3><p>脚本功能就是用于替换上述数据中的<code>host</code>、<code>port</code>、<code>username</code>、<code>password</code>、<code>dbname</code>这些配置。</p>
+<p>如下是<code>Dockerfiele</code>文件内容.<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">FROM alpine:3.9.4  </span><br><span class="line">ENV DB_USER=&quot;&quot; DB_HOST=&quot;&quot; DB_PASSWORD=&quot;&quot; DB_PORT=&quot;&quot; DB_NAME=&quot;&quot;</span><br><span class="line">ENTRYPOINT [&quot;/bin/sh&quot;,&quot;-c&quot;,&quot;sh /docker-entrypoint.sh&quot;]</span><br></pre></td></tr></table></figure></p>
+<p>如下就是执行的脚本<code>docker-entrypoint.sh</code>。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">! /bin/bash</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 指定文件目录</span></span><br><span class="line">APPLICATION_NAME = &quot;./application.properties&quot;</span><br><span class="line">sed -i &quot;s/&quot;</span><br><span class="line">sed -i &quot;s/127.0.0.1:3306\/demo/$&#123;DB_HOST&#125;:$&#123;DB_PORT&#125;\/$&#123;DB_NAME&#125;/g&quot; $&#123;APPLICATION_NAME&#125;</span><br><span class="line">sed -i &quot;s/spring.datasource.druid.username=test/spring.datasource.druid.username=$&#123;DB_USER&#125;/g&quot; $&#123;APPLICATION_NAME&#125;</span><br><span class="line">sed -i &quot;s/spring.datasource.druid.password=test/spring.datasource.druid.password=$&#123;DB_PASSWORD&#125;/g&quot; $&#123;APPLICATION_NAME&#125;</span><br><span class="line"></span><br><span class="line">java -jar demo.java</span><br></pre></td></tr></table></figure>
+<p>如上就可以执行替换一些配置了。</p>
+<h2 id="使用Tips"><a href="#使用Tips" class="headerlink" title="使用Tips"></a>使用Tips</h2><ul>
+<li><p>可以通过命令行先进行验证。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">echo</span> <span class="string">&quot;spring.datasource.druid.url=jdbc:mysql://127.0.0.1:3306/demo?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf8&amp;serverTimezone=GM&quot;</span> | sed <span class="string">&quot;s/127.0.0.1:3306\/demo/127.0.0.2:3307\/test/g&quot;</span></span></span><br><span class="line">spring.datasource.druid.url=jdbc:mysql://127.0.0.2:3307/test?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf8&amp;serverTimezone=GM</span><br></pre></td></tr></table></figure>
+<p>验证好了在修改一下，上面的命令少了<code>-i</code>命令选项和文件名,<code>-i</code>就是用于修改本地文件的一个选项。</p>
+</li>
+<li><p>匹配时尽量使用能唯一命中的</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sed <span class="string">&quot;s/spring.datasource.druid.password=test/spring.datasource.druid.password=<span class="variable">$&#123;DB_PASSWORD&#125;</span>/g&quot;</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sed <span class="string">&quot;s/test/<span class="variable">$&#123;DB_PASSWORD&#125;</span>/g&quot;</span></span></span><br></pre></td></tr></table></figure>
+<p>如上的两个匹配规则，第一个最好，第二个会把匹配到<code>test</code>的所有地方都更改调，所有最好使用唯一匹配规则。</p>
+</li>
+</ul>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><code>man sed</code></li>
+<li><a href="http://man.linuxde.net/sed">man.net</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>linux 命令</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Go sync package</title>
     <url>/2019/06/18/Go-sync-package/</url>
     <content><![CDATA[<h1 id="Go-sync-package"><a href="#Go-sync-package" class="headerlink" title="Go sync package"></a>Go sync package</h1><p><code>sync</code>包提供了基本的同步原语，比如同步锁，还有其他的<code>Once</code>和<code>WaitGroup</code>，大多数都用于低级别的库，高级别的同步控制最好用<code>channels</code>。</p>
@@ -2144,41 +2179,6 @@ MySQL服务初始化(仅适用5.7)</li>
       <tags>
         <tag>golang 源码</tag>
         <tag>并发学习</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>linux sed</title>
-    <url>/2019/06/19/linux-sed/</url>
-    <content><![CDATA[<h1 id="Sed-Command"><a href="#Sed-Command" class="headerlink" title="Sed Command"></a>Sed Command</h1><p><code>sed</code>是一种流编辑器，它是文本处理中非常中的工具，能够完美的配合正则表达式使用，功能不同凡响。处理时，把当前处理的行存储在临时缓冲区中，称为“模式空间”<code>（pattern space</code>），接着用<code>sed</code>命令处理缓冲区中的内容，处理完成后，把缓冲区的内容送往屏幕。接着处理下一行，这样不断重复，直到文件末尾。文件内容并没有 改变，除非你使用重定向存储输出。<code>Sed</code>主要用来自动编辑一个或多个文件；简化对文件的反复操作；编写转换程序等。</p>
-<p><code>Sed</code>命令我目前主要是用在编写<code>dockerfile</code>时用于执行替换配置使用的，如果是这样的话，就不能用最小的<code>scratch</code>镜像，因为<code>sed</code>命令需要在有<code>sh</code>环境中执行，最小的就是<code>alpine</code>。</p>
-<p>当遇到不会使用的时在<code>Linux</code>系统上查看操作手册<code>man sed</code>.</p>
-<h2 id="替换文件中的内容"><a href="#替换文件中的内容" class="headerlink" title="替换文件中的内容"></a>替换文件中的内容</h2><h3 id="文件内容如下"><a href="#文件内容如下" class="headerlink" title="文件内容如下"></a>文件内容如下</h3><p>比如文件中的内容是<code>mysql</code>的配置，功能就是替换<code>mysql</code>的的配置。如下就是一个典型的<code>java</code>使用<code>mysql</code>的配置。</p>
-<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="comment"># application.properties</span></span><br><span class="line"><span class="meta">spring.datasource.druid.url</span>=<span class="string">jdbc:mysql://127.0.0.1:3306/demo?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf8&amp;serverTimezone=GM    T&amp;allowMultiQueries=true&amp;useSSL=false</span></span><br><span class="line"><span class="meta">spring.datasource.druid.username</span>=<span class="string">test</span></span><br><span class="line"><span class="meta">spring.datasource.druid.password</span>=<span class="string">test</span></span><br></pre></td></tr></table></figure>
-<h3 id="替换脚本如下"><a href="#替换脚本如下" class="headerlink" title="替换脚本如下"></a>替换脚本如下</h3><p>脚本功能就是用于替换上述数据中的<code>host</code>、<code>port</code>、<code>username</code>、<code>password</code>、<code>dbname</code>这些配置。</p>
-<p>如下是<code>Dockerfiele</code>文件内容.<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">FROM alpine:3.9.4  </span><br><span class="line">ENV DB_USER=&quot;&quot; DB_HOST=&quot;&quot; DB_PASSWORD=&quot;&quot; DB_PORT=&quot;&quot; DB_NAME=&quot;&quot;</span><br><span class="line">ENTRYPOINT [&quot;/bin/sh&quot;,&quot;-c&quot;,&quot;sh /docker-entrypoint.sh&quot;]</span><br></pre></td></tr></table></figure></p>
-<p>如下就是执行的脚本<code>docker-entrypoint.sh</code>。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">! /bin/bash</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 指定文件目录</span></span><br><span class="line">APPLICATION_NAME = &quot;./application.properties&quot;</span><br><span class="line">sed -i &quot;s/&quot;</span><br><span class="line">sed -i &quot;s/127.0.0.1:3306\/demo/$&#123;DB_HOST&#125;:$&#123;DB_PORT&#125;\/$&#123;DB_NAME&#125;/g&quot; $&#123;APPLICATION_NAME&#125;</span><br><span class="line">sed -i &quot;s/spring.datasource.druid.username=test/spring.datasource.druid.username=$&#123;DB_USER&#125;/g&quot; $&#123;APPLICATION_NAME&#125;</span><br><span class="line">sed -i &quot;s/spring.datasource.druid.password=test/spring.datasource.druid.password=$&#123;DB_PASSWORD&#125;/g&quot; $&#123;APPLICATION_NAME&#125;</span><br><span class="line"></span><br><span class="line">java -jar demo.java</span><br></pre></td></tr></table></figure>
-<p>如上就可以执行替换一些配置了。</p>
-<h2 id="使用Tips"><a href="#使用Tips" class="headerlink" title="使用Tips"></a>使用Tips</h2><ul>
-<li><p>可以通过命令行先进行验证。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">echo</span> <span class="string">&quot;spring.datasource.druid.url=jdbc:mysql://127.0.0.1:3306/demo?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf8&amp;serverTimezone=GM&quot;</span> | sed <span class="string">&quot;s/127.0.0.1:3306\/demo/127.0.0.2:3307\/test/g&quot;</span></span></span><br><span class="line">spring.datasource.druid.url=jdbc:mysql://127.0.0.2:3307/test?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf8&amp;serverTimezone=GM</span><br></pre></td></tr></table></figure>
-<p>验证好了在修改一下，上面的命令少了<code>-i</code>命令选项和文件名,<code>-i</code>就是用于修改本地文件的一个选项。</p>
-</li>
-<li><p>匹配时尽量使用能唯一命中的</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sed <span class="string">&quot;s/spring.datasource.druid.password=test/spring.datasource.druid.password=<span class="variable">$&#123;DB_PASSWORD&#125;</span>/g&quot;</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sed <span class="string">&quot;s/test/<span class="variable">$&#123;DB_PASSWORD&#125;</span>/g&quot;</span></span></span><br></pre></td></tr></table></figure>
-<p>如上的两个匹配规则，第一个最好，第二个会把匹配到<code>test</code>的所有地方都更改调，所有最好使用唯一匹配规则。</p>
-</li>
-</ul>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
-<li><code>man sed</code></li>
-<li><a href="http://man.linuxde.net/sed">man.net</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>linux 命令</tag>
       </tags>
   </entry>
   <entry>
@@ -2329,7 +2329,7 @@ MySQL服务初始化(仅适用5.7)</li>
 <h3 id="我的流程"><a href="#我的流程" class="headerlink" title="我的流程"></a>我的流程</h3><p>在使用过程中发现一个好的<code>Chrome</code>插件<a href="https://github.com/lengrongfu/Wechatsync">Wechatsync</a> ，可以在发微信文章的时候自动把内容容不到其它平台上去。</p>
 ]]></content>
       <categories>
-        <category>blog</category>
+        <category>Blog</category>
       </categories>
       <tags>
         <tag>blog</tag>
