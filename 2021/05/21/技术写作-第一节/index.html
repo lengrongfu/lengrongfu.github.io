@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+
+<script data-ad-client="ca-pub-5484871612484305" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+<script data-ad-client="ca-pub-5484871612484305" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<meta name="baidu-site-verification" content="code-p3K7NtduLG" />
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Monda:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"lengrongfu.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文是学习Google技术写作课程的学习笔记，它这个课程主要用于指导我们如何做好技术写作，了解如何计划和编写技术文档；">
+<meta property="og:type" content="article">
+<meta property="og:title" content="技术写作 第一节">
+<meta property="og:url" content="http://lengrongfu.github.io/2021/05/21/%E6%8A%80%E6%9C%AF%E5%86%99%E4%BD%9C-%E7%AC%AC%E4%B8%80%E8%8A%82/index.html">
+<meta property="og:site_name" content="LRF成长记">
+<meta property="og:description" content="本文是学习Google技术写作课程的学习笔记，它这个课程主要用于指导我们如何做好技术写作，了解如何计划和编写技术文档；">
+<meta property="og:locale">
+<meta property="article:published_time" content="2021-05-21T00:53:00.000Z">
+<meta property="article:modified_time" content="2021-05-21T05:05:50.377Z">
+<meta property="article:author" content="lengrongfu">
+<meta property="article:tag" content="写作">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://lengrongfu.github.io/2021/05/21/%E6%8A%80%E6%9C%AF%E5%86%99%E4%BD%9C-%E7%AC%AC%E4%B8%80%E8%8A%82/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>技术写作 第一节 | LRF成长记</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H5BLLGCN5H"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-H5BLLGCN5H');
+      }
+    </script>
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?1d997d88f37f7096db1c4c9d9f8eeccc";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">LRF成长记</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://lengrongfu.github.io/2021/05/21/%E6%8A%80%E6%9C%AF%E5%86%99%E4%BD%9C-%E7%AC%AC%E4%B8%80%E8%8A%82/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lengrongfu">
+      <meta itemprop="description" content="通过持续的学习，记录了成为软件工程师的成长轨迹">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LRF成长记">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          技术写作 第一节
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-05-21 08:53:00 08:53:00" itemprop="dateCreated datePublished" datetime="2021-05-21T08:53:00+08:00">2021-05-21 08:53:00</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-05-21 13:05:50 13:05:50" itemprop="dateModified" datetime="2021-05-21T13:05:50+08:00">2021-05-21 13:05:50</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%BD%AF%E6%8A%80%E8%83%BD/" itemprop="url" rel="index"><span itemprop="name">软技能</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2021/05/21/%E6%8A%80%E6%9C%AF%E5%86%99%E4%BD%9C-%E7%AC%AC%E4%B8%80%E8%8A%82/" class="post-meta-item leancloud_visitors" data-flag-title="技术写作 第一节" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>3.9k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>4 mins.</span>
+            </span>
+            <div class="post-description">本文是学习Google技术写作课程的学习笔记，它这个课程主要用于指导我们如何做好技术写作，了解如何计划和编写技术文档；</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>本文是学习<a target="_blank" rel="noopener" href="https://developers.google.com/tech-writing"><code>Google</code>技术写作课程</a>的学习笔记，它这个课程主要用于指导我们如何做好技术写作，了解如何计划和编写技术文档；</p>
+</blockquote>
+<p>本课程是技术写作中的第一课，主要学习技术写作的关键基础，在学校任何其他课程之前，请先学习本课程。</p>
+<h3 id="学习目标"><a href="#学习目标" class="headerlink" title="学习目标"></a>学习目标</h3><p>​        首先我们确定学习的目标，知道学习完本课程之后可以得到什么；本课程教我们技术协作的基础，完成本课程后，我们就知道如何执行如下的操作了。</p>
+<ul>
+<li>始终使用专业术语（包括缩写词和首字母缩写词）；比如<code>K8s</code>中的最小调度单元<code>Pod</code>。</li>
+<li>识别并尽量减少使用代词的句子。</li>
+<li>区分主动语句和被动语句。</li>
+<li>确定主动语句优于被动语句的三种方式。</li>
+<li>制定至少三种形式，使句子更清晰，更加引人入胜。</li>
+<li>制定至少四种缩短句子的策略。</li>
+<li>了解项目符号列表和编号列表之间的区别。</li>
+<li>创建有用的列表。</li>
+<li>为段落创建有效的主要句子。</li>
+<li>将每个段落集中在一个主题上。</li>
+<li>在每个文档的开头说明要点。</li>
+<li>确定你的目标受众。</li>
+<li>确定你的目标受众已知什么以及需要学习什么。</li>
+<li>了解知识的灾难。</li>
+<li>识别和修订成语。</li>
+<li>说明文档的范围目标和受众。</li>
+<li>将较长的主题分为适当的部分。</li>
+<li>真确使用标点符号，包括括号、冒号、破折号和分号。</li>
+<li>在<code>Markdown</code>中发展初学者的能力。</li>
+</ul>
+<p>​        成为一名优秀的工程师和一名出色的技术作家，需要花费多年的专注实践，本课程将提高我们的技术写作水平，但不会使我们变成一名出色的技术作家。</p>
+<h3 id="足够的语法"><a href="#足够的语法" class="headerlink" title="足够的语法"></a>足够的语法</h3><p>这里主要是介绍与本课程相关的词性。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">词性</th>
+<th>定义</th>
+<th style="text-align:left">例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">名词</td>
+<td>人，地方，概念或事物</td>
+<td style="text-align:left"><strong>山姆</strong>跑<strong>比赛</strong>。</td>
+</tr>
+<tr>
+<td style="text-align:center">代词</td>
+<td>替换另一个名词（或更大结构）的名词</td>
+<td style="text-align:left">山姆参加比赛。<strong>他</strong>喜欢竞争。</td>
+</tr>
+<tr>
+<td style="text-align:center">形容词</td>
+<td>修饰名词的单词或短语</td>
+<td style="text-align:left">山姆穿<strong>蓝色的</strong>鞋子。</td>
+</tr>
+<tr>
+<td style="text-align:center">动词</td>
+<td>一个动作词或短语</td>
+<td style="text-align:left">山姆<strong>跑</strong>比赛。</td>
+</tr>
+<tr>
+<td style="text-align:center">副词</td>
+<td>修饰动词，形容词或其他副词的单词或短语</td>
+<td style="text-align:left">山姆运行<strong>缓慢</strong>。</td>
+</tr>
+<tr>
+<td style="text-align:center">介词</td>
+<td>指定两个名词的位置关系的单词或短语</td>
+<td style="text-align:left">山姆的运动鞋很少<strong>在</strong>他的架子上。</td>
+</tr>
+<tr>
+<td style="text-align:center">连词</td>
+<td>连接两个名词或短语的单词</td>
+<td style="text-align:left">山姆的奖杯<strong>和</strong>缎带只存在于他的想象中。</td>
+</tr>
+<tr>
+<td style="text-align:center">过渡</td>
+<td>连接两个句子的单词或短语</td>
+<td style="text-align:left">山姆每周参加比赛。<strong>但是</strong>，他弱势地完成了比赛。</td>
+</tr>
+</tbody>
+</table>
+<h4 id="名词"><a href="#名词" class="headerlink" title="名词"></a>名词</h4><p>名次代表人、地方或事务。朱迪、南极洲和锤子都是名词，无形的概念（例如<strong>健壮性</strong> 和<strong>完美性</strong>）也是名词。</p>
+<blockquote>
+<p>在<strong>框架中</strong>，<strong>对象</strong>必须复制该<strong>对象</strong>要更改的所有基础<strong>值</strong>。该<strong>PROTOS</strong>的<strong>代码库</strong>是巨大的，所以复制的<strong>PROTOS</strong>是不可接受的昂贵。</p>
+</blockquote>
+<p>在编程中，我们会把类和变量视为名词。</p>
+<p><strong>练习</strong></p>
+<p>找出下面段落中识别六个名词</p>
+<blockquote>
+<p>C使程序员能够控制指针和内存。强大的功能带来巨大的责任。</p>
+</blockquote>
+<p><strong>答案</strong></p>
+<blockquote>
+<p>C、指针、内存、程序员、功能、责任。</p>
+</blockquote>
+<h4 id="代词"><a href="#代词" class="headerlink" title="代词"></a>代词</h4><p>代词是一个间接层，它指向或替代了其他名词或句子。例如，考虑以下两个句子：</p>
+<blockquote>
+<p>珍妮特（Janet）编写了出色的代码。<strong>她</strong>是高级工程师。</p>
+</blockquote>
+<p>在前面的示例中，第一句话将<strong>Janet</strong>建立为名词。第二句话用代词<strong>她</strong>代替名词<strong>珍妮特</strong>。</p>
+<p><strong>练习</strong></p>
+<p>在以下段落中确定三个代词：</p>
+<blockquote>
+<p>自助餐厅的特色是在吐司上撒上腰果、黄油和果酱。员工们发现它很棒，希望他们每天都能吃它。</p>
+</blockquote>
+<p><strong>答案</strong></p>
+<blockquote>
+<p>它很棒: 它代指前面描述的在吐司上撒上腰果、黄油和果酱的食物。</p>
+<p>他们每天吃：他们指代前面的员工。</p>
+<p>吃它：它代指前面描述的食物</p>
+</blockquote>
+<h4 id="动词"><a href="#动词" class="headerlink" title="动词"></a>动词</h4><p>动词是一个动作词或短语。当您要表示两个名词（一个演员和一个目标）之间的关系时，该动词会起作用。动词标识演员对目标的作用。</p>
+<p>每个句子必须至少包含一个动词。例如，以下每个句子包含一个动词：</p>
+<ul>
+<li>酒井<strong>更喜欢</strong>意大利面。</li>
+<li>里克<strong>喜欢</strong>大海。</li>
+<li>蓝精灵<strong>是</strong>蓝色的。</li>
+<li>杰西<strong>患有</strong>过敏症。</li>
+</ul>
+<p><strong>练习</strong></p>
+<p>在下面句子中找到动词：</p>
+<blockquote>
+<p>萨曼莎（Samantha）正在用C ++编写“斗牛行动”。该项目目前消耗超过80,000行代码。她以前使用过Python，但最近开始使用C ++。萨曼莎（Samantha）领导着一个由四名软件工程师组成的团队，该团队将在下个季度增长到六名软件工程师</p>
+</blockquote>
+<p><strong>答案</strong></p>
+<blockquote>
+<p>编写、消耗、领导、增长</p>
+</blockquote>
+<h4 id="形容词和副词"><a href="#形容词和副词" class="headerlink" title="形容词和副词"></a>形容词和副词</h4><p>形容词修饰名词。</p>
+<ul>
+<li>汤姆喜欢<strong>红</strong>气球。他准备<strong>美味的</strong>食物。他修复了 <strong>八个</strong>错误。</li>
+</ul>
+<p>副词修饰动词。</p>
+<ul>
+<li>Jane可以<strong>有效地</strong>修复错误。</li>
+</ul>
+<p><strong>练习</strong></p>
+<p>在以下段落中确定四个形容词。</p>
+<blockquote>
+<p>对于有才华的人来说，工程是一个伟大的事业。我认识一位聪明的工程师，可以在任何知识性的工作中脱颖而出。</p>
+</blockquote>
+<p><strong>答案</strong></p>
+<blockquote>
+<p>才华、聪明、知识性、伟大</p>
+</blockquote>
+<h4 id="连词和过渡"><a href="#连词和过渡" class="headerlink" title="连词和过渡"></a>连词和过渡</h4><p>连词连接短语或名词中的句子，过渡将句子本身连起来。</p>
+<p>最重要的连接词如下：</p>
+<ul>
+<li>和</li>
+<li>但</li>
+<li>或者</li>
+</ul>
+<p>技术写作中最重要的过渡词如下：</p>
+<ul>
+<li>然而</li>
+<li>所以</li>
+<li>例如</li>
+</ul>
+<p><strong>练习</strong></p>
+<blockquote>
+<p>通常，Barbara在编写第一行代码之前会研究问题很长时间。<strong><strong><strong>_</strong></strong></strong>，前几天她突然受到启发时，自发地编码了一种方法。</p>
+</blockquote>
+<p><strong>答案</strong></p>
+<blockquote>
+<p>然而</p>
+</blockquote>
+<h3 id="单词"><a href="#单词" class="headerlink" title="单词"></a>单词</h3><h4 id="定义新术语"><a href="#定义新术语" class="headerlink" title="定义新术语"></a>定义新术语</h4><p>在编写时，识别目标受众可能不熟悉的术语，当识别出来之后，需要采取下面两种措施：</p>
+<ul>
+<li>如果该术语已经存在，请链接到现有的良好说明。（不要重新发明轮子。）</li>
+<li>如果是新引入的术语，需要定义它，如果引入多个术语，请定义收集到词汇表中。</li>
+</ul>
+<h4 id="始终使用术语"><a href="#始终使用术语" class="headerlink" title="始终使用术语"></a>始终使用术语</h4><p>在同一个文档中使用相同的术语，否则会让看的人疑惑。</p>
+<h4 id="正确使用首字母缩写"><a href="#正确使用首字母缩写" class="headerlink" title="正确使用首字母缩写"></a>正确使用首字母缩写</h4><p>在正文中首次使用首字母缩写时，请拼写完整的术语，然后将首字母缩写词放在括号中，首字母缩写词用黑体字体标出。然后就可以在后续使用同名的首字母缩写词了。</p>
+<h3 id="歧义代词"><a href="#歧义代词" class="headerlink" title="歧义代词"></a>歧义代词</h3><p>​        许多代词都是指代前文中的名词，这种代词像编程中的指针，往往容易引入错误；在文中，尽量避免使用代词，只需要重用名词即可。可以在如下的几种情况中使用代词。</p>
+<ul>
+<li>引入名词后使用代词；在介绍名词之前，请勿使用代词。</li>
+<li>代词应尽可能靠近指代名词，通常，如果名词和代词的距离超过五个单词，就请考虑重用名词。</li>
+<li>如果在名词和代词之间引入第二名词，请重用名词，而不要使用代词。</li>
+</ul>
+<h4 id="它和他们"><a href="#它和他们" class="headerlink" title="它和他们"></a>它和他们</h4><p>这两个代词在技术文档中引起最大的混乱：</p>
+<ul>
+<li>它<code>It</code></li>
+<li>他们<code>they、them、their</code></li>
+</ul>
+<p>下面句子中的<strong>它</strong>就是一个不确定的代词。</p>
+<blockquote>
+<p>Python是解释形语言，而C ++是编译形语言，。<strong>它</strong>具有很多追随者。</p>
+</blockquote>
+<h4 id="这个和那个"><a href="#这个和那个" class="headerlink" title="这个和那个"></a>这个和那个</h4><ul>
+<li>这<code>This</code></li>
+<li>那<code>That</code></li>
+</ul>
+<p>下面句子中的<strong>这</strong>就不清楚代之<code>Frambus</code>还是<code>Foo</code>。</p>
+<blockquote>
+<p>您可以使用<code>Frambus</code>或<code>Foo</code>来计算导数。<strong>这</strong>不是最佳的。</p>
+</blockquote>
+<h3 id="主动语态"><a href="#主动语态" class="headerlink" title="主动语态"></a>主动语态</h3><p>优先使用主动语态而不是被动语态：</p>
+<h3 id="清晰的句子"><a href="#清晰的句子" class="headerlink" title="清晰的句子"></a>清晰的句子</h3><p>在技术写作中，文章写的清晰明了要优于其它规则；下面提供了几种可以使文章清晰明了的方法。</p>
+<h4 id="选择有效的动词"><a href="#选择有效的动词" class="headerlink" title="选择有效的动词"></a>选择有效的动词</h4><p>​        大多数技术作家都认为动词是句子中最重要的部分，选择正确的使用动词更会产生令人满意的结果。</p>
+<p>要吸引和让读者学习，请选择精确、有力，特定的动词。减少使用不精确、通用的动词，如：</p>
+<ul>
+<li><code>be</code>动词：is，are，am，was，are等。</li>
+<li>发生</li>
+</ul>
+<h3 id="简短的句子"><a href="#简短的句子" class="headerlink" title="简短的句子"></a>简短的句子</h3><p>出于一大原因，我们会在写技术文档时把句子写的足够间断：</p>
+<ul>
+<li>简短的句子阅读起来更快。</li>
+<li>简短的句子通常更容易维护。</li>
+<li>较长的句子会让自己更难理解。</li>
+</ul>
+<p>我们可以通过如下几点来把长句子变为短句：</p>
+<ul>
+<li>每个句子都只表达一个想法。</li>
+<li>将一些长句子转换为列表。</li>
+</ul>
+<blockquote>
+<p><strong>原句</strong></p>
+<p>如：要更改循环的常规流程，可以使用<strong>break</strong>语句（使您跳出当前循环）或<strong>continue</strong>语句（跳过当前循环的当前迭代的其余部分）。</p>
+<p><strong>修改如下</strong></p>
+<p>要更改循环的通常流程，请调用以下语句之一：</p>
+<ul>
+<li><code>break</code>，使您跳出当前循环。</li>
+<li><code>continue</code>，跳过当前循环的当前迭代的其余部分。</li>
+</ul>
+</blockquote>
+<ul>
+<li><p>减少使用重复的单词</p>
+</li>
+<li><p>减少从属子句。</p>
+</li>
+</ul>
+<h3 id="列表和表格"><a href="#列表和表格" class="headerlink" title="列表和表格"></a>列表和表格</h3><p>好的列表可以把混乱的技术内容转变为有序的事物，技术读者通常喜欢列表。</p>
+<h4 id="选择正确的列表类型"><a href="#选择正确的列表类型" class="headerlink" title="选择正确的列表类型"></a>选择正确的列表类型</h4><p>下面的列表在技术写作中经常被使用：</p>
+<ul>
+<li>项目列表。</li>
+</ul>
+<blockquote>
+<p>如：Bash提供以下字符串操作机制：</p>
+<ul>
+<li>从字符串开头删除子字符串</li>
+<li>将整个文件读入一个字符串变量</li>
+</ul>
+</blockquote>
+<ul>
+<li>数字编号列表。</li>
+</ul>
+<blockquote>
+<p>如：请执行以下步骤来重新配置服务器：</p>
+<ol>
+<li>停止服务器。</li>
+<li>编辑配置文件。</li>
+<li>重新启动服务器。</li>
+</ol>
+</blockquote>
+<ul>
+<li>潜入编号清单。</li>
+</ul>
+<p>​        项目列表和编号列表的区别，使用项目列表的时候，重新排列项目列表中的内容，则列表的含义<strong>不会改变</strong>；使用编号列表是，重新排列编号列表中的内容，则列表的含义会<strong>改变</strong>。</p>
+<h4 id="保持列表项一致"><a href="#保持列表项一致" class="headerlink" title="保持列表项一致"></a>保持列表项一致</h4><p>列表项一致是指列表中描述每一项都使用一样的词性、标点、句子结构（如都是主动句）。</p>
+<p>如下面句子就是列表项一致的：</p>
+<ul>
+<li>萝卜</li>
+<li>土豆</li>
+<li>卷心菜</li>
+</ul>
+<p>下面的句子就是列表项不一致的：</p>
+<ul>
+<li>萝卜</li>
+<li>土豆</li>
+<li>夏日的阳光遮掩了冬天的所有回忆。</li>
+</ul>
+<h4 id="创建有用的表"><a href="#创建有用的表" class="headerlink" title="创建有用的表"></a>创建有用的表</h4><p>大家对于表的展示信息会更加的关注。</p>
+<p>使用表时，请注意以下几点：</p>
+<ul>
+<li>每一列的标题都要取的有意义，不要让读者去猜测。</li>
+<li>每个单元格中不要放入过多的内容，如果超过两行，就需要仔细想一是否需要。</li>
+<li>争取每个列之间是相关性的。</li>
+</ul>
+<h4 id="使用表和列表前"><a href="#使用表和列表前" class="headerlink" title="使用表和列表前"></a>使用表和列表前</h4><p>​    在使用表和列表前加上一句话，告诉读者表格或者列表是要说明什么，然后用<strong>冒号</strong>来终止介绍语句。</p>
+<h3 id="段落"><a href="#段落" class="headerlink" title="段落"></a>段落</h3><blockquote>
+<p>写作的工作：弄清主题各部分之间的依赖关系，并按逻辑的顺序呈现出来，使读者能够理解。</p>
+</blockquote>
+<h4 id="写一个好的开头"><a href="#写一个好的开头" class="headerlink" title="写一个好的开头"></a>写一个好的开头</h4><p>​        开头句子是段落中最重要的部分，好的开头确定了段落的中心思想。</p>
+<h4 id="每一段都只写一个主题"><a href="#每一段都只写一个主题" class="headerlink" title="每一段都只写一个主题"></a>每一段都只写一个主题</h4><p>​        一段应只写一个主题，将每个段落都只写一个主题，不要描述之前的话题或者是之后的话题。</p>
+<h4 id="段落不要太长也不要太短"><a href="#段落不要太长也不要太短" class="headerlink" title="段落不要太长也不要太短"></a>段落不要太长也不要太短</h4><p>​        段落太长让看的人第一映像是恐惧，读者更喜欢包含三到五个句子的段落，但会避免包含超过七个句子的段落。</p>
+<h4 id="一个段落要提供什么"><a href="#一个段落要提供什么" class="headerlink" title="一个段落要提供什么"></a>一个段落要提供什么</h4><p>​        好的段落可以回答三个问题：</p>
+<ul>
+<li>你想告诉读者什么东西？</li>
+<li>读者为什么知道这点很重要？</li>
+<li>读者应该如何使用这些知识。</li>
+</ul>
+<h3 id="受众"><a href="#受众" class="headerlink" title="受众"></a>受众</h3><h4 id="如何定义受众"><a href="#如何定义受众" class="headerlink" title="如何定义受众"></a>如何定义受众</h4><p>我们通过简单的方式来确定受众；首先确定受众的角色，示例角色包括：</p>
+<ul>
+<li>软件工程师</li>
+<li>技术非工程师角色</li>
+<li>科学家们</li>
+<li>科学领域的专业人才</li>
+<li>本科生</li>
+<li>研究生</li>
+<li>非技术职位</li>
+</ul>
+<h4 id="确定受众需要学习内容"><a href="#确定受众需要学习内容" class="headerlink" title="确定受众需要学习内容"></a>确定受众需要学习内容</h4><p>​        在写文章之前最好能确定受众需要掌握什么知识才能更好的读懂本文，可以把受众需要掌握的以列表的形式列出来。</p>
+<h3 id="文档"><a href="#文档" class="headerlink" title="文档"></a>文档</h3><p>​        需要把所有的段落组织成一个连贯的文档。</p>
+<h4 id="声明文档范围"><a href="#声明文档范围" class="headerlink" title="声明文档范围"></a>声明文档范围</h4><p>​        一个好的文档应该要说明它要说明的主题，以及不会说明什么；如下：</p>
+<blockquote>
+<p>本文档描述了Project Frambus的总体设计；本文档未介绍相关技术Froobus项目的设计。</p>
+</blockquote>
+<p>​        说明文档的范围不仅能使读者受益，也能让作者受益。在编写时，可以时刻参考自己定义的文档范围并修正。</p>
+<h3 id="Markdown"><a href="#Markdown" class="headerlink" title="Markdown"></a>Markdown</h3><p>​        <code>Markdown</code>是一种轻量级的标记语言，许多技术专业人员都是用它来创建和编辑技术文档，使用<code>Markdown</code>，通过插入特殊符号用来标示标题、粗体、列表等。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/images/wechat_channel.jpg">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%86%99%E4%BD%9C/" rel="tag"># 写作</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/05/19/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%91/" rel="prev" title="2020年十大战略技术趋势：分布式云">
+      <i class="fa fa-chevron-left"></i> 2020年十大战略技术趋势：分布式云
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%A6%E4%B9%A0%E7%9B%AE%E6%A0%87"><span class="nav-number">1.</span> <span class="nav-text">学习目标</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B6%B3%E5%A4%9F%E7%9A%84%E8%AF%AD%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">足够的语法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%90%8D%E8%AF%8D"><span class="nav-number">2.1.</span> <span class="nav-text">名词</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%A3%E8%AF%8D"><span class="nav-number">2.2.</span> <span class="nav-text">代词</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8A%A8%E8%AF%8D"><span class="nav-number">2.3.</span> <span class="nav-text">动词</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BD%A2%E5%AE%B9%E8%AF%8D%E5%92%8C%E5%89%AF%E8%AF%8D"><span class="nav-number">2.4.</span> <span class="nav-text">形容词和副词</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%9E%E8%AF%8D%E5%92%8C%E8%BF%87%E6%B8%A1"><span class="nav-number">2.5.</span> <span class="nav-text">连词和过渡</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%95%E8%AF%8D"><span class="nav-number">3.</span> <span class="nav-text">单词</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89%E6%96%B0%E6%9C%AF%E8%AF%AD"><span class="nav-number">3.1.</span> <span class="nav-text">定义新术语</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A7%8B%E7%BB%88%E4%BD%BF%E7%94%A8%E6%9C%AF%E8%AF%AD"><span class="nav-number">3.2.</span> <span class="nav-text">始终使用术语</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A3%E7%A1%AE%E4%BD%BF%E7%94%A8%E9%A6%96%E5%AD%97%E6%AF%8D%E7%BC%A9%E5%86%99"><span class="nav-number">3.3.</span> <span class="nav-text">正确使用首字母缩写</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A7%E4%B9%89%E4%BB%A3%E8%AF%8D"><span class="nav-number">4.</span> <span class="nav-text">歧义代词</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%83%E5%92%8C%E4%BB%96%E4%BB%AC"><span class="nav-number">4.1.</span> <span class="nav-text">它和他们</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%99%E4%B8%AA%E5%92%8C%E9%82%A3%E4%B8%AA"><span class="nav-number">4.2.</span> <span class="nav-text">这个和那个</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E5%8A%A8%E8%AF%AD%E6%80%81"><span class="nav-number">5.</span> <span class="nav-text">主动语态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B8%85%E6%99%B0%E7%9A%84%E5%8F%A5%E5%AD%90"><span class="nav-number">6.</span> <span class="nav-text">清晰的句子</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%80%89%E6%8B%A9%E6%9C%89%E6%95%88%E7%9A%84%E5%8A%A8%E8%AF%8D"><span class="nav-number">6.1.</span> <span class="nav-text">选择有效的动词</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%80%E7%9F%AD%E7%9A%84%E5%8F%A5%E5%AD%90"><span class="nav-number">7.</span> <span class="nav-text">简短的句子</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%97%E8%A1%A8%E5%92%8C%E8%A1%A8%E6%A0%BC"><span class="nav-number">8.</span> <span class="nav-text">列表和表格</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%80%89%E6%8B%A9%E6%AD%A3%E7%A1%AE%E7%9A%84%E5%88%97%E8%A1%A8%E7%B1%BB%E5%9E%8B"><span class="nav-number">8.1.</span> <span class="nav-text">选择正确的列表类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BF%9D%E6%8C%81%E5%88%97%E8%A1%A8%E9%A1%B9%E4%B8%80%E8%87%B4"><span class="nav-number">8.2.</span> <span class="nav-text">保持列表项一致</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E6%9C%89%E7%94%A8%E7%9A%84%E8%A1%A8"><span class="nav-number">8.3.</span> <span class="nav-text">创建有用的表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E8%A1%A8%E5%92%8C%E5%88%97%E8%A1%A8%E5%89%8D"><span class="nav-number">8.4.</span> <span class="nav-text">使用表和列表前</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AE%B5%E8%90%BD"><span class="nav-number">9.</span> <span class="nav-text">段落</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%99%E4%B8%80%E4%B8%AA%E5%A5%BD%E7%9A%84%E5%BC%80%E5%A4%B4"><span class="nav-number">9.1.</span> <span class="nav-text">写一个好的开头</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AF%8F%E4%B8%80%E6%AE%B5%E9%83%BD%E5%8F%AA%E5%86%99%E4%B8%80%E4%B8%AA%E4%B8%BB%E9%A2%98"><span class="nav-number">9.2.</span> <span class="nav-text">每一段都只写一个主题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AE%B5%E8%90%BD%E4%B8%8D%E8%A6%81%E5%A4%AA%E9%95%BF%E4%B9%9F%E4%B8%8D%E8%A6%81%E5%A4%AA%E7%9F%AD"><span class="nav-number">9.3.</span> <span class="nav-text">段落不要太长也不要太短</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%80%E4%B8%AA%E6%AE%B5%E8%90%BD%E8%A6%81%E6%8F%90%E4%BE%9B%E4%BB%80%E4%B9%88"><span class="nav-number">9.4.</span> <span class="nav-text">一个段落要提供什么</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%97%E4%BC%97"><span class="nav-number">10.</span> <span class="nav-text">受众</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%AE%9A%E4%B9%89%E5%8F%97%E4%BC%97"><span class="nav-number">10.1.</span> <span class="nav-text">如何定义受众</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A1%AE%E5%AE%9A%E5%8F%97%E4%BC%97%E9%9C%80%E8%A6%81%E5%AD%A6%E4%B9%A0%E5%86%85%E5%AE%B9"><span class="nav-number">10.2.</span> <span class="nav-text">确定受众需要学习内容</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E6%A1%A3"><span class="nav-number">11.</span> <span class="nav-text">文档</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A3%B0%E6%98%8E%E6%96%87%E6%A1%A3%E8%8C%83%E5%9B%B4"><span class="nav-number">11.1.</span> <span class="nav-text">声明文档范围</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Markdown"><span class="nav-number">12.</span> <span class="nav-text">Markdown</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">lengrongfu</p>
+  <div class="site-description" itemprop="description">通过持续的学习，记录了成为软件工程师的成长轨迹</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">56</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">80</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/lengrongfu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;lengrongfu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lenronfu@gmail.com" title="E-Mail → mailto:lenronfu@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/lengrongfu" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;lengrongfu" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/lengrongf" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;lengrongf" rel="noopener" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.douban.com/people/156753267/" title="豆瓣 → https:&#x2F;&#x2F;www.douban.com&#x2F;people&#x2F;156753267&#x2F;" rel="noopener" target="_blank"><i class="fab fa-douban fa-fw"></i>豆瓣</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2018 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lengrongfu</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">176k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">2:40</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+<script data-pjax>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.id);
+      var title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              Counter('post', '/classes/Counter', { title, url, time: 1 })
+                .then(response => response.json())
+                .then(() => {
+                  leancloudSelector(url).innerText = 1;
+                })
+                .catch(error => {
+                  console.error('Failed to create', error);
+                });
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            let target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    let { app_id, app_key, server_url } = {"enable":true,"app_id":"UoOuvxcdNUtIHCbH65fOO7KW-gzGzoHsz","app_key":"S04sBDFevpcKfVLt372wvspB","server_url":null,"security":false};
+    function fetchData(api_server) {
+      var Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    let api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '2fd02ad2af123ea595e8',
+      clientSecret: 'c5d4c2098445ec00478a3e817cef7924e880b17a',
+      repo        : 'lengrongfu.github.io',
+      owner       : 'lengrongfu',
+      admin       : ['lengrongfu'],
+      id          : '478953305b0d10984e86bc2877cbe81c',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+    </div>
+</body>
+</html>
