@@ -184,6 +184,114 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://lengrongfu.github.io/2018/10/18/pinpoint-add-hbase-kerberos-auth/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lengrongfu">
+      <meta itemprop="description" content="通过持续的学习，记录了成为软件工程师的成长轨迹">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LRF成长记">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2018/10/18/pinpoint-add-hbase-kerberos-auth/" class="post-title-link" itemprop="url">pinpoint 添加 hbase kerberos认证</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-10-18 09:31:31 09:31:31" itemprop="dateCreated datePublished" datetime="2018-10-18T09:31:31+08:00">2018-10-18 09:31:31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-05-12 09:56:12 09:56:12" itemprop="dateModified" datetime="2021-05-12T09:56:12+08:00">2021-05-12 09:56:12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/github/" itemprop="url" rel="index"><span itemprop="name">github</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2018/10/18/pinpoint-add-hbase-kerberos-auth/" class="post-meta-item leancloud_visitors" data-flag-title="pinpoint 添加 hbase kerberos认证" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>5.7k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>5 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          pinpoint 原生是不支持的hbase的kerberos认证的，经过修改源码，现已在1.8版本之后支持了这一功能，并入到项目主分支中，以后可以直接使用。
+
+开源地址: https://github.com/naver/pinpoint
+
+kerberos 认证简介
+Kerberos 是一种基于对称密钥的身份认证协议，它作为一个独立的第三方的身份认证服务，可以为其服务提供身份认证功能，且支持SSO(即客户端身份认证后，可以访问多个服务如HBase/HDFS等).
+Kerberos 协议过程主要有两个阶段，第一个阶段是KDC对client的身份认证,第二个阶段是service对client的身
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2018/10/18/pinpoint-add-hbase-kerberos-auth/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="http://lengrongfu.github.io/2018/10/17/mysql-install/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1294,112 +1402,6 @@ FirewallD 是 iptables 的一个封装，可以让你更容易地管理 iptables
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://lengrongfu.github.io/2018/10/17/es-node-restart-problme/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="lengrongfu">
-      <meta itemprop="description" content="通过持续的学习，记录了成为软件工程师的成长轨迹">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="LRF成长记">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2018/10/17/es-node-restart-problme/" class="post-title-link" itemprop="url">ES 节点重启问题</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2018-10-17 22:51:38 22:51:38" itemprop="dateCreated datePublished" datetime="2018-10-17T22:51:38+08:00">2018-10-17 22:51:38</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-05-12 09:56:12 09:56:12" itemprop="dateModified" datetime="2021-05-12T09:56:12+08:00">2021-05-12 09:56:12</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/es/" itemprop="url" rel="index"><span itemprop="name">es</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2018/10/17/es-node-restart-problme/" class="post-meta-item leancloud_visitors" data-flag-title="ES 节点重启问题" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span><br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.4k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          ES 节点离线并重启之后，发现本级上的分片已经再开始在平衡了，就会把本级上的所有分片删除，从新从其他集群上拉取，这样就会出现大量的数据迁移。占用超级多的网络资源。
-
-之前已经讲过破解和安装x-pack的教程。本文涉及到的是安装成功之后重启服务的问题。ES集群在其中任何一个节点离线之后都会进行数据再平衡，就是把现有的数据进行重新分片,以达到高可用的目的。但是这样也会有很多问题，比如是因为网络抖动引起节点之间通信阻断，本来马上就能好的，可是就出现大量的数据迁移。
-
-生产环境下建议关闭自动平衡。因为集群中集群的节点数是定的，所以分片也是固定的，如果是添加了新节点，就需要打开自动平衡功能，先把分片平衡
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2018/10/17/es-node-restart-problme/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1469,7 +1471,7 @@ FirewallD 是 iptables 的一个封装，可以让你更容易地管理 iptables
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-count">58</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1535,12 +1537,12 @@ FirewallD 是 iptables 的一个封装，可以让你更容易地管理 iptables
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">177k</span>
+    <span title="Symbols count total">179k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">2:41</span>
+    <span title="Reading time total">2:42</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
   </div>
