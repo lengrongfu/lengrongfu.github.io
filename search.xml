@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>读大数据时代</title>
-    <url>/2018/09/04/%E8%AF%BB%E5%A4%A7%E6%95%B0%E6%8D%AE%E6%97%B6%E4%BB%A3/</url>
-    <content><![CDATA[<!--
-
--->
-]]></content>
-  </entry>
-  <entry>
     <title>搭建一个自己的blog</title>
     <url>/2018/09/03/%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84blog/</url>
     <content><![CDATA[<span id="more"></span>
@@ -53,6 +45,14 @@
         <tag>github-pages</tag>
         <tag>安装教程</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>读大数据时代</title>
+    <url>/2018/09/04/%E8%AF%BB%E5%A4%A7%E6%95%B0%E6%8D%AE%E6%97%B6%E4%BB%A3/</url>
+    <content><![CDATA[<!--
+
+-->
+]]></content>
   </entry>
   <entry>
     <title>cloudera hadoop 安装</title>
@@ -110,37 +110,6 @@
       </tags>
   </entry>
   <entry>
-    <title>cloudera 问题解决</title>
-    <url>/2018/10/16/cloudera-problem/</url>
-    <content><![CDATA[<blockquote>
-<p>如下为记录<code>cloudera</code> 使用过程中的一些常见问题。</p>
-</blockquote>
-<h1 id="1、服务没有设置-opt这个挂载点"><a href="#1、服务没有设置-opt这个挂载点" class="headerlink" title="1、服务没有设置/opt这个挂载点"></a>1、服务没有设置<code>/opt</code>这个挂载点</h1><ul>
-<li><code>cloudera</code>所有的数据都是存储在<code>/opt</code>这个根目录下的，所以服务器在安装系统的时候最好让运维同事挂载一个大空间到这个目录下。</li>
-<li>如果安装的时候不知道，安装软件的时候可以选择存储空间,如果安装的时候也不知道，没有设置的话那就很悲催了。</li>
-<li>如果没有设置就回存到根目录的<code>/opt</code>下，这里面的存储空间一般都很小。说一下解决办法。<br>1、重装（我没这精力）<br>2、把<code>/opt</code>这个目录移动到一个大的挂载点上去，然后使用软连接，本人就是这么做的。</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 步骤</span></span><br><span class="line"><span class="meta">#</span><span class="bash">1、先停掉集群。</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv cloudera cloudera.bak</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv cloudera.bak /data/cloudera</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ln -sv /data/cloudera cloudera</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 经过上面的步骤之后再重启集群就可以了。</span></span><br></pre></td></tr></table></figure>
-<h1 id="2、Error-creating-LevelDB-timeseries-store-in-directory-var-lib-cloudera-service-monitor-ts"><a href="#2、Error-creating-LevelDB-timeseries-store-in-directory-var-lib-cloudera-service-monitor-ts" class="headerlink" title="2、Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts"></a>2、Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts</h1><blockquote>
-<p>具体现象如下，报找不到一个文件。解释一下出现这个问题的原因，还是由于根目录下的空间不够了，因此我移动了一个占有很<br>大空间的包，就是错误中的 <code>/var/lib/cloudera-service-monitor</code> 这个目录，然后通过软连接进行访问的。</p>
-</blockquote>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2018-10-16 16:24:25,993 INFO com.cloudera.cmon.firehose.Main: Cluster size: SMALL</span><br><span class="line">2018-10-16 16:24:26,056 INFO com.cloudera.cmon.tstore.leveldb.LDBResourceManager: Max file descriptors: 32768</span><br><span class="line">2018-10-16 16:24:26,057 INFO com.cloudera.cmon.tstore.leveldb.LDBResourceManager: Setting maximum open fds to: 768</span><br><span class="line">2018-10-16 16:24:26,181 ERROR com.cloudera.cmon.firehose.Main: Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts</span><br><span class="line">org.fusesource.leveldbjni.internal.NativeDB$DBException: Corruption: 3 missing files; e.g.: /data/lib/ts/ts_entity_metadata/000072.sst</span><br><span class="line">        at org.fusesource.leveldbjni.internal.NativeDB.checkStatus(NativeDB.java:194)</span><br><span class="line">        at org.fusesource.leveldbjni.internal.NativeDB.open(NativeDB.java:212)</span><br><span class="line">        at org.fusesource.leveldbjni.JniDBFactory.open(JniDBFactory.java:168)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBUtils.openVersionedDB(LDBUtils.java:264)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBUtils.openVersionedDB(LDBUtils.java:212)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBTimeSeriesMetadataStore.openMetadataDB(LDBTimeSeriesMetadataStore.java:148)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBTimeSeriesMetadataStore.&lt;init&gt;(LDBTimeSeriesMetadataStore.java:138)</span><br><span class="line">        at com.cloudera.cmon.firehose.Main.main(Main.java:453)</span><br></pre></td></tr></table></figure>
-<ul>
-<li>说一下解决办法：</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进行如下的操作，再重启就可以了。亲测可以</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv /var/lib/cloudera-service-monitor /var/lib/cloudera-service-monitor.moved</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv /var/lib/cloudera-host-monitor /var/lib/cloudera-host-monitor.moved</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>参考：<a href="https://community.cloudera.com/t5/Security-Apache-Sentry/Host-Monitor-and-Service-Monitor-is-not-starting-after/td-p/49207">https://community.cloudera.com/t5/Security-Apache-Sentry/Host-Monitor-and-Service-Monitor-is-not-starting-after/td-p/49207</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Hadoop</category>
-      </categories>
-      <tags>
-        <tag>cloudera</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Sqoop User Guide(Sqoop使用指南)</title>
     <url>/2018/09/11/Sqoop/</url>
     <content><![CDATA[<h1 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h1><blockquote>
@@ -183,6 +152,37 @@
       <tags>
         <tag>Sqoop</tag>
         <tag>Hadoop</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>cloudera 问题解决</title>
+    <url>/2018/10/16/cloudera-problem/</url>
+    <content><![CDATA[<blockquote>
+<p>如下为记录<code>cloudera</code> 使用过程中的一些常见问题。</p>
+</blockquote>
+<h1 id="1、服务没有设置-opt这个挂载点"><a href="#1、服务没有设置-opt这个挂载点" class="headerlink" title="1、服务没有设置/opt这个挂载点"></a>1、服务没有设置<code>/opt</code>这个挂载点</h1><ul>
+<li><code>cloudera</code>所有的数据都是存储在<code>/opt</code>这个根目录下的，所以服务器在安装系统的时候最好让运维同事挂载一个大空间到这个目录下。</li>
+<li>如果安装的时候不知道，安装软件的时候可以选择存储空间,如果安装的时候也不知道，没有设置的话那就很悲催了。</li>
+<li>如果没有设置就回存到根目录的<code>/opt</code>下，这里面的存储空间一般都很小。说一下解决办法。<br>1、重装（我没这精力）<br>2、把<code>/opt</code>这个目录移动到一个大的挂载点上去，然后使用软连接，本人就是这么做的。</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 步骤</span></span><br><span class="line"><span class="meta">#</span><span class="bash">1、先停掉集群。</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv cloudera cloudera.bak</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv cloudera.bak /data/cloudera</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ln -sv /data/cloudera cloudera</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 经过上面的步骤之后再重启集群就可以了。</span></span><br></pre></td></tr></table></figure>
+<h1 id="2、Error-creating-LevelDB-timeseries-store-in-directory-var-lib-cloudera-service-monitor-ts"><a href="#2、Error-creating-LevelDB-timeseries-store-in-directory-var-lib-cloudera-service-monitor-ts" class="headerlink" title="2、Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts"></a>2、Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts</h1><blockquote>
+<p>具体现象如下，报找不到一个文件。解释一下出现这个问题的原因，还是由于根目录下的空间不够了，因此我移动了一个占有很<br>大空间的包，就是错误中的 <code>/var/lib/cloudera-service-monitor</code> 这个目录，然后通过软连接进行访问的。</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2018-10-16 16:24:25,993 INFO com.cloudera.cmon.firehose.Main: Cluster size: SMALL</span><br><span class="line">2018-10-16 16:24:26,056 INFO com.cloudera.cmon.tstore.leveldb.LDBResourceManager: Max file descriptors: 32768</span><br><span class="line">2018-10-16 16:24:26,057 INFO com.cloudera.cmon.tstore.leveldb.LDBResourceManager: Setting maximum open fds to: 768</span><br><span class="line">2018-10-16 16:24:26,181 ERROR com.cloudera.cmon.firehose.Main: Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts</span><br><span class="line">org.fusesource.leveldbjni.internal.NativeDB$DBException: Corruption: 3 missing files; e.g.: /data/lib/ts/ts_entity_metadata/000072.sst</span><br><span class="line">        at org.fusesource.leveldbjni.internal.NativeDB.checkStatus(NativeDB.java:194)</span><br><span class="line">        at org.fusesource.leveldbjni.internal.NativeDB.open(NativeDB.java:212)</span><br><span class="line">        at org.fusesource.leveldbjni.JniDBFactory.open(JniDBFactory.java:168)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBUtils.openVersionedDB(LDBUtils.java:264)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBUtils.openVersionedDB(LDBUtils.java:212)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBTimeSeriesMetadataStore.openMetadataDB(LDBTimeSeriesMetadataStore.java:148)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBTimeSeriesMetadataStore.&lt;init&gt;(LDBTimeSeriesMetadataStore.java:138)</span><br><span class="line">        at com.cloudera.cmon.firehose.Main.main(Main.java:453)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>说一下解决办法：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进行如下的操作，再重启就可以了。亲测可以</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv /var/lib/cloudera-service-monitor /var/lib/cloudera-service-monitor.moved</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv /var/lib/cloudera-host-monitor /var/lib/cloudera-host-monitor.moved</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>参考：<a href="https://community.cloudera.com/t5/Security-Apache-Sentry/Host-Monitor-and-Service-Monitor-is-not-starting-after/td-p/49207">https://community.cloudera.com/t5/Security-Apache-Sentry/Host-Monitor-and-Service-Monitor-is-not-starting-after/td-p/49207</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Hadoop</category>
+      </categories>
+      <tags>
+        <tag>cloudera</tag>
       </tags>
   </entry>
   <entry>
@@ -386,6 +386,64 @@ system call filters failed to install; check the logs and fix your configuration
       </tags>
   </entry>
   <entry>
+    <title>ES X-Pack 5.4.3破解安装</title>
+    <url>/2018/10/17/es-xpack-install/</url>
+    <content><![CDATA[<p>假如已经有<code>es</code>和<code>kibana</code>了。</p>
+<p>下面的为安装路径.<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">esHome=/data/home/elastic/elasticsearch-5.4.3</span><br><span class="line">xpackHome=/data/home/xpack</span><br><span class="line">kibanaHome=/data/home/kibana</span><br></pre></td></tr></table></figure></p>
+<h2 id="1、下载xpakc"><a href="#1、下载xpakc" class="headerlink" title="1、下载xpakc"></a>1、下载xpakc</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 下载xpack压缩包</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;xpackHome&#125;</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> wget -c <span class="string">&#x27;https://artifacts.elastic.co/downloads/packs/x-pack/x-pack-5.4.3.zip</span></span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="2、Elasticsearch安装X-Pack"><a href="#2、Elasticsearch安装X-Pack" class="headerlink" title="2、Elasticsearch安装X-Pack"></a>2、Elasticsearch安装X-Pack</h2><p><code>ES</code>安装<code>x-pack</code>有两种方法。</p>
+<h3 id="一、手动安装"><a href="#一、手动安装" class="headerlink" title="一、手动安装"></a>一、手动安装</h3><ul>
+<li>安装插件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ./bin/elasticsearch-plugin install file://<span class="variable">$&#123;xpackHome&#125;</span>/x-pack-5.4.3.zip</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>破解<code>xpack</code></li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;esHome&#125;</span>/plugins</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> touch LicenseVerifier.java</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> vim LicenseVerifier.java</span></span><br><span class="line"></span><br><span class="line">package org.elasticsearch.license;</span><br><span class="line"></span><br><span class="line">import java.nio.*;</span><br><span class="line">import java.util.*;</span><br><span class="line">import java.security.*;</span><br><span class="line">import org.elasticsearch.common.xcontent.*;</span><br><span class="line">import org.apache.lucene.util.*;</span><br><span class="line">import org.elasticsearch.common.io.*;</span><br><span class="line">import java.io.*;</span><br><span class="line"></span><br><span class="line">public class LicenseVerifier</span><br><span class="line">&#123;</span><br><span class="line">    public static boolean verifyLicense(final License license, final byte[] encryptedPublicKeyData) &#123;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static boolean verifyLicense(final License license) &#123;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ul>
+<li>编译</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;esHome&#125;</span>/plugins</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> javac -cp <span class="string">&quot;<span class="variable">$&#123;esHome&#125;</span>/lib/elasticsearch-5.4.3.jar:<span class="variable">$&#123;esHome&#125;</span>/lib/lucene-core-6.5.1.jar:<span class="variable">$&#123;esHome&#125;</span>/plugins/x-pack/x-pack-5.4.3.jar&quot;</span> LicenseVerifier.java</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ul>
+<li>替换class文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 解压</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;esHome&#125;</span>/plugins/x-pack/</span></span><br><span class="line">mkdir test</span><br><span class="line">mv x-pack-5.4.3.jar test/</span><br><span class="line">cd test/</span><br><span class="line">jar xvf x-pack-5.4.3.jar</span><br><span class="line"><span class="meta">#</span><span class="bash">替换</span></span><br><span class="line">cd ./org/elasticsearch/license</span><br><span class="line">rm -f LicenseVerifier.class</span><br><span class="line">mv $&#123;esHome&#125;/plugins/LicenseVerifier.class .</span><br><span class="line"><span class="meta">#</span><span class="bash"> 打包</span></span><br><span class="line">cd $&#123;esHome&#125;/plugins/x-pack/test</span><br><span class="line">jar cvf x-pack-5.4.3.jar .</span><br><span class="line">mv x-pack-5.4.3.jar ../</span><br><span class="line"><span class="meta">#</span><span class="bash">删除临时文件</span></span><br><span class="line">cd ../</span><br><span class="line">rm -rf test</span><br><span class="line">cd ../</span><br><span class="line">rm LicenseVerifier.java</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>申请license</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">来此注册，并下载license文件</span></span><br><span class="line">https://license.elastic.co/registration</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改license</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;                                                                                                                                                                                                       </span><br><span class="line">       <span class="attr">&quot;license&quot;</span>: &#123;</span><br><span class="line">           <span class="attr">&quot;uid&quot;</span>: <span class="string">&quot;01957577-fa6e-426f-9257-200ccdfaee73&quot;</span>,</span><br><span class="line">           <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;platinum&quot;</span>,</span><br><span class="line">           <span class="attr">&quot;issue_date_in_millis&quot;</span>: <span class="number">1534464000000</span>,</span><br><span class="line">           <span class="attr">&quot;expiry_date_in_millis&quot;</span>: <span class="number">2524579200999</span>,</span><br><span class="line">           <span class="attr">&quot;max_nodes&quot;</span>: <span class="number">100</span>,</span><br><span class="line">           <span class="attr">&quot;issued_to&quot;</span>: <span class="string">&quot;leng rongfu (no)&quot;</span>,</span><br><span class="line">           <span class="attr">&quot;issuer&quot;</span>: <span class="string">&quot;Web Form&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;signature&quot;</span>: <span class="string">&quot;AAAAAwAAAA0p6LA0HKNGcIOkCCRqAAABmC9ZN0hjZDBGYnVyRXpCOW5Bb3FjZDAxOWpSbTVoMVZwUzRxVk1PSmkxaktJRVl5MUYvUWh3bHZVUTllbXNPbzBUemtnbWpBbmlWRmRZb25KNFlBR2x0TXc2K2p1Y1VtMG1UQU9TRGZVSGRwaE   JGUjE3bXd3LzRqZ05iLzRteWFNekdxRGpIYlFwYkJiNUs0U1hTVlJKNVlXekMrSlVUdFIvV0FNeWdOYnlESDc3MWhlY3hSQmdKSjJ2ZTcvYlBFOHhPQlV3ZHdDQ0tHcG5uOElCaDJ4K1hob29xSG85N0kvTWV3THhlQk9NL01VMFRjNDZpZEVXeUtUMXIyMlIveFpJUk    k2WUdveEZaME9XWitGUi9WNTZVQW1FMG1DenhZU0ZmeXlZakVEMjZFT2NvOWxpZGlqVmlHNC8rWVVUYzMwRGVySHpIdURzKzFiRDl4TmM1TUp2VTBOUlJZUlAyV0ZVL2kvVk10L0NsbXNFYVZwT3NSU082dFNNa2prQ0ZsclZ4NTltbU1CVE5lR09Bck93V2J1Y3c9PQ    AAAQBENsHqhC2OW/yYxaKP5tS/GHT9TrEbcEtI62k//Id9p2DzSHUv+xekDbfiu550wMrBnoeOi4xV4X6C2WcJCYLSM/QRTotlm11SGvWnUgRXFst83n/nceh3l3Y9D3Odec4zAhrhrYynisls2WfCFGSEW5EUO1II+3C5xhyKMyLROlAxkwNco0H4zD3GlEjZNqC3CK    8cQRRmeJ1lIPvb/Tw8JbbG5zjQuYhQakMAbXqIeL9BLla7sAP4+M8lmvh4Z6bwUGy1MQ9j1+ijdswWMNVs8Vr7CnxZ1j4pla2ZWkGSr4sNfI0LF6U25HC4ofb8CQkrKoAq80EPdINnrfyr56CU&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;start_date_in_millis&quot;</span>: <span class="number">1534464000000</span></span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">&quot;license&quot;</span>:&#123;</span><br><span class="line">        <span class="attr">&quot;uid&quot;</span>:<span class="string">&quot;01957577-fa6e-426f-9257-200ccdfaee73&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;type&quot;</span>:<span class="string">&quot;platinum&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;issue_date_in_millis&quot;</span>:<span class="number">1534464000000</span>,</span><br><span class="line">        <span class="attr">&quot;expiry_date_in_millis&quot;</span>:<span class="number">2524579200999</span>,</span><br><span class="line">        <span class="attr">&quot;max_nodes&quot;</span>:<span class="number">100</span>,</span><br><span class="line">        <span class="attr">&quot;issued_to&quot;</span>:<span class="string">&quot;leng rongfu (no)&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;issuer&quot;</span>:<span class="string">&quot;Web Form&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;signature&quot;</span>:<span class="string">&quot;AAAAAwAAAA0p6LA0HKNGcIOkCCRqAAABmC9ZN0hjZDBGYnVyRXpCOW5Bb3FjZDAxOWpSbTVoMVZwUzRxVk1PSmkxaktJRVl5MUYvUWh3bHZVUTllbXNPbzBUemtnbWpBbmlWRmRZb25KNFlBR2x0TXc2K2p1Y1VtMG1UQU9TRGZVSGRwaEJGUjE3bXd3LzRqZ05iLzRteWFNekdxRGpIYlFwYkJiNUs0U1hTVlJKNVlXekMrSlVUdFIvV0FNeWdOYnlESDc3MWhlY3hSQmdKSjJ2ZTcvYlBFOHhPQlV3ZHdDQ0tHcG5uOElCaDJ4K1hob29xSG85N0kvTWV3THhlQk9NL01VMFRjNDZpZEVXeUtUMXIyMlIveFpJUkk2WUdveEZaME9XWitGUi9WNTZVQW1FMG1DenhZU0ZmeXlZakVEMjZFT2NvOWxpZGlqVmlHNC8rWVVUYzMwRGVySHpIdURzKzFiRDl4TmM1TUp2VTBOUlJZUlAyV0ZVL2kvVk10L0NsbXNFYVZwT3NSU082dFNNa2prQ0ZsclZ4NTltbU1CVE5lR09Bck93V2J1Y3c9PQAAAQBENsHqhC2OW/yYxaKP5tS/GHT9TrEbcEtI62k//Id9p2DzSHUv+xekDbfiu550wMrBnoeOi4xV4X6C2WcJCYLSM/QRTotlm11SGvWnUgRXFst83n/nceh3l3Y9D3Odec4zAhrhrYynisls2WfCFGSEW5EUO1II+3C5xhyKMyLROlAxkwNco0H4zD3GlEjZNqC3CK8cQRRmeJ1lIPvb/Tw8JbbG5zjQuYhQakMAbXqIeL9BLla7sAP4+M8lmvh4Z6bwUGy1MQ9j1+ijdswWMNVs8Vr7CnxZ1j4pla2ZWkGSr4sNfI0LF6U25HC4ofb8CQkrKoAq80EPdINnrfyr56CU&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;start_date_in_millis&quot;</span>:<span class="number">1534464000000</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>ps：<code>platinum</code>表示白金版，可以使用所有功能。其他的如<code>expiry_date_in_millis</code>、<code>max_nodes</code>等根据自己需要修改即可,<code>expiry_date_in_millis</code>是过期时间,使用的是<code>uninx时间</code>,我设置的是到<code>2049</code>年.</p>
+<ul>
+<li>查看lience</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> curl -XGET -u elastic:changeme <span class="string">&#x27;http://&#123;host&#125;:9200/_license&#x27;</span></span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>注册新修改的lience</li>
+<li><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> curl -XPUT -u elastic:changeme <span class="string">&#x27;http://&#123;host&#125;:9200/_xpack/license?acknowledge=true&#x27;</span> -d @lience.json</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="二、直接导入文件"><a href="#二、直接导入文件" class="headerlink" title="二、直接导入文件"></a>二、直接导入文件</h3><p>如果有破解好的文件，直接把<code>plugins</code>下的<code>x-pack</code>文件夹进行压缩，复制到其它节点的<code>plugins</code>路径下，重启就可以使用。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"># 下载地址</span><br><span class="line">$ wget -c https://note.youdao.com/yws/api/personal/file/WEBe693b8fab3b4cad482e5b354cd4176cd?method=download&amp;shareKey=a16d1e40a0ec4461a4f619f325c3f150</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="3、kibana安装X-Pack"><a href="#3、kibana安装X-Pack" class="headerlink" title="3、kibana安装X-Pack"></a>3、kibana安装X-Pack</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;kibanaHome&#125;</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./bin/kibana-plugin install file://<span class="variable">$&#123;xpackHome&#125;</span>/x-pack-5.4.3.zip</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><ul>
+<li><a href="https://my.oschina.net/guol/blog/1204258">https://my.oschina.net/guol/blog/1204258</a></li>
+<li><a href="https://mp.weixin.qq.com/s/NN01SalzLz2Ue6Q4exCfAw">https://mp.weixin.qq.com/s/NN01SalzLz2Ue6Q4exCfAw</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>es</category>
+      </categories>
+      <tags>
+        <tag>elasticsearch</tag>
+        <tag>install</tag>
+        <tag>X-pack</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>es-xpack-watch-user</title>
     <url>/2018/10/17/es-xpack-watch-user/</url>
     <content><![CDATA[<h1 id="Watcher"><a href="#Watcher" class="headerlink" title="Watcher"></a>Watcher</h1><p><strong>Es 安装了官方x-pack的插件，可以用来做业务监控。第一次使用请先阅读下面的注意事项。</strong></p>
@@ -498,64 +556,6 @@ system call filters failed to install; check the logs and fix your configuration
       </tags>
   </entry>
   <entry>
-    <title>ES X-Pack 5.4.3破解安装</title>
-    <url>/2018/10/17/es-xpack-install/</url>
-    <content><![CDATA[<p>假如已经有<code>es</code>和<code>kibana</code>了。</p>
-<p>下面的为安装路径.<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">esHome=/data/home/elastic/elasticsearch-5.4.3</span><br><span class="line">xpackHome=/data/home/xpack</span><br><span class="line">kibanaHome=/data/home/kibana</span><br></pre></td></tr></table></figure></p>
-<h2 id="1、下载xpakc"><a href="#1、下载xpakc" class="headerlink" title="1、下载xpakc"></a>1、下载xpakc</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 下载xpack压缩包</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;xpackHome&#125;</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> wget -c <span class="string">&#x27;https://artifacts.elastic.co/downloads/packs/x-pack/x-pack-5.4.3.zip</span></span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h2 id="2、Elasticsearch安装X-Pack"><a href="#2、Elasticsearch安装X-Pack" class="headerlink" title="2、Elasticsearch安装X-Pack"></a>2、Elasticsearch安装X-Pack</h2><p><code>ES</code>安装<code>x-pack</code>有两种方法。</p>
-<h3 id="一、手动安装"><a href="#一、手动安装" class="headerlink" title="一、手动安装"></a>一、手动安装</h3><ul>
-<li>安装插件</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ./bin/elasticsearch-plugin install file://<span class="variable">$&#123;xpackHome&#125;</span>/x-pack-5.4.3.zip</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>破解<code>xpack</code></li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;esHome&#125;</span>/plugins</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> touch LicenseVerifier.java</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> vim LicenseVerifier.java</span></span><br><span class="line"></span><br><span class="line">package org.elasticsearch.license;</span><br><span class="line"></span><br><span class="line">import java.nio.*;</span><br><span class="line">import java.util.*;</span><br><span class="line">import java.security.*;</span><br><span class="line">import org.elasticsearch.common.xcontent.*;</span><br><span class="line">import org.apache.lucene.util.*;</span><br><span class="line">import org.elasticsearch.common.io.*;</span><br><span class="line">import java.io.*;</span><br><span class="line"></span><br><span class="line">public class LicenseVerifier</span><br><span class="line">&#123;</span><br><span class="line">    public static boolean verifyLicense(final License license, final byte[] encryptedPublicKeyData) &#123;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static boolean verifyLicense(final License license) &#123;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<ul>
-<li>编译</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;esHome&#125;</span>/plugins</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> javac -cp <span class="string">&quot;<span class="variable">$&#123;esHome&#125;</span>/lib/elasticsearch-5.4.3.jar:<span class="variable">$&#123;esHome&#125;</span>/lib/lucene-core-6.5.1.jar:<span class="variable">$&#123;esHome&#125;</span>/plugins/x-pack/x-pack-5.4.3.jar&quot;</span> LicenseVerifier.java</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<ul>
-<li>替换class文件</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 解压</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;esHome&#125;</span>/plugins/x-pack/</span></span><br><span class="line">mkdir test</span><br><span class="line">mv x-pack-5.4.3.jar test/</span><br><span class="line">cd test/</span><br><span class="line">jar xvf x-pack-5.4.3.jar</span><br><span class="line"><span class="meta">#</span><span class="bash">替换</span></span><br><span class="line">cd ./org/elasticsearch/license</span><br><span class="line">rm -f LicenseVerifier.class</span><br><span class="line">mv $&#123;esHome&#125;/plugins/LicenseVerifier.class .</span><br><span class="line"><span class="meta">#</span><span class="bash"> 打包</span></span><br><span class="line">cd $&#123;esHome&#125;/plugins/x-pack/test</span><br><span class="line">jar cvf x-pack-5.4.3.jar .</span><br><span class="line">mv x-pack-5.4.3.jar ../</span><br><span class="line"><span class="meta">#</span><span class="bash">删除临时文件</span></span><br><span class="line">cd ../</span><br><span class="line">rm -rf test</span><br><span class="line">cd ../</span><br><span class="line">rm LicenseVerifier.java</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>申请license</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">来此注册，并下载license文件</span></span><br><span class="line">https://license.elastic.co/registration</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>修改license</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;                                                                                                                                                                                                       </span><br><span class="line">       <span class="attr">&quot;license&quot;</span>: &#123;</span><br><span class="line">           <span class="attr">&quot;uid&quot;</span>: <span class="string">&quot;01957577-fa6e-426f-9257-200ccdfaee73&quot;</span>,</span><br><span class="line">           <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;platinum&quot;</span>,</span><br><span class="line">           <span class="attr">&quot;issue_date_in_millis&quot;</span>: <span class="number">1534464000000</span>,</span><br><span class="line">           <span class="attr">&quot;expiry_date_in_millis&quot;</span>: <span class="number">2524579200999</span>,</span><br><span class="line">           <span class="attr">&quot;max_nodes&quot;</span>: <span class="number">100</span>,</span><br><span class="line">           <span class="attr">&quot;issued_to&quot;</span>: <span class="string">&quot;leng rongfu (no)&quot;</span>,</span><br><span class="line">           <span class="attr">&quot;issuer&quot;</span>: <span class="string">&quot;Web Form&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;signature&quot;</span>: <span class="string">&quot;AAAAAwAAAA0p6LA0HKNGcIOkCCRqAAABmC9ZN0hjZDBGYnVyRXpCOW5Bb3FjZDAxOWpSbTVoMVZwUzRxVk1PSmkxaktJRVl5MUYvUWh3bHZVUTllbXNPbzBUemtnbWpBbmlWRmRZb25KNFlBR2x0TXc2K2p1Y1VtMG1UQU9TRGZVSGRwaE   JGUjE3bXd3LzRqZ05iLzRteWFNekdxRGpIYlFwYkJiNUs0U1hTVlJKNVlXekMrSlVUdFIvV0FNeWdOYnlESDc3MWhlY3hSQmdKSjJ2ZTcvYlBFOHhPQlV3ZHdDQ0tHcG5uOElCaDJ4K1hob29xSG85N0kvTWV3THhlQk9NL01VMFRjNDZpZEVXeUtUMXIyMlIveFpJUk    k2WUdveEZaME9XWitGUi9WNTZVQW1FMG1DenhZU0ZmeXlZakVEMjZFT2NvOWxpZGlqVmlHNC8rWVVUYzMwRGVySHpIdURzKzFiRDl4TmM1TUp2VTBOUlJZUlAyV0ZVL2kvVk10L0NsbXNFYVZwT3NSU082dFNNa2prQ0ZsclZ4NTltbU1CVE5lR09Bck93V2J1Y3c9PQ    AAAQBENsHqhC2OW/yYxaKP5tS/GHT9TrEbcEtI62k//Id9p2DzSHUv+xekDbfiu550wMrBnoeOi4xV4X6C2WcJCYLSM/QRTotlm11SGvWnUgRXFst83n/nceh3l3Y9D3Odec4zAhrhrYynisls2WfCFGSEW5EUO1II+3C5xhyKMyLROlAxkwNco0H4zD3GlEjZNqC3CK    8cQRRmeJ1lIPvb/Tw8JbbG5zjQuYhQakMAbXqIeL9BLla7sAP4+M8lmvh4Z6bwUGy1MQ9j1+ijdswWMNVs8Vr7CnxZ1j4pla2ZWkGSr4sNfI0LF6U25HC4ofb8CQkrKoAq80EPdINnrfyr56CU&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;start_date_in_millis&quot;</span>: <span class="number">1534464000000</span></span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">&quot;license&quot;</span>:&#123;</span><br><span class="line">        <span class="attr">&quot;uid&quot;</span>:<span class="string">&quot;01957577-fa6e-426f-9257-200ccdfaee73&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;type&quot;</span>:<span class="string">&quot;platinum&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;issue_date_in_millis&quot;</span>:<span class="number">1534464000000</span>,</span><br><span class="line">        <span class="attr">&quot;expiry_date_in_millis&quot;</span>:<span class="number">2524579200999</span>,</span><br><span class="line">        <span class="attr">&quot;max_nodes&quot;</span>:<span class="number">100</span>,</span><br><span class="line">        <span class="attr">&quot;issued_to&quot;</span>:<span class="string">&quot;leng rongfu (no)&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;issuer&quot;</span>:<span class="string">&quot;Web Form&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;signature&quot;</span>:<span class="string">&quot;AAAAAwAAAA0p6LA0HKNGcIOkCCRqAAABmC9ZN0hjZDBGYnVyRXpCOW5Bb3FjZDAxOWpSbTVoMVZwUzRxVk1PSmkxaktJRVl5MUYvUWh3bHZVUTllbXNPbzBUemtnbWpBbmlWRmRZb25KNFlBR2x0TXc2K2p1Y1VtMG1UQU9TRGZVSGRwaEJGUjE3bXd3LzRqZ05iLzRteWFNekdxRGpIYlFwYkJiNUs0U1hTVlJKNVlXekMrSlVUdFIvV0FNeWdOYnlESDc3MWhlY3hSQmdKSjJ2ZTcvYlBFOHhPQlV3ZHdDQ0tHcG5uOElCaDJ4K1hob29xSG85N0kvTWV3THhlQk9NL01VMFRjNDZpZEVXeUtUMXIyMlIveFpJUkk2WUdveEZaME9XWitGUi9WNTZVQW1FMG1DenhZU0ZmeXlZakVEMjZFT2NvOWxpZGlqVmlHNC8rWVVUYzMwRGVySHpIdURzKzFiRDl4TmM1TUp2VTBOUlJZUlAyV0ZVL2kvVk10L0NsbXNFYVZwT3NSU082dFNNa2prQ0ZsclZ4NTltbU1CVE5lR09Bck93V2J1Y3c9PQAAAQBENsHqhC2OW/yYxaKP5tS/GHT9TrEbcEtI62k//Id9p2DzSHUv+xekDbfiu550wMrBnoeOi4xV4X6C2WcJCYLSM/QRTotlm11SGvWnUgRXFst83n/nceh3l3Y9D3Odec4zAhrhrYynisls2WfCFGSEW5EUO1II+3C5xhyKMyLROlAxkwNco0H4zD3GlEjZNqC3CK8cQRRmeJ1lIPvb/Tw8JbbG5zjQuYhQakMAbXqIeL9BLla7sAP4+M8lmvh4Z6bwUGy1MQ9j1+ijdswWMNVs8Vr7CnxZ1j4pla2ZWkGSr4sNfI0LF6U25HC4ofb8CQkrKoAq80EPdINnrfyr56CU&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;start_date_in_millis&quot;</span>:<span class="number">1534464000000</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>ps：<code>platinum</code>表示白金版，可以使用所有功能。其他的如<code>expiry_date_in_millis</code>、<code>max_nodes</code>等根据自己需要修改即可,<code>expiry_date_in_millis</code>是过期时间,使用的是<code>uninx时间</code>,我设置的是到<code>2049</code>年.</p>
-<ul>
-<li>查看lience</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> curl -XGET -u elastic:changeme <span class="string">&#x27;http://&#123;host&#125;:9200/_license&#x27;</span></span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>注册新修改的lience</li>
-<li><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> curl -XPUT -u elastic:changeme <span class="string">&#x27;http://&#123;host&#125;:9200/_xpack/license?acknowledge=true&#x27;</span> -d @lience.json</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="二、直接导入文件"><a href="#二、直接导入文件" class="headerlink" title="二、直接导入文件"></a>二、直接导入文件</h3><p>如果有破解好的文件，直接把<code>plugins</code>下的<code>x-pack</code>文件夹进行压缩，复制到其它节点的<code>plugins</code>路径下，重启就可以使用。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"># 下载地址</span><br><span class="line">$ wget -c https://note.youdao.com/yws/api/personal/file/WEBe693b8fab3b4cad482e5b354cd4176cd?method=download&amp;shareKey=a16d1e40a0ec4461a4f619f325c3f150</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h2 id="3、kibana安装X-Pack"><a href="#3、kibana安装X-Pack" class="headerlink" title="3、kibana安装X-Pack"></a>3、kibana安装X-Pack</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;kibanaHome&#125;</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./bin/kibana-plugin install file://<span class="variable">$&#123;xpackHome&#125;</span>/x-pack-5.4.3.zip</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><ul>
-<li><a href="https://my.oschina.net/guol/blog/1204258">https://my.oschina.net/guol/blog/1204258</a></li>
-<li><a href="https://mp.weixin.qq.com/s/NN01SalzLz2Ue6Q4exCfAw">https://mp.weixin.qq.com/s/NN01SalzLz2Ue6Q4exCfAw</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>es</category>
-      </categories>
-      <tags>
-        <tag>elasticsearch</tag>
-        <tag>install</tag>
-        <tag>X-pack</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>linux-Keepalived 使用</title>
     <url>/2018/10/17/linux-Keepalived/</url>
     <content><![CDATA[<h1 id="Keepalived-构建一个高可用的集群"><a href="#Keepalived-构建一个高可用的集群" class="headerlink" title="Keepalived 构建一个高可用的集群"></a>Keepalived 构建一个高可用的集群</h1><p>参考文档：</p>
@@ -628,19 +628,6 @@ system call filters failed to install; check the logs and fix your configuration
       </tags>
   </entry>
   <entry>
-    <title>linux 记录操作记录</title>
-    <url>/2018/10/17/linux-recording-user-log/</url>
-    <content><![CDATA[<h1 id="记录操作记录"><a href="#记录操作记录" class="headerlink" title="记录操作记录"></a>记录操作记录</h1><h2 id="方案一"><a href="#方案一" class="headerlink" title="方案一"></a>方案一</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 把如下内容加入/etc/profile文件里面</span></span><br><span class="line">PS1=&quot;`whoami`@`hostname`:&quot;&#x27;[\u@\h \W]\$&#x27;</span><br><span class="line">PS1=&quot;[\u@\h \W]\$&quot; # 和上面的线上不一样，这种比较常规</span><br><span class="line">history</span><br><span class="line">USER_IP=`who -u am i 2&gt;/dev/null| awk &#x27;&#123;print $NF&#125;&#x27;|sed -e &#x27;s/[()]//g&#x27;` </span><br><span class="line">if [ &quot;$USER_IP&quot; = &quot;&quot; ] </span><br><span class="line">then</span><br><span class="line">USER_IP=`hostname` </span><br><span class="line">fi</span><br><span class="line">if [ ! -d /tmp/history ] </span><br><span class="line">then</span><br><span class="line">mkdir /tmp/history</span><br><span class="line">chmod 777 /tmp/history</span><br><span class="line">fi</span><br><span class="line">if [ ! -d /tmp/history/$&#123;LOGNAME&#125; ] </span><br><span class="line">then</span><br><span class="line">mkdir /tmp/history/$&#123;LOGNAME&#125; </span><br><span class="line">chmod 300 /tmp/history/$&#123;LOGNAME&#125; </span><br><span class="line">fi</span><br><span class="line">export HISTSIZE=4096 </span><br><span class="line">DT=`date +&quot;%Y%m%d_%H%M%S&quot;` </span><br><span class="line">export HISTFILE=&quot;/tmp/history/$&#123;LOGNAME&#125;/$&#123;USER_IP&#125; history.$DT&quot;</span><br><span class="line">chmod 600 /tmp/history/$&#123;LOGNAME&#125;/*history* 2&gt;/dev/null</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">source</span>一下</span></span><br><span class="line">source /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 日志记录在 /tmp/<span class="built_in">history</span> 目录下</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h2 id="方案二"><a href="#方案二" class="headerlink" title="方案二"></a>方案二</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 把如下内容加入到/etc/profile中</span></span><br><span class="line"><span class="meta">#</span><span class="bash">设置<span class="built_in">history</span>格式</span></span><br><span class="line">export HISTTIMEFORMAT=&quot;[%Y-%m-%d %H:%M:%S] [`who am i 2&gt;/dev/null| \</span><br><span class="line">awk &#x27;&#123;print $NF&#125;&#x27;|sed -e &#x27;s/[()]//g&#x27;`] &quot;</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash">登录时清空当前缓存</span></span><br><span class="line">echo &quot;&quot; &gt; .bash_history</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash">记录shell执行的每一条命令</span></span><br><span class="line">export PROMPT_COMMAND=&#x27;\</span><br><span class="line">if [ -z &quot;$OLD_PWD&quot; ];then</span><br><span class="line">export OLD_PWD=$PWD;</span><br><span class="line">fi;</span><br><span class="line">if [ ! -z &quot;$LAST_CMD&quot; ] &amp;&amp; [ &quot;$(history 1)&quot; != &quot;$LAST_CMD&quot; ]; then</span><br><span class="line">logger -t `whoami`_shell_cmd &quot;[$OLD_PWD]$(history 1)&quot;;</span><br><span class="line">fi ;</span><br><span class="line">export LAST_CMD=&quot;$(history 1)&quot;;</span><br><span class="line">export OLD_PWD=$PWD;&#x27;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="built_in">source</span>一下</span></span><br><span class="line">source /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 日志记录</span></span><br><span class="line">/var/log/messages</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>linux</tag>
-        <tag>维护</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>linux-crond</title>
     <url>/2018/10/17/linux-crond/</url>
     <content><![CDATA[<h2 id="1-写定时任务要执行的脚本"><a href="#1-写定时任务要执行的脚本" class="headerlink" title="1.写定时任务要执行的脚本"></a>1.写定时任务要执行的脚本</h2><p>如:test.sh</p>
@@ -667,6 +654,19 @@ system call filters failed to install; check the logs and fix your configuration
       <tags>
         <tag>linux</tag>
         <tag>crond</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>linux 记录操作记录</title>
+    <url>/2018/10/17/linux-recording-user-log/</url>
+    <content><![CDATA[<h1 id="记录操作记录"><a href="#记录操作记录" class="headerlink" title="记录操作记录"></a>记录操作记录</h1><h2 id="方案一"><a href="#方案一" class="headerlink" title="方案一"></a>方案一</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 把如下内容加入/etc/profile文件里面</span></span><br><span class="line">PS1=&quot;`whoami`@`hostname`:&quot;&#x27;[\u@\h \W]\$&#x27;</span><br><span class="line">PS1=&quot;[\u@\h \W]\$&quot; # 和上面的线上不一样，这种比较常规</span><br><span class="line">history</span><br><span class="line">USER_IP=`who -u am i 2&gt;/dev/null| awk &#x27;&#123;print $NF&#125;&#x27;|sed -e &#x27;s/[()]//g&#x27;` </span><br><span class="line">if [ &quot;$USER_IP&quot; = &quot;&quot; ] </span><br><span class="line">then</span><br><span class="line">USER_IP=`hostname` </span><br><span class="line">fi</span><br><span class="line">if [ ! -d /tmp/history ] </span><br><span class="line">then</span><br><span class="line">mkdir /tmp/history</span><br><span class="line">chmod 777 /tmp/history</span><br><span class="line">fi</span><br><span class="line">if [ ! -d /tmp/history/$&#123;LOGNAME&#125; ] </span><br><span class="line">then</span><br><span class="line">mkdir /tmp/history/$&#123;LOGNAME&#125; </span><br><span class="line">chmod 300 /tmp/history/$&#123;LOGNAME&#125; </span><br><span class="line">fi</span><br><span class="line">export HISTSIZE=4096 </span><br><span class="line">DT=`date +&quot;%Y%m%d_%H%M%S&quot;` </span><br><span class="line">export HISTFILE=&quot;/tmp/history/$&#123;LOGNAME&#125;/$&#123;USER_IP&#125; history.$DT&quot;</span><br><span class="line">chmod 600 /tmp/history/$&#123;LOGNAME&#125;/*history* 2&gt;/dev/null</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">source</span>一下</span></span><br><span class="line">source /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 日志记录在 /tmp/<span class="built_in">history</span> 目录下</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="方案二"><a href="#方案二" class="headerlink" title="方案二"></a>方案二</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 把如下内容加入到/etc/profile中</span></span><br><span class="line"><span class="meta">#</span><span class="bash">设置<span class="built_in">history</span>格式</span></span><br><span class="line">export HISTTIMEFORMAT=&quot;[%Y-%m-%d %H:%M:%S] [`who am i 2&gt;/dev/null| \</span><br><span class="line">awk &#x27;&#123;print $NF&#125;&#x27;|sed -e &#x27;s/[()]//g&#x27;`] &quot;</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash">登录时清空当前缓存</span></span><br><span class="line">echo &quot;&quot; &gt; .bash_history</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash">记录shell执行的每一条命令</span></span><br><span class="line">export PROMPT_COMMAND=&#x27;\</span><br><span class="line">if [ -z &quot;$OLD_PWD&quot; ];then</span><br><span class="line">export OLD_PWD=$PWD;</span><br><span class="line">fi;</span><br><span class="line">if [ ! -z &quot;$LAST_CMD&quot; ] &amp;&amp; [ &quot;$(history 1)&quot; != &quot;$LAST_CMD&quot; ]; then</span><br><span class="line">logger -t `whoami`_shell_cmd &quot;[$OLD_PWD]$(history 1)&quot;;</span><br><span class="line">fi ;</span><br><span class="line">export LAST_CMD=&quot;$(history 1)&quot;;</span><br><span class="line">export OLD_PWD=$PWD;&#x27;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="built_in">source</span>一下</span></span><br><span class="line">source /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 日志记录</span></span><br><span class="line">/var/log/messages</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>linux</tag>
+        <tag>维护</tag>
       </tags>
   </entry>
   <entry>
@@ -1027,6 +1027,56 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
+    <title>docker 网络概念</title>
+    <url>/2018/11/25/docker-network-concept/</url>
+    <content><![CDATA[<h1 id="容器的网络模型"><a href="#容器的网络模型" class="headerlink" title="容器的网络模型"></a>容器的网络模型</h1><p><code>Docker</code>的网络架构是构建在一组称为容器网络模型(CNM)的接口之上的。这个CNM的原理是为了提供多种不同的基础系统架构的应用程可用性。<br>最初的容器网络设计只关注如何在单个主机上运行容器并使他们可以从网络访问；在<code>host</code>模式下，容器在主机的<code>Network Namespace</code>中运行并使用主机IP地址，暴露容器端口在主机外面，容器会使用主机的端口。<br>这个<code>bridge</code>模式对<code>host</code>模式进行了改进，在<code>Bridge</code>模式下，容器通过<code>IPAM</code>IP地址管理模块来提供IP，从它自己的网络空间中获取自己的网络IP，此时容器有自己的网络命名空间，不会出现端口冲突，但是容器如果要暴露服务在主机外部，仍然需要使用主机IP。该技术是使用的<code>NAT</code>网络地址转换实现的，在主机IP:主机端口和容器IP:容器端口之间进行映射，这些转换规则是使用<code>iptables</code>实现的，这种实现限制了解决方案的规模和性能。此方案并没有解决多主机的容器网络通信问题。</p>
+<p><img src="/2018/11/25/docker-network-concept/cnm.png" alt="cnm"></p>
+<h2 id="CNM-结构"><a href="#CNM-结构" class="headerlink" title="CNM 结构"></a>CNM 结构</h2><p>上图是<code>CNM</code>中的几个高级结构，他们都是和<code>&#39;OS</code>无关的。</p>
+<ul>
+<li>Sandbox：沙箱包含网络容器的配置，这包括管理容器的接口，路由表和<code>DNS</code>配置，沙箱是通过<code>Linux</code>的命名空间实现的。一个容器就是一个沙箱盒子。</li>
+<li>Endpoint：一个<code>Endpoint</code>连接一个沙箱和一个网络。</li>
+<li>Network：<code>CNM</code>没有根据<code>OSI</code>模型指定网络，</li>
+</ul>
+<h1 id="CNM-驱动接口"><a href="#CNM-驱动接口" class="headerlink" title="CNM 驱动接口"></a>CNM 驱动接口</h1><p>这个CNM模型提供了两个插件和开放接口提供给用户使用，可以使用他们它们来对网络的功能进行控制。</p>
+<h2 id="网络驱动的类型"><a href="#网络驱动的类型" class="headerlink" title="网络驱动的类型"></a>网络驱动的类型</h2><ul>
+<li>网络驱动程序：<code>Docker</code>网络驱动程序是网络功能的实现，它们是可拔插的，因此可以使用不同的驱动程序提供给不通的应用使用，在集群中可以使用多个网络驱动器，但是单个<code>Docker</code>网络只能通过单个网络驱动程序实现，有两种类型的CNM网络驱动程序。</li>
+<li><ul>
+<li>内置网络驱动程序：<code>Docker</code>引擎内置了几种网络驱动程序，比如，网络驱动，overlay 驱动。</li>
+</ul>
+</li>
+<li><ul>
+<li>插件网络驱动程序：是由社区或者其他供应商提供的，用于与现有软件和硬件的提成，用户还可以自己实现。</li>
+</ul>
+</li>
+<li>IPAM 驱动：<code>Docker</code>有内置的<code>IP</code>地址管理器，如果未指定，则使用默认的子网和网络，用户也可指定子网和网关。</li>
+</ul>
+<h2 id="Docker内置网络驱动程序"><a href="#Docker内置网络驱动程序" class="headerlink" title="Docker内置网络驱动程序"></a>Docker内置网络驱动程序</h2><p><code>Docker</code>内置网络驱动程序是引擎的一部分，不需要任何其他模块，通过使用<code>docker network</code>命令来创建和使用网络模块。</p>
+<ul>
+<li>Bridge：<code>Bridge</code>驱动程序在宿主机上创建<code>Linux</code>网桥，网桥上的容器默认可以通信，也可以配置对容器的外部访问。</li>
+<li>Overlay：<code>overlay</code>驱动程序在宿主机上创建一个覆盖网络，支持开箱即用的多主机网络，通过使用<code>linux</code>网桥和<code>VXLAN</code>让宿主机上物理网络来实现容器到容器的多主机通信。</li>
+<li>MACVLAN：<code>macvlan</code>驱动程序使用<code>macvlan</code>桥接模式在容器和宿主机之间建立连接。</li>
+<li>Host：使用<code>host</code>驱动程序，容器将使用宿主机的网络栈，主机上的所有接口都可以由容器使用。</li>
+<li>None：<code>none</code>驱动程序为容器提供自己的网络堆栈和命名空间，但不配置接口，如果没有其他配置，容器将于宿主机网络完全隔离。</li>
+</ul>
+<p>默认情况下一个<code>Docker</code>主机上有<code>none</code>,<code>bridge</code>,<code>host</code>三种网络驱动程序，这些网络程序不能被删除，当使用<code>Swarm</code>时，会添加两个网络，一个是叫<code>docker_gwbridge</code>的<code>bridge</code>网络，还有一个是叫<code>ingress</code>的<code>overlay</code>的网络程序，这两个网络是自动创建在整个集群中的。</p>
+<h1 id="Linux-网络原理"><a href="#Linux-网络原理" class="headerlink" title="Linux 网络原理"></a>Linux 网络原理</h1><h1 id="名词解释"><a href="#名词解释" class="headerlink" title="名词解释"></a>名词解释</h1><ul>
+<li><a href="https://cizixs.com/2017/02/10/network-virtualization-network-namespace/">Network Namespace</a><br>网络命名空间。</li>
+<li><a href="https://en.wikipedia.org/wiki/Network_address_translation">NAT</a><br>网络地址转换，这是一种网络虚拟化的技术，是为了解决IP不够用的问题。</li>
+<li><a href="https://en.wikipedia.org/wiki/IP_address_management">IPAM</a><br>IP地址管理,对应于CNM模型中的IPAM模块，提供IP管理和生成。</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><ul>
+<li><a href="https://github.com/docker/libnetwork/blob/master/docs/design.md">CNM 设计</a></li>
+<li><a href="https://docs.docker.com/engine/extend/legacy_plugins/#installing-a-plugin">Docker 引擎添加插件</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>学习</category>
+      </categories>
+      <tags>
+        <tag>Docker network</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>docker 多阶段构建</title>
     <url>/2018/11/27/docker-multi-stage-builds/</url>
     <content><![CDATA[<blockquote>
@@ -1078,53 +1128,20 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
-    <title>docker 网络概念</title>
-    <url>/2018/11/25/docker-network-concept/</url>
-    <content><![CDATA[<h1 id="容器的网络模型"><a href="#容器的网络模型" class="headerlink" title="容器的网络模型"></a>容器的网络模型</h1><p><code>Docker</code>的网络架构是构建在一组称为容器网络模型(CNM)的接口之上的。这个CNM的原理是为了提供多种不同的基础系统架构的应用程可用性。<br>最初的容器网络设计只关注如何在单个主机上运行容器并使他们可以从网络访问；在<code>host</code>模式下，容器在主机的<code>Network Namespace</code>中运行并使用主机IP地址，暴露容器端口在主机外面，容器会使用主机的端口。<br>这个<code>bridge</code>模式对<code>host</code>模式进行了改进，在<code>Bridge</code>模式下，容器通过<code>IPAM</code>IP地址管理模块来提供IP，从它自己的网络空间中获取自己的网络IP，此时容器有自己的网络命名空间，不会出现端口冲突，但是容器如果要暴露服务在主机外部，仍然需要使用主机IP。该技术是使用的<code>NAT</code>网络地址转换实现的，在主机IP:主机端口和容器IP:容器端口之间进行映射，这些转换规则是使用<code>iptables</code>实现的，这种实现限制了解决方案的规模和性能。此方案并没有解决多主机的容器网络通信问题。</p>
-<p><img src="/2018/11/25/docker-network-concept/cnm.png" alt="cnm"></p>
-<h2 id="CNM-结构"><a href="#CNM-结构" class="headerlink" title="CNM 结构"></a>CNM 结构</h2><p>上图是<code>CNM</code>中的几个高级结构，他们都是和<code>&#39;OS</code>无关的。</p>
-<ul>
-<li>Sandbox：沙箱包含网络容器的配置，这包括管理容器的接口，路由表和<code>DNS</code>配置，沙箱是通过<code>Linux</code>的命名空间实现的。一个容器就是一个沙箱盒子。</li>
-<li>Endpoint：一个<code>Endpoint</code>连接一个沙箱和一个网络。</li>
-<li>Network：<code>CNM</code>没有根据<code>OSI</code>模型指定网络，</li>
-</ul>
-<h1 id="CNM-驱动接口"><a href="#CNM-驱动接口" class="headerlink" title="CNM 驱动接口"></a>CNM 驱动接口</h1><p>这个CNM模型提供了两个插件和开放接口提供给用户使用，可以使用他们它们来对网络的功能进行控制。</p>
-<h2 id="网络驱动的类型"><a href="#网络驱动的类型" class="headerlink" title="网络驱动的类型"></a>网络驱动的类型</h2><ul>
-<li>网络驱动程序：<code>Docker</code>网络驱动程序是网络功能的实现，它们是可拔插的，因此可以使用不同的驱动程序提供给不通的应用使用，在集群中可以使用多个网络驱动器，但是单个<code>Docker</code>网络只能通过单个网络驱动程序实现，有两种类型的CNM网络驱动程序。</li>
-<li><ul>
-<li>内置网络驱动程序：<code>Docker</code>引擎内置了几种网络驱动程序，比如，网络驱动，overlay 驱动。</li>
-</ul>
-</li>
-<li><ul>
-<li>插件网络驱动程序：是由社区或者其他供应商提供的，用于与现有软件和硬件的提成，用户还可以自己实现。</li>
-</ul>
-</li>
-<li>IPAM 驱动：<code>Docker</code>有内置的<code>IP</code>地址管理器，如果未指定，则使用默认的子网和网络，用户也可指定子网和网关。</li>
-</ul>
-<h2 id="Docker内置网络驱动程序"><a href="#Docker内置网络驱动程序" class="headerlink" title="Docker内置网络驱动程序"></a>Docker内置网络驱动程序</h2><p><code>Docker</code>内置网络驱动程序是引擎的一部分，不需要任何其他模块，通过使用<code>docker network</code>命令来创建和使用网络模块。</p>
-<ul>
-<li>Bridge：<code>Bridge</code>驱动程序在宿主机上创建<code>Linux</code>网桥，网桥上的容器默认可以通信，也可以配置对容器的外部访问。</li>
-<li>Overlay：<code>overlay</code>驱动程序在宿主机上创建一个覆盖网络，支持开箱即用的多主机网络，通过使用<code>linux</code>网桥和<code>VXLAN</code>让宿主机上物理网络来实现容器到容器的多主机通信。</li>
-<li>MACVLAN：<code>macvlan</code>驱动程序使用<code>macvlan</code>桥接模式在容器和宿主机之间建立连接。</li>
-<li>Host：使用<code>host</code>驱动程序，容器将使用宿主机的网络栈，主机上的所有接口都可以由容器使用。</li>
-<li>None：<code>none</code>驱动程序为容器提供自己的网络堆栈和命名空间，但不配置接口，如果没有其他配置，容器将于宿主机网络完全隔离。</li>
-</ul>
-<p>默认情况下一个<code>Docker</code>主机上有<code>none</code>,<code>bridge</code>,<code>host</code>三种网络驱动程序，这些网络程序不能被删除，当使用<code>Swarm</code>时，会添加两个网络，一个是叫<code>docker_gwbridge</code>的<code>bridge</code>网络，还有一个是叫<code>ingress</code>的<code>overlay</code>的网络程序，这两个网络是自动创建在整个集群中的。</p>
-<h1 id="Linux-网络原理"><a href="#Linux-网络原理" class="headerlink" title="Linux 网络原理"></a>Linux 网络原理</h1><h1 id="名词解释"><a href="#名词解释" class="headerlink" title="名词解释"></a>名词解释</h1><ul>
-<li><a href="https://cizixs.com/2017/02/10/network-virtualization-network-namespace/">Network Namespace</a><br>网络命名空间。</li>
-<li><a href="https://en.wikipedia.org/wiki/Network_address_translation">NAT</a><br>网络地址转换，这是一种网络虚拟化的技术，是为了解决IP不够用的问题。</li>
-<li><a href="https://en.wikipedia.org/wiki/IP_address_management">IPAM</a><br>IP地址管理,对应于CNM模型中的IPAM模块，提供IP管理和生成。</li>
-</ul>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><ul>
-<li><a href="https://github.com/docker/libnetwork/blob/master/docs/design.md">CNM 设计</a></li>
-<li><a href="https://docs.docker.com/engine/extend/legacy_plugins/#installing-a-plugin">Docker 引擎添加插件</a></li>
+    <title>Container Networking 标准</title>
+    <url>/2018/12/05/Container-Networking-Standards/</url>
+    <content><![CDATA[<h1 id="容器网络概括"><a href="#容器网络概括" class="headerlink" title="容器网络概括"></a>容器网络概括</h1><p>容器正在改变应用程序的开发方式以及应用程序连接网络的方式，大多数讨论容器都是在讨论容器编排，比如：<code>k8s</code>,<code>swarm</code>,这是因为开发首先能接触到的就是容器的编排，但是，网络对于生产部署至关重要，因为网络需要自动化，可扩展且安全，以适应于下一代的混合云的应用架构。</p>
+<h1 id="容器与虚拟机的网络连接"><a href="#容器与虚拟机的网络连接" class="headerlink" title="容器与虚拟机的网络连接"></a>容器与虚拟机的网络连接</h1><h1 id="参考指南"><a href="#参考指南" class="headerlink" title="参考指南"></a>参考指南</h1><ul>
+<li><a href="http://www.nuagenetworks.net/blog/container-networking-standards/">http://www.nuagenetworks.net/blog/container-networking-standards/</a></li>
 </ul>
 ]]></content>
       <categories>
         <category>学习</category>
       </categories>
       <tags>
-        <tag>Docker network</tag>
+        <tag>Container Networking</tag>
+        <tag>CNM</tag>
+        <tag>CNI</tag>
       </tags>
   </entry>
   <entry>
@@ -1265,23 +1282,6 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
-    <title>Container Networking 标准</title>
-    <url>/2018/12/05/Container-Networking-Standards/</url>
-    <content><![CDATA[<h1 id="容器网络概括"><a href="#容器网络概括" class="headerlink" title="容器网络概括"></a>容器网络概括</h1><p>容器正在改变应用程序的开发方式以及应用程序连接网络的方式，大多数讨论容器都是在讨论容器编排，比如：<code>k8s</code>,<code>swarm</code>,这是因为开发首先能接触到的就是容器的编排，但是，网络对于生产部署至关重要，因为网络需要自动化，可扩展且安全，以适应于下一代的混合云的应用架构。</p>
-<h1 id="容器与虚拟机的网络连接"><a href="#容器与虚拟机的网络连接" class="headerlink" title="容器与虚拟机的网络连接"></a>容器与虚拟机的网络连接</h1><h1 id="参考指南"><a href="#参考指南" class="headerlink" title="参考指南"></a>参考指南</h1><ul>
-<li><a href="http://www.nuagenetworks.net/blog/container-networking-standards/">http://www.nuagenetworks.net/blog/container-networking-standards/</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>学习</category>
-      </categories>
-      <tags>
-        <tag>Container Networking</tag>
-        <tag>CNM</tag>
-        <tag>CNI</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>18年的回顾,19年的展望</title>
     <url>/2019/01/04/2018-2019/</url>
     <content><![CDATA[<h1 id="18年的计划"><a href="#18年的计划" class="headerlink" title="18年的计划"></a>18年的计划</h1><ul>
@@ -1338,6 +1338,46 @@ MySQL服务初始化(仅适用5.7)</li>
       </categories>
       <tags>
         <tag>es cluster manage</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>go1.12 发行说明</title>
+    <url>/2019/02/27/go1-12/</url>
+    <content><![CDATA[<h1 id="Go1-12-概述"><a href="#Go1-12-概述" class="headerlink" title="Go1.12 概述"></a>Go1.12 概述</h1><p><code>Go1.12</code>是目前最新的<code>Go</code>版本，在<code>Go1.11</code>发行之后的六个月到来，大多数的改变是工具链、运行时和包，总的来说，该版本依然保持了<code>Go1</code>的<a href="https://golang.org/doc/go1compat">兼容性承诺</a>,希望大多数的程序还能和以前一样继续的编译和运行。</p>
+<h1 id="语言上的改变"><a href="#语言上的改变" class="headerlink" title="语言上的改变"></a>语言上的改变</h1><pre><code>语言规范上是没有改变的。
+</code></pre><h1 id="部分"><a href="#部分" class="headerlink" title="部分"></a>部分</h1><ul>
+<li>竞争检测现在是支持在<code>linux/arm64</code></li>
+<li><code>Go1.12</code>是最后一个支持<code>FreeBSD 10.x</code>的版本，<code>Go1.13</code>将开始支持<code>FreeBSD 11.2+ or FreeBSD 12.0+</code>,<code>FreeBSD 12.0+</code>要求设置一个<code>COMPAT_FREEBSD11</code>的变量，这是默认设置的。</li>
+<li>在<code>linux/ppc64</code>上支持<code>cgo</code></li>
+</ul>
+<h2 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h2><p><code>windows/arm</code>的部分支持<code>go</code>在<code>windows10 lot</code>的32位物联网<code>arm</code>芯片上，比如树莓派3.</p>
+<h2 id="AIX"><a href="#AIX" class="headerlink" title="AIX"></a>AIX</h2><p>Go现在支持AIX 7.2及更高版本的POWER8体系结构（aix / ppc64）。尚不支持外部链接，cgo，pprof和竞赛检测器</p>
+<h2 id="Darwin"><a href="#Darwin" class="headerlink" title="Darwin"></a>Darwin</h2><p><code>Go 1.12</code>是最后一个支持运行在<code>macOS 10.10</code>系统之上的版本，<code>Go1.13</code>将要求操作系统必须是<code>macOS 10.11</code>以上。</p>
+<h1 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h1><h2 id="go-tool-vet-不再支持"><a href="#go-tool-vet-不再支持" class="headerlink" title="go tool vet 不再支持"></a>go tool vet 不再支持</h2><p><code>go vet</code>命令将不在支持，关于这部分功能迁移到了<code>analysis</code>工具中，更多详情查看包<a href="https://godoc.org/golang.org/x/tools/go/analysis">golang.org/x/tools/go/analysis</a>,使用方式有所改变，不能再使用<code>go tool vet</code>此命令，需要更改为<code>go vet</code>命令，使用<code>go vet</code>可以支持所以的版本。<br><code>-shadow</code>将不再可用，需要替换。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">go</span> get -u golang.org/x/tools/<span class="keyword">go</span>/analysis/passes/shadow/cmd/shadow</span><br><span class="line"><span class="keyword">go</span> vet -vettool=$(which shadow)</span><br></pre></td></tr></table></figure></p>
+<h2 id="Tour将不在默认安装"><a href="#Tour将不在默认安装" class="headerlink" title="Tour将不在默认安装"></a>Tour将不在默认安装</h2><p><code>Go Tour</code>不会包含再主要的包中，如果需要使用需要自行安装。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">go</span> get -u golang.org/x/tour</span><br><span class="line">tour</span><br></pre></td></tr></table></figure></p>
+<h2 id="Build-cache-要求"><a href="#Build-cache-要求" class="headerlink" title="Build cache 要求"></a>Build cache 要求</h2><p>如果设置了<code>GOCACHE=off</code>将导致<code>go</code>命令行写缓存失败。</p>
+<h2 id="二进制包"><a href="#二进制包" class="headerlink" title="二进制包"></a>二进制包</h2><p><code>Go 1.12</code>是最后一个支持二进制包的版本.</p>
+<h2 id="Cgo"><a href="#Cgo" class="headerlink" title="Cgo"></a>Cgo</h2><p><code>Go1.12</code>将<code>C</code>语言的<code>EGLDisplay</code>类型翻译为<code>go</code>的<code>uintptr</code>类型。更多信息请参考<a href="https://golang.org/cmd/cgo/#hdr-Special_cases">cgo 文档</a></p>
+<h1 id="核心库"><a href="#核心库" class="headerlink" title="核心库"></a>核心库</h1><h2 id="TLS1-3"><a href="#TLS1-3" class="headerlink" title="TLS1.3"></a>TLS1.3</h2><p><code>Go1.12</code>添加了对<code>TLS 1.3</code>的支持，可以通过设置环境变量<code>tls13=1GODEBUG</code>来启用，在<code>Go1.13</code>版本中将默认开启。</p>
+<h2 id="bufio"><a href="#bufio" class="headerlink" title="bufio"></a>bufio</h2><p>如果在调用完<code>Peek</code>方法之后调用<code>UnreadRune and UnreadByte</code>将会返回一个错误。</p>
+<h2 id="bytes"><a href="#bytes" class="headerlink" title="bytes"></a>bytes</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ReplaceAll</span><span class="params">(s, old, <span class="built_in">new</span> []<span class="keyword">byte</span>)</span> []<span class="title">byte</span></span></span><br></pre></td></tr></table></figure>
+<p>新函数<code>ReplaceAll</code>将返回一个字节切片的副本。<code>s</code>是原字节，<code>old</code>是匹配字节，<code>new</code>是替换为新的字符。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;bytes&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;%s\n&quot;</span>, bytes.ReplaceAll([]<span class="keyword">byte</span>(<span class="string">&quot;oink oink oink&quot;</span>), []<span class="keyword">byte</span>(<span class="string">&quot;oink&quot;</span>), []<span class="keyword">byte</span>(<span class="string">&quot;moo&quot;</span>)))</span><br><span class="line">	fmt.Printf(<span class="string">&quot;%s\n&quot;</span>,bytes.ReplaceAll([]<span class="keyword">byte</span>(<span class="string">&quot;this is a demo,place open the demo file&quot;</span>),[]<span class="keyword">byte</span>(<span class="string">&quot;demo&quot;</span>),[]<span class="keyword">byte</span>(<span class="string">&quot;test&quot;</span>)))</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//输出</span></span><br><span class="line">moo moo moo</span><br><span class="line">this is a test,place open the test file</span><br></pre></td></tr></table></figure></p>
+<h2 id="crypto-rand"><a href="#crypto-rand" class="headerlink" title="crypto/rand"></a>crypto/rand</h2><p><code>Reader.Read</code>如果超过60s还没有读取到熵，那么将会打印输出。</p>
+<h2 id="crypto-rc4"><a href="#crypto-rc4" class="headerlink" title="crypto/rc4"></a>crypto/rc4</h2><p>这个版本移除了其他版本的实现，只保留了<code>Go</code>版本。<br><code>RC4</code>是一种流<a href="https://zh.wikipedia.org/wiki/RC4">加密算法</a></p>
+<h2 id="crypto-tls"><a href="#crypto-tls" class="headerlink" title="crypto/tls"></a>crypto/tls</h2><p>如果客户端发送的初始消息看起来不像TLS，则服务器将不再使用警报进行回复,当TLS记录头无效时，返回<code>RecordHeaderError</code>.<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> RecordHeaderError <span class="keyword">struct</span> &#123;</span><br><span class="line">        <span class="comment">// Msg contains a human readable string that describes the error.</span></span><br><span class="line">        Msg <span class="keyword">string</span></span><br><span class="line">        <span class="comment">// RecordHeader contains the five bytes of TLS record header that</span></span><br><span class="line">        <span class="comment">// triggered the error.</span></span><br><span class="line">        RecordHeader [<span class="number">5</span>]<span class="keyword">byte</span></span><br><span class="line">        <span class="comment">// Conn provides the underlying net.Conn in the case that a client</span></span><br><span class="line">        <span class="comment">// sent an initial handshake that didn&#x27;t look like TLS.</span></span><br><span class="line">        <span class="comment">// It is nil if there&#x27;s already been a handshake or a TLS alert has</span></span><br><span class="line">        <span class="comment">// been written to the connection.</span></span><br><span class="line">        Conn net.Conn <span class="comment">// Go 1.12</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="database-sql"><a href="#database-sql" class="headerlink" title="database/sql"></a>database/sql</h2><p>现在可以通过将<code>*Rows</code>值传递给<code>Row.Scan</code>方法来获取查询光标.</p>
+<h2 id="expvar"><a href="#expvar" class="headerlink" title="expvar"></a>expvar</h2><p><code>Delete</code>方法运行删除一个<code>Map</code>类型的的<code>key</code>.<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(v *Map)</span> <span class="title">Delete</span><span class="params">(key <span class="keyword">string</span>)</span></span></span><br></pre></td></tr></table></figure></p>
+<h2 id="lib-time"><a href="#lib-time" class="headerlink" title="lib/time"></a>lib/time</h2><p>当操作系统未提供时区数据时，将会使用配置的<code>$GOROOT/lib/time/zoneinfo.zip</code>数据。</p>
+<h1 id="参考官方"><a href="#参考官方" class="headerlink" title="参考官方"></a>参考官方</h1><ul>
+<li><a href="https://golang.org/doc/go1.12">https://golang.org/doc/go1.12</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>golang</category>
+      </categories>
+      <tags>
+        <tag>golang</tag>
+        <tag>go1.12</tag>
       </tags>
   </entry>
   <entry>
@@ -1471,46 +1511,6 @@ MySQL服务初始化(仅适用5.7)</li>
       <tags>
         <tag>概念</tag>
         <tag>监控基础</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>go1.12 发行说明</title>
-    <url>/2019/02/27/go1-12/</url>
-    <content><![CDATA[<h1 id="Go1-12-概述"><a href="#Go1-12-概述" class="headerlink" title="Go1.12 概述"></a>Go1.12 概述</h1><p><code>Go1.12</code>是目前最新的<code>Go</code>版本，在<code>Go1.11</code>发行之后的六个月到来，大多数的改变是工具链、运行时和包，总的来说，该版本依然保持了<code>Go1</code>的<a href="https://golang.org/doc/go1compat">兼容性承诺</a>,希望大多数的程序还能和以前一样继续的编译和运行。</p>
-<h1 id="语言上的改变"><a href="#语言上的改变" class="headerlink" title="语言上的改变"></a>语言上的改变</h1><pre><code>语言规范上是没有改变的。
-</code></pre><h1 id="部分"><a href="#部分" class="headerlink" title="部分"></a>部分</h1><ul>
-<li>竞争检测现在是支持在<code>linux/arm64</code></li>
-<li><code>Go1.12</code>是最后一个支持<code>FreeBSD 10.x</code>的版本，<code>Go1.13</code>将开始支持<code>FreeBSD 11.2+ or FreeBSD 12.0+</code>,<code>FreeBSD 12.0+</code>要求设置一个<code>COMPAT_FREEBSD11</code>的变量，这是默认设置的。</li>
-<li>在<code>linux/ppc64</code>上支持<code>cgo</code></li>
-</ul>
-<h2 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h2><p><code>windows/arm</code>的部分支持<code>go</code>在<code>windows10 lot</code>的32位物联网<code>arm</code>芯片上，比如树莓派3.</p>
-<h2 id="AIX"><a href="#AIX" class="headerlink" title="AIX"></a>AIX</h2><p>Go现在支持AIX 7.2及更高版本的POWER8体系结构（aix / ppc64）。尚不支持外部链接，cgo，pprof和竞赛检测器</p>
-<h2 id="Darwin"><a href="#Darwin" class="headerlink" title="Darwin"></a>Darwin</h2><p><code>Go 1.12</code>是最后一个支持运行在<code>macOS 10.10</code>系统之上的版本，<code>Go1.13</code>将要求操作系统必须是<code>macOS 10.11</code>以上。</p>
-<h1 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h1><h2 id="go-tool-vet-不再支持"><a href="#go-tool-vet-不再支持" class="headerlink" title="go tool vet 不再支持"></a>go tool vet 不再支持</h2><p><code>go vet</code>命令将不在支持，关于这部分功能迁移到了<code>analysis</code>工具中，更多详情查看包<a href="https://godoc.org/golang.org/x/tools/go/analysis">golang.org/x/tools/go/analysis</a>,使用方式有所改变，不能再使用<code>go tool vet</code>此命令，需要更改为<code>go vet</code>命令，使用<code>go vet</code>可以支持所以的版本。<br><code>-shadow</code>将不再可用，需要替换。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">go</span> get -u golang.org/x/tools/<span class="keyword">go</span>/analysis/passes/shadow/cmd/shadow</span><br><span class="line"><span class="keyword">go</span> vet -vettool=$(which shadow)</span><br></pre></td></tr></table></figure></p>
-<h2 id="Tour将不在默认安装"><a href="#Tour将不在默认安装" class="headerlink" title="Tour将不在默认安装"></a>Tour将不在默认安装</h2><p><code>Go Tour</code>不会包含再主要的包中，如果需要使用需要自行安装。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">go</span> get -u golang.org/x/tour</span><br><span class="line">tour</span><br></pre></td></tr></table></figure></p>
-<h2 id="Build-cache-要求"><a href="#Build-cache-要求" class="headerlink" title="Build cache 要求"></a>Build cache 要求</h2><p>如果设置了<code>GOCACHE=off</code>将导致<code>go</code>命令行写缓存失败。</p>
-<h2 id="二进制包"><a href="#二进制包" class="headerlink" title="二进制包"></a>二进制包</h2><p><code>Go 1.12</code>是最后一个支持二进制包的版本.</p>
-<h2 id="Cgo"><a href="#Cgo" class="headerlink" title="Cgo"></a>Cgo</h2><p><code>Go1.12</code>将<code>C</code>语言的<code>EGLDisplay</code>类型翻译为<code>go</code>的<code>uintptr</code>类型。更多信息请参考<a href="https://golang.org/cmd/cgo/#hdr-Special_cases">cgo 文档</a></p>
-<h1 id="核心库"><a href="#核心库" class="headerlink" title="核心库"></a>核心库</h1><h2 id="TLS1-3"><a href="#TLS1-3" class="headerlink" title="TLS1.3"></a>TLS1.3</h2><p><code>Go1.12</code>添加了对<code>TLS 1.3</code>的支持，可以通过设置环境变量<code>tls13=1GODEBUG</code>来启用，在<code>Go1.13</code>版本中将默认开启。</p>
-<h2 id="bufio"><a href="#bufio" class="headerlink" title="bufio"></a>bufio</h2><p>如果在调用完<code>Peek</code>方法之后调用<code>UnreadRune and UnreadByte</code>将会返回一个错误。</p>
-<h2 id="bytes"><a href="#bytes" class="headerlink" title="bytes"></a>bytes</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ReplaceAll</span><span class="params">(s, old, <span class="built_in">new</span> []<span class="keyword">byte</span>)</span> []<span class="title">byte</span></span></span><br></pre></td></tr></table></figure>
-<p>新函数<code>ReplaceAll</code>将返回一个字节切片的副本。<code>s</code>是原字节，<code>old</code>是匹配字节，<code>new</code>是替换为新的字符。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;bytes&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;%s\n&quot;</span>, bytes.ReplaceAll([]<span class="keyword">byte</span>(<span class="string">&quot;oink oink oink&quot;</span>), []<span class="keyword">byte</span>(<span class="string">&quot;oink&quot;</span>), []<span class="keyword">byte</span>(<span class="string">&quot;moo&quot;</span>)))</span><br><span class="line">	fmt.Printf(<span class="string">&quot;%s\n&quot;</span>,bytes.ReplaceAll([]<span class="keyword">byte</span>(<span class="string">&quot;this is a demo,place open the demo file&quot;</span>),[]<span class="keyword">byte</span>(<span class="string">&quot;demo&quot;</span>),[]<span class="keyword">byte</span>(<span class="string">&quot;test&quot;</span>)))</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//输出</span></span><br><span class="line">moo moo moo</span><br><span class="line">this is a test,place open the test file</span><br></pre></td></tr></table></figure></p>
-<h2 id="crypto-rand"><a href="#crypto-rand" class="headerlink" title="crypto/rand"></a>crypto/rand</h2><p><code>Reader.Read</code>如果超过60s还没有读取到熵，那么将会打印输出。</p>
-<h2 id="crypto-rc4"><a href="#crypto-rc4" class="headerlink" title="crypto/rc4"></a>crypto/rc4</h2><p>这个版本移除了其他版本的实现，只保留了<code>Go</code>版本。<br><code>RC4</code>是一种流<a href="https://zh.wikipedia.org/wiki/RC4">加密算法</a></p>
-<h2 id="crypto-tls"><a href="#crypto-tls" class="headerlink" title="crypto/tls"></a>crypto/tls</h2><p>如果客户端发送的初始消息看起来不像TLS，则服务器将不再使用警报进行回复,当TLS记录头无效时，返回<code>RecordHeaderError</code>.<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> RecordHeaderError <span class="keyword">struct</span> &#123;</span><br><span class="line">        <span class="comment">// Msg contains a human readable string that describes the error.</span></span><br><span class="line">        Msg <span class="keyword">string</span></span><br><span class="line">        <span class="comment">// RecordHeader contains the five bytes of TLS record header that</span></span><br><span class="line">        <span class="comment">// triggered the error.</span></span><br><span class="line">        RecordHeader [<span class="number">5</span>]<span class="keyword">byte</span></span><br><span class="line">        <span class="comment">// Conn provides the underlying net.Conn in the case that a client</span></span><br><span class="line">        <span class="comment">// sent an initial handshake that didn&#x27;t look like TLS.</span></span><br><span class="line">        <span class="comment">// It is nil if there&#x27;s already been a handshake or a TLS alert has</span></span><br><span class="line">        <span class="comment">// been written to the connection.</span></span><br><span class="line">        Conn net.Conn <span class="comment">// Go 1.12</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h2 id="database-sql"><a href="#database-sql" class="headerlink" title="database/sql"></a>database/sql</h2><p>现在可以通过将<code>*Rows</code>值传递给<code>Row.Scan</code>方法来获取查询光标.</p>
-<h2 id="expvar"><a href="#expvar" class="headerlink" title="expvar"></a>expvar</h2><p><code>Delete</code>方法运行删除一个<code>Map</code>类型的的<code>key</code>.<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(v *Map)</span> <span class="title">Delete</span><span class="params">(key <span class="keyword">string</span>)</span></span></span><br></pre></td></tr></table></figure></p>
-<h2 id="lib-time"><a href="#lib-time" class="headerlink" title="lib/time"></a>lib/time</h2><p>当操作系统未提供时区数据时，将会使用配置的<code>$GOROOT/lib/time/zoneinfo.zip</code>数据。</p>
-<h1 id="参考官方"><a href="#参考官方" class="headerlink" title="参考官方"></a>参考官方</h1><ul>
-<li><a href="https://golang.org/doc/go1.12">https://golang.org/doc/go1.12</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>golang</category>
-      </categories>
-      <tags>
-        <tag>golang</tag>
-        <tag>go1.12</tag>
       </tags>
   </entry>
   <entry>
@@ -1699,6 +1699,60 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
+    <title>算法分析、插入排序、归并排序</title>
+    <url>/2019/03/30/Introduction-to-Algorithms-lecture-1/</url>
+    <content><![CDATA[<blockquote>
+<p>本系列文章是我学习算法概论(第三版)这本书的一些笔记和感悟，我没有纯看书，而是结合了<code>MIT</code>的公开课，把书籍作为课本，查看具体细节，主要是看课程，每节课时长<code>60</code>分钟左右，视频在网易公开课上有中文字母。次课程会从数学的角度去分析运行时，课程总共有<code>21</code>，前<code>6</code>课讲解都是排序算法，对应课本上的前三章，这部分不涉及到数据结构,后面的章节都涉及数据结构以及应用。</p>
+</blockquote>
+<h1 id="算法分析"><a href="#算法分析" class="headerlink" title="算法分析"></a>算法分析</h1><h2 id="为什么学习算法和性能"><a href="#为什么学习算法和性能" class="headerlink" title="为什么学习算法和性能"></a>为什么学习算法和性能</h2><ul>
+<li>算法帮助我们去理解可扩展性。</li>
+<li>性能常常用来划分什么是可行的什么是不可行的。</li>
+<li>算法数学提供了一个讨论程序特性的语言。(用数学来刻画程序的特性，比如运行时)。</li>
+<li>性能是计算机的共性。</li>
+<li>程序性能和计算机资源是无关的。比如一台很老的电脑和一台现代的电脑相比，不能说现代电脑就一定比旧电脑运行的快，如果旧电脑运行的算法比较高效的话，一定会在某一时刻运行时间会小于新电脑。</li>
+</ul>
+<h1 id="排序问题"><a href="#排序问题" class="headerlink" title="排序问题"></a>排序问题</h1><p><strong>Input:</strong> 一个序列 <code>&lt;a1,a2,a3,.....,an&gt;</code><br><strong>Output:</strong> 输出一个排序后的序列<code>&lt;a1&#39;,a2&#39;,a3&#39;,......,an&#39;&gt;</code>, 使得 <code>a1&#39; &lt; a2&#39; &lt; a3&#39; &lt; .... &lt; an&#39;</code></p>
+<h2 id="插入排序"><a href="#插入排序" class="headerlink" title="插入排序"></a>插入排序</h2><h2 id="伪代码"><a href="#伪代码" class="headerlink" title="伪代码"></a>伪代码</h2><figure class="highlight c"><table><tr><td class="code"><pre><span class="line">Insertion-SORT(A,n)</span><br><span class="line">    <span class="keyword">for</span> j ← <span class="number">2</span> to n</span><br><span class="line">        <span class="keyword">do</span> key←A[j]</span><br><span class="line">            i←j–<span class="number">1</span></span><br><span class="line">            <span class="keyword">while</span> i &gt; <span class="number">0</span> <span class="keyword">and</span> A[i] &gt; key</span><br><span class="line">                <span class="keyword">do</span> A[i+<span class="number">1</span>] ← A[i] </span><br><span class="line">                i←i–<span class="number">1</span></span><br><span class="line">        A[i+<span class="number">1</span>] = key</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">InsertionSort</span><span class="params">(A []<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">for</span> i:= <span class="number">1</span>; i &lt; <span class="built_in">len</span>(A) ; i++  &#123;</span><br><span class="line">		key := A[i]</span><br><span class="line">		j := i<span class="number">-1</span></span><br><span class="line">		<span class="keyword">for</span> ; j &gt;=<span class="number">0</span> &amp;&amp; A[j] &gt; key ; &#123;</span><br><span class="line">			A[j+<span class="number">1</span>] = A[j]</span><br><span class="line">			j = j<span class="number">-1</span></span><br><span class="line">		&#125;</span><br><span class="line">		A[j+<span class="number">1</span>] = key</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="运行时分析"><a href="#运行时分析" class="headerlink" title="运行时分析"></a>运行时分析</h3><ul>
+<li>运行时依赖输入，如果输入是排好序的，那是很容易排序的。</li>
+<li>输入元素的个数，短序列比长序列更好排序。</li>
+<li>通常来说，我们分析的是运行时的上限。</li>
+</ul>
+<p>分析的方式</p>
+<ul>
+<li>最差情况(通常用次分析)<br>T(n) = 算法的最长运行时在任何的输入下。</li>
+<li><p>平均情况<br>T(n) = 算法的预期时间在总体输入下。</p>
+</li>
+<li><p>最好情况<br>T(n) = 在某些输入下运行时间比较好。</p>
+</li>
+</ul>
+<h3 id="插入排序分析"><a href="#插入排序分析" class="headerlink" title="插入排序分析"></a>插入排序分析</h3><p>$$<br>T(n)=\sum_{j=2}^{n} \Theta(j)=\Theta\left(n^{2}\right)<br>$$</p>
+<p>我们分析最差情况，如果输入是逆序的，那么执行的次数就是<code>n+(n-1)+(n-2)+...+1=n(n-1)/2</code> 就是一个等差数列求和，就得到如上的公式，</p>
+<p>$$<br>T(n)=\Theta\left(n^{2}/2\right) + \Theta\left(n-1\right)<br>$$</p>
+<p>忽略低阶项和高价项的常数，就得到如下运行时间，所以插入排序是和输入大小成平方比。</p>
+<p>$$<br>T(n) = \Theta\left(n^{2}\right)<br>$$</p>
+<h2 id="归并排序"><a href="#归并排序" class="headerlink" title="归并排序"></a>归并排序</h2><h3 id="伪代码-1"><a href="#伪代码-1" class="headerlink" title="伪代码"></a>伪代码</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"># MERGE-SORT(A)</span><br><span class="line">    <span class="number">1.</span> Ifn=<span class="number">1</span>,done.</span><br><span class="line">    <span class="number">2.</span> 递归排序 A[ <span class="number">1</span> . . ⎡n/<span class="number">2</span>⎤ ] <span class="keyword">and</span> A[ ⎡n/<span class="number">2</span>⎤+<span class="number">1</span> . . n ] . # ⎡n/<span class="number">2</span>⎤ 向下取整</span><br><span class="line">    <span class="number">3.</span> 合并这两个`<span class="built_in">list</span>`</span><br></pre></td></tr></table></figure>
+<h3 id="归并排序分析"><a href="#归并排序分析" class="headerlink" title="归并排序分析"></a>归并排序分析</h3><p><img src="/2019/03/30/Introduction-to-Algorithms-lecture-1/1557153490587.jpg" alt="公式"></p>
+<p>这个公式在后面会用主方法来进行分析运行的上界。</p>
+<p><img src="/2019/03/30/Introduction-to-Algorithms-lecture-1/2.png" alt="2"></p>
+<p>递归树的高度是<code>lgn</code>，每一个层级运行时为<code>cn</code>，所以<code>Tn = O(cn*lgn)</code>,就是高度乘以每一层的时间，前面的<code>c</code>为常量，可以忽略。</p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><ul>
+<li><code>Θ(nlgn)</code>比<code>Θ(n2)</code>慢的多。</li>
+<li>归并排序在最坏情况下比插入排序好的多。</li>
+<li>实践中，当<code>n &gt; 30</code> 时，归并排序就比插入排序好的多。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Algorithms and Datastructure</category>
+      </categories>
+      <tags>
+        <tag>course 学习</tag>
+        <tag>Introduction to Algorithms</tag>
+        <tag>lecture1</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Inverted-index</title>
     <url>/2019/03/24/Inverted-index/</url>
     <content><![CDATA[<h1 id="倒排索引-Inverted-index"><a href="#倒排索引-Inverted-index" class="headerlink" title="倒排索引(Inverted index)"></a>倒排索引(Inverted index)</h1><p>文章写的有点粗糙，都是只描述了思想，没有去抠具体的细节部分，对这些项目的作者刚到敬仰，把一个理论上的技术用在工程上会遇到很多问题。如果文章中有不妥之处，欢迎去我的<code>github</code>提交 <a href="https://github.com/lengrongfu/lengrongfu.github.io/issues">issues</a>.</p>
@@ -1763,60 +1817,6 @@ MySQL服务初始化(仅适用5.7)</li>
         <tag>倒排索引</tag>
         <tag>mysql全文索引</tag>
         <tag>Lucene索引</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>算法分析、插入排序、归并排序</title>
-    <url>/2019/03/30/Introduction-to-Algorithms-lecture-1/</url>
-    <content><![CDATA[<blockquote>
-<p>本系列文章是我学习算法概论(第三版)这本书的一些笔记和感悟，我没有纯看书，而是结合了<code>MIT</code>的公开课，把书籍作为课本，查看具体细节，主要是看课程，每节课时长<code>60</code>分钟左右，视频在网易公开课上有中文字母。次课程会从数学的角度去分析运行时，课程总共有<code>21</code>，前<code>6</code>课讲解都是排序算法，对应课本上的前三章，这部分不涉及到数据结构,后面的章节都涉及数据结构以及应用。</p>
-</blockquote>
-<h1 id="算法分析"><a href="#算法分析" class="headerlink" title="算法分析"></a>算法分析</h1><h2 id="为什么学习算法和性能"><a href="#为什么学习算法和性能" class="headerlink" title="为什么学习算法和性能"></a>为什么学习算法和性能</h2><ul>
-<li>算法帮助我们去理解可扩展性。</li>
-<li>性能常常用来划分什么是可行的什么是不可行的。</li>
-<li>算法数学提供了一个讨论程序特性的语言。(用数学来刻画程序的特性，比如运行时)。</li>
-<li>性能是计算机的共性。</li>
-<li>程序性能和计算机资源是无关的。比如一台很老的电脑和一台现代的电脑相比，不能说现代电脑就一定比旧电脑运行的快，如果旧电脑运行的算法比较高效的话，一定会在某一时刻运行时间会小于新电脑。</li>
-</ul>
-<h1 id="排序问题"><a href="#排序问题" class="headerlink" title="排序问题"></a>排序问题</h1><p><strong>Input:</strong> 一个序列 <code>&lt;a1,a2,a3,.....,an&gt;</code><br><strong>Output:</strong> 输出一个排序后的序列<code>&lt;a1&#39;,a2&#39;,a3&#39;,......,an&#39;&gt;</code>, 使得 <code>a1&#39; &lt; a2&#39; &lt; a3&#39; &lt; .... &lt; an&#39;</code></p>
-<h2 id="插入排序"><a href="#插入排序" class="headerlink" title="插入排序"></a>插入排序</h2><h2 id="伪代码"><a href="#伪代码" class="headerlink" title="伪代码"></a>伪代码</h2><figure class="highlight c"><table><tr><td class="code"><pre><span class="line">Insertion-SORT(A,n)</span><br><span class="line">    <span class="keyword">for</span> j ← <span class="number">2</span> to n</span><br><span class="line">        <span class="keyword">do</span> key←A[j]</span><br><span class="line">            i←j–<span class="number">1</span></span><br><span class="line">            <span class="keyword">while</span> i &gt; <span class="number">0</span> <span class="keyword">and</span> A[i] &gt; key</span><br><span class="line">                <span class="keyword">do</span> A[i+<span class="number">1</span>] ← A[i] </span><br><span class="line">                i←i–<span class="number">1</span></span><br><span class="line">        A[i+<span class="number">1</span>] = key</span><br></pre></td></tr></table></figure>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">InsertionSort</span><span class="params">(A []<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">for</span> i:= <span class="number">1</span>; i &lt; <span class="built_in">len</span>(A) ; i++  &#123;</span><br><span class="line">		key := A[i]</span><br><span class="line">		j := i<span class="number">-1</span></span><br><span class="line">		<span class="keyword">for</span> ; j &gt;=<span class="number">0</span> &amp;&amp; A[j] &gt; key ; &#123;</span><br><span class="line">			A[j+<span class="number">1</span>] = A[j]</span><br><span class="line">			j = j<span class="number">-1</span></span><br><span class="line">		&#125;</span><br><span class="line">		A[j+<span class="number">1</span>] = key</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="运行时分析"><a href="#运行时分析" class="headerlink" title="运行时分析"></a>运行时分析</h3><ul>
-<li>运行时依赖输入，如果输入是排好序的，那是很容易排序的。</li>
-<li>输入元素的个数，短序列比长序列更好排序。</li>
-<li>通常来说，我们分析的是运行时的上限。</li>
-</ul>
-<p>分析的方式</p>
-<ul>
-<li>最差情况(通常用次分析)<br>T(n) = 算法的最长运行时在任何的输入下。</li>
-<li><p>平均情况<br>T(n) = 算法的预期时间在总体输入下。</p>
-</li>
-<li><p>最好情况<br>T(n) = 在某些输入下运行时间比较好。</p>
-</li>
-</ul>
-<h3 id="插入排序分析"><a href="#插入排序分析" class="headerlink" title="插入排序分析"></a>插入排序分析</h3><p>$$<br>T(n)=\sum_{j=2}^{n} \Theta(j)=\Theta\left(n^{2}\right)<br>$$</p>
-<p>我们分析最差情况，如果输入是逆序的，那么执行的次数就是<code>n+(n-1)+(n-2)+...+1=n(n-1)/2</code> 就是一个等差数列求和，就得到如上的公式，</p>
-<p>$$<br>T(n)=\Theta\left(n^{2}/2\right) + \Theta\left(n-1\right)<br>$$</p>
-<p>忽略低阶项和高价项的常数，就得到如下运行时间，所以插入排序是和输入大小成平方比。</p>
-<p>$$<br>T(n) = \Theta\left(n^{2}\right)<br>$$</p>
-<h2 id="归并排序"><a href="#归并排序" class="headerlink" title="归并排序"></a>归并排序</h2><h3 id="伪代码-1"><a href="#伪代码-1" class="headerlink" title="伪代码"></a>伪代码</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"># MERGE-SORT(A)</span><br><span class="line">    <span class="number">1.</span> Ifn=<span class="number">1</span>,done.</span><br><span class="line">    <span class="number">2.</span> 递归排序 A[ <span class="number">1</span> . . ⎡n/<span class="number">2</span>⎤ ] <span class="keyword">and</span> A[ ⎡n/<span class="number">2</span>⎤+<span class="number">1</span> . . n ] . # ⎡n/<span class="number">2</span>⎤ 向下取整</span><br><span class="line">    <span class="number">3.</span> 合并这两个`<span class="built_in">list</span>`</span><br></pre></td></tr></table></figure>
-<h3 id="归并排序分析"><a href="#归并排序分析" class="headerlink" title="归并排序分析"></a>归并排序分析</h3><p><img src="/2019/03/30/Introduction-to-Algorithms-lecture-1/1557153490587.jpg" alt="公式"></p>
-<p>这个公式在后面会用主方法来进行分析运行的上界。</p>
-<p><img src="/2019/03/30/Introduction-to-Algorithms-lecture-1/2.png" alt="2"></p>
-<p>递归树的高度是<code>lgn</code>，每一个层级运行时为<code>cn</code>，所以<code>Tn = O(cn*lgn)</code>,就是高度乘以每一层的时间，前面的<code>c</code>为常量，可以忽略。</p>
-<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><ul>
-<li><code>Θ(nlgn)</code>比<code>Θ(n2)</code>慢的多。</li>
-<li>归并排序在最坏情况下比插入排序好的多。</li>
-<li>实践中，当<code>n &gt; 30</code> 时，归并排序就比插入排序好的多。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>Algorithms and Datastructure</category>
-      </categories>
-      <tags>
-        <tag>course 学习</tag>
-        <tag>Introduction to Algorithms</tag>
-        <tag>lecture1</tag>
       </tags>
   </entry>
   <entry>
@@ -1901,6 +1901,18 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
+    <title>k8s-service原理</title>
+    <url>/2019/05/14/k8s-service%E5%8E%9F%E7%90%86/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>k8s</category>
+      </categories>
+      <tags>
+        <tag>service</tag>
+        <tag>k8s 源码</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>orange原理以及使用</title>
     <url>/2019/05/21/orange-%E5%8E%9F%E7%90%86/</url>
     <content><![CDATA[<h1 id="Orange-工具介绍"><a href="#Orange-工具介绍" class="headerlink" title="Orange 工具介绍"></a>Orange 工具介绍</h1><pre><code>`Orange`是一个基于`OpenResty`的页面化的网关,提供了页面化的分流规则配置和权限配置。工具更多的信息参考设计文档和源代码。
@@ -1924,18 +1936,6 @@ MySQL服务初始化(仅适用5.7)</li>
       </categories>
       <tags>
         <tag>orange</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>k8s-service原理</title>
-    <url>/2019/05/14/k8s-service%E5%8E%9F%E7%90%86/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>k8s</category>
-      </categories>
-      <tags>
-        <tag>service</tag>
-        <tag>k8s 源码</tag>
       </tags>
   </entry>
   <entry>
@@ -2213,29 +2213,6 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
-    <title>intellij-idea激活</title>
-    <url>/2019/10/20/intellij-idea%E6%BF%80%E6%B4%BB/</url>
-    <content><![CDATA[<h1 id="IntelliJ-IDEA-2019-2-1最新激活码"><a href="#IntelliJ-IDEA-2019-2-1最新激活码" class="headerlink" title="IntelliJ IDEA 2019.2.1最新激活码"></a>IntelliJ IDEA 2019.2.1最新激活码</h1><p>激活时间到<strong>2089年</strong>，足够任何人使用了。</p>
-<p><code>IDEA</code>2019以前的版本都可以使用<code>http://idea.lanyus.com/</code>这个注册码去破解，我相信大多数人都是使用的这个激活码，可是<code>2019</code>版的都不能在使用这个注册码了。</p>
-<p>新版注册码方法主要有如下几个步骤。<br>此处的<code>IDEA</code>包括所有软件，不止<code>intellij</code>还包括<code>goland</code>、<code>pychart</code>这些软件都是本人亲测激活并且有效的。</p>
-<h2 id="破解步骤"><a href="#破解步骤" class="headerlink" title="破解步骤"></a>破解步骤</h2><p>首先去官网下载最新版的<code>IDEA</code>，下载好之后安装并启动；<br>打开之后选择<strong>选择30天免费试用</strong>。</p>
-<p><img src="https://note.youdao.com/yws/api/personal/file/WEBd316f43d8ad3dc706fcaa6b9e110a19e?method=download&amp;shareKey=a55b461fcf4d04c652066aab8e17d042" alt="image"></p>
-<p>进入之后点击<code>Configure</code>-&gt;<code>Edit Custom VM Options</code> 进入编辑框中。<br><img src="https://note.youdao.com/yws/api/personal/file/WEBc74c7dcf05dc009df79d42983abd4c70?method=download&amp;shareKey=48344ed4c5cb22f28376497a1cb99533" alt="image"></p>
-<p>在<code>VM Options</code>中添加<code>-javaagent:绝对路径</code>的参数。添加完之后保存，并关闭软件再次重启。<br><img src="https://note.youdao.com/yws/api/personal/file/WEB291a77318ea22fedcc84ce9a90c15b59?method=download&amp;shareKey=45ea668d89c153e2b1bb78cd9576a1c7" alt="image"></p>
-<p>重启后点击<code>Configure</code>-&gt;<code>Manage License</code>进入如下的页面，首先如果有<code>Remove License</code>，那就点击删除这个<code>License</code>，其次再把<code>License</code>放入即可激活。<br><img src="https://note.youdao.com/yws/api/personal/file/WEB4118c5e452fe931f50648bc609cf0101?method=download&amp;shareKey=5b00317cdae7a5fbc2585997f32205a0" alt="image"></p>
-<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><p>1、上面添加<code>-javaagent</code>这一步一定要做，不然就会出现<code>key is invalid</code>的提示。</p>
-<p>2、上面的破解包和<code>License</code>要对应。</p>
-<h2 id="破解包和License"><a href="#破解包和License" class="headerlink" title="破解包和License"></a>破解包和License</h2><h3 id="agent-jar-包"><a href="#agent-jar-包" class="headerlink" title="agent jar 包"></a>agent jar 包</h3><p>下载地址：<a href="http://note.youdao.com/noteshare?id=027477dc925c299fa427f761301a3e2a">http://note.youdao.com/noteshare?id=027477dc925c299fa427f761301a3e2a</a></p>
-<p><img src="https://note.youdao.com/yws/api/personal/file/WEBa838e2c0131a7781033f2d5b7bcb226e?method=download&amp;shareKey=01a48f4594b587f3f736576b4663a6a2" alt="image"></p>
-<h3 id="License"><a href="#License" class="headerlink" title="License"></a>License</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">520E5894E2-eyJsaWNlbnNlSWQiOiI1MjBFNTg5NEUyIiwibGljZW5zZWVOYW1lIjoicGlnNiIsImFzc2lnbmVlTmFtZSI6IiIsImFzc2lnbmVlRW1haWwiOiIiLCJsaWNlbnNlUmVzdHJpY3Rpb24iOiJVbmxpbWl0ZWQgbGljZW5zZSB0aWxsIGVuZCBvZiB0aGUgY2VudHVyeS4iLCJjaGVja0NvbmN1cnJlbnRVc2UiOmZhbHNlLCJwcm9kdWN0cyI6W3siY29kZSI6IklJIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiUlMwIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiV1MiLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJSRCIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IlJDIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiREMiLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJEQiIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IlJNIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiRE0iLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJBQyIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IkRQTiIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IkdPIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiUFMiLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJDTCIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IlBDIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiUlNVIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In1dLCJoYXNoIjoiODkwNzA3MC8wIiwiZ3JhY2VQZXJpb2REYXlzIjowLCJhdXRvUHJvbG9uZ2F0ZWQiOmZhbHNlLCJpc0F1dG9Qcm9sb25nYXRlZCI6ZmFsc2V9-DZ/oNHBfyho0XrrCJJvAOKg5Q1tLBgOdbCmzCKwkuM+Yryce0RoOi3OOmH6Ba/uTcCh/L37meyD0FJdJIprv59y4+n+k2kIeF/XKrKqg0dEsDUQRw0lUqqMt99ohqa+zmbJ44Yufdwwx/F1CtoRGvEQ2Mn0QjuqRoZJZ3wiT5Am22JiJW8MaNUl3wg9YPj+OPGARKKJUdUJ0NGUDQBcBAv5ds8LhbSbJSbPkbkwH/a1QMz4nEdn6lRDKI1aFIn43QhBSCFqvUq6TPJlbIJ0ZjE+PyZjHFBKCgkry0DHPXU2BbtIZPsksQnN3fx240a9K6sN7peZnLpEoMoq23FEz4g==-MIIElTCCAn2gAwIBAgIBCTANBgkqhkiG9w0BAQsFADAYMRYwFAYDVQQDDA1KZXRQcm9maWxlIENBMB4XDTE4MTEwMTEyMjk0NloXDTIwMTEwMjEyMjk0NlowaDELMAkGA1UEBhMCQ1oxDjAMBgNVBAgMBU51c2xlMQ8wDQYDVQQHDAZQcmFndWUxGTAXBgNVBAoMEEpldEJyYWlucyBzLnIuby4xHTAbBgNVBAMMFHByb2QzeS1mcm9tLTIwMTgxMTAxMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5ndaik1GD0nyTdqkZgURQZGW+RGxCdBITPXIwpjhhaD0SXGa4XSZBEBoiPdY6XV6pOfUJeyfi9dXsY4MmT0D+sKoST3rSw96xaf9FXPvOjn4prMTdj3Ji3CyQrGWeQU2nzYqFrp1QYNLAbaViHRKuJrYHI6GCvqCbJe0LQ8qqUiVMA9wG/PQwScpNmTF9Kp2Iej+Z5OUxF33zzm+vg/nYV31HLF7fJUAplI/1nM+ZG8K+AXWgYKChtknl3sW9PCQa3a3imPL9GVToUNxc0wcuTil8mqveWcSQCHYxsIaUajWLpFzoO2AhK4mfYBSStAqEjoXRTuj17mo8Q6M2SHOcwIDAQABo4GZMIGWMAkGA1UdEwQCMAAwHQYDVR0OBBYEFGEpG9oZGcfLMGNBkY7SgHiMGgTcMEgGA1UdIwRBMD+AFKOetkhnQhI2Qb1t4Lm0oFKLl/GzoRykGjAYMRYwFAYDVQQDDA1KZXRQcm9maWxlIENBggkA0myxg7KDeeEwEwYDVR0lBAwwCgYIKwYBBQUHAwEwCwYDVR0PBAQDAgWgMA0GCSqGSIb3DQEBCwUAA4ICAQBonMu8oa3vmNAa4RQP8gPGlX3SQaA3WCRUAj6Zrlk8AesKV1YSkh5D2l+yUk6njysgzfr1bIR5xF8eup5xXc4/G7NtVYRSMvrd6rfQcHOyK5UFJLm+8utmyMIDrZOzLQuTsT8NxFpbCVCfV5wNRu4rChrCuArYVGaKbmp9ymkw1PU6+HoO5i2wU3ikTmRv8IRjrlSStyNzXpnPTwt7bja19ousk56r40SmlmC04GdDHErr0ei2UbjUua5kw71Qn9g02tL9fERI2sSRjQrvPbn9INwRWl5+k05mlKekbtbu2ev2woJFZK4WEXAd/GaAdeZZdumv8T2idDFL7cAirJwcrbfpawPeXr52oKTPnXfi0l5+g9Gnt/wfiXCrPElX6ycTR6iL3GC2VR4jTz6YatT4Ntz59/THOT7NJQhr6AyLkhhJCdkzE2cob/KouVp4ivV7Q3Fc6HX7eepHAAF/DpxwgOrg9smX6coXLgfp0b1RU2u/tUNID04rpNxTMueTtrT8WSskqvaJd3RH8r7cnRj6Y2hltkja82HlpDURDxDTRvv+krbwMr26SB/40BjpMUrDRCeKuiBahC0DCoU/4+ze1l94wVUhdkCfL0GpJrMSCDEK+XEurU18Hb7WT+ThXbkdl6VpFdHsRvqAnhR2g4b+Qzgidmuky5NUZVfEaZqV/g==</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>工具</category>
-      </categories>
-      <tags>
-        <tag>intellij</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>go channel 实现</title>
     <url>/2019/09/18/go-channel%E6%BA%90%E7%A0%81/</url>
     <content><![CDATA[<h1 id="什么是Channel"><a href="#什么是Channel" class="headerlink" title="什么是Channel"></a>什么是Channel</h1><p><code>Channel</code>是<code>go</code>之间通信的一种方式，从实现上说，<code>channel</code>是一个链表的数据结构，可以将数据放入和读取。</p>
@@ -2268,6 +2245,29 @@ MySQL服务初始化(仅适用5.7)</li>
       <tags>
         <tag>golang 源码</tag>
         <tag>channel</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>intellij-idea激活</title>
+    <url>/2019/10/20/intellij-idea%E6%BF%80%E6%B4%BB/</url>
+    <content><![CDATA[<h1 id="IntelliJ-IDEA-2019-2-1最新激活码"><a href="#IntelliJ-IDEA-2019-2-1最新激活码" class="headerlink" title="IntelliJ IDEA 2019.2.1最新激活码"></a>IntelliJ IDEA 2019.2.1最新激活码</h1><p>激活时间到<strong>2089年</strong>，足够任何人使用了。</p>
+<p><code>IDEA</code>2019以前的版本都可以使用<code>http://idea.lanyus.com/</code>这个注册码去破解，我相信大多数人都是使用的这个激活码，可是<code>2019</code>版的都不能在使用这个注册码了。</p>
+<p>新版注册码方法主要有如下几个步骤。<br>此处的<code>IDEA</code>包括所有软件，不止<code>intellij</code>还包括<code>goland</code>、<code>pychart</code>这些软件都是本人亲测激活并且有效的。</p>
+<h2 id="破解步骤"><a href="#破解步骤" class="headerlink" title="破解步骤"></a>破解步骤</h2><p>首先去官网下载最新版的<code>IDEA</code>，下载好之后安装并启动；<br>打开之后选择<strong>选择30天免费试用</strong>。</p>
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEBd316f43d8ad3dc706fcaa6b9e110a19e?method=download&amp;shareKey=a55b461fcf4d04c652066aab8e17d042" alt="image"></p>
+<p>进入之后点击<code>Configure</code>-&gt;<code>Edit Custom VM Options</code> 进入编辑框中。<br><img src="https://note.youdao.com/yws/api/personal/file/WEBc74c7dcf05dc009df79d42983abd4c70?method=download&amp;shareKey=48344ed4c5cb22f28376497a1cb99533" alt="image"></p>
+<p>在<code>VM Options</code>中添加<code>-javaagent:绝对路径</code>的参数。添加完之后保存，并关闭软件再次重启。<br><img src="https://note.youdao.com/yws/api/personal/file/WEB291a77318ea22fedcc84ce9a90c15b59?method=download&amp;shareKey=45ea668d89c153e2b1bb78cd9576a1c7" alt="image"></p>
+<p>重启后点击<code>Configure</code>-&gt;<code>Manage License</code>进入如下的页面，首先如果有<code>Remove License</code>，那就点击删除这个<code>License</code>，其次再把<code>License</code>放入即可激活。<br><img src="https://note.youdao.com/yws/api/personal/file/WEB4118c5e452fe931f50648bc609cf0101?method=download&amp;shareKey=5b00317cdae7a5fbc2585997f32205a0" alt="image"></p>
+<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><p>1、上面添加<code>-javaagent</code>这一步一定要做，不然就会出现<code>key is invalid</code>的提示。</p>
+<p>2、上面的破解包和<code>License</code>要对应。</p>
+<h2 id="破解包和License"><a href="#破解包和License" class="headerlink" title="破解包和License"></a>破解包和License</h2><h3 id="agent-jar-包"><a href="#agent-jar-包" class="headerlink" title="agent jar 包"></a>agent jar 包</h3><p>下载地址：<a href="http://note.youdao.com/noteshare?id=027477dc925c299fa427f761301a3e2a">http://note.youdao.com/noteshare?id=027477dc925c299fa427f761301a3e2a</a></p>
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEBa838e2c0131a7781033f2d5b7bcb226e?method=download&amp;shareKey=01a48f4594b587f3f736576b4663a6a2" alt="image"></p>
+<h3 id="License"><a href="#License" class="headerlink" title="License"></a>License</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">520E5894E2-eyJsaWNlbnNlSWQiOiI1MjBFNTg5NEUyIiwibGljZW5zZWVOYW1lIjoicGlnNiIsImFzc2lnbmVlTmFtZSI6IiIsImFzc2lnbmVlRW1haWwiOiIiLCJsaWNlbnNlUmVzdHJpY3Rpb24iOiJVbmxpbWl0ZWQgbGljZW5zZSB0aWxsIGVuZCBvZiB0aGUgY2VudHVyeS4iLCJjaGVja0NvbmN1cnJlbnRVc2UiOmZhbHNlLCJwcm9kdWN0cyI6W3siY29kZSI6IklJIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiUlMwIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiV1MiLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJSRCIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IlJDIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiREMiLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJEQiIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IlJNIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiRE0iLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJBQyIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IkRQTiIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IkdPIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiUFMiLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJDTCIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IlBDIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiUlNVIiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In1dLCJoYXNoIjoiODkwNzA3MC8wIiwiZ3JhY2VQZXJpb2REYXlzIjowLCJhdXRvUHJvbG9uZ2F0ZWQiOmZhbHNlLCJpc0F1dG9Qcm9sb25nYXRlZCI6ZmFsc2V9-DZ/oNHBfyho0XrrCJJvAOKg5Q1tLBgOdbCmzCKwkuM+Yryce0RoOi3OOmH6Ba/uTcCh/L37meyD0FJdJIprv59y4+n+k2kIeF/XKrKqg0dEsDUQRw0lUqqMt99ohqa+zmbJ44Yufdwwx/F1CtoRGvEQ2Mn0QjuqRoZJZ3wiT5Am22JiJW8MaNUl3wg9YPj+OPGARKKJUdUJ0NGUDQBcBAv5ds8LhbSbJSbPkbkwH/a1QMz4nEdn6lRDKI1aFIn43QhBSCFqvUq6TPJlbIJ0ZjE+PyZjHFBKCgkry0DHPXU2BbtIZPsksQnN3fx240a9K6sN7peZnLpEoMoq23FEz4g==-MIIElTCCAn2gAwIBAgIBCTANBgkqhkiG9w0BAQsFADAYMRYwFAYDVQQDDA1KZXRQcm9maWxlIENBMB4XDTE4MTEwMTEyMjk0NloXDTIwMTEwMjEyMjk0NlowaDELMAkGA1UEBhMCQ1oxDjAMBgNVBAgMBU51c2xlMQ8wDQYDVQQHDAZQcmFndWUxGTAXBgNVBAoMEEpldEJyYWlucyBzLnIuby4xHTAbBgNVBAMMFHByb2QzeS1mcm9tLTIwMTgxMTAxMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5ndaik1GD0nyTdqkZgURQZGW+RGxCdBITPXIwpjhhaD0SXGa4XSZBEBoiPdY6XV6pOfUJeyfi9dXsY4MmT0D+sKoST3rSw96xaf9FXPvOjn4prMTdj3Ji3CyQrGWeQU2nzYqFrp1QYNLAbaViHRKuJrYHI6GCvqCbJe0LQ8qqUiVMA9wG/PQwScpNmTF9Kp2Iej+Z5OUxF33zzm+vg/nYV31HLF7fJUAplI/1nM+ZG8K+AXWgYKChtknl3sW9PCQa3a3imPL9GVToUNxc0wcuTil8mqveWcSQCHYxsIaUajWLpFzoO2AhK4mfYBSStAqEjoXRTuj17mo8Q6M2SHOcwIDAQABo4GZMIGWMAkGA1UdEwQCMAAwHQYDVR0OBBYEFGEpG9oZGcfLMGNBkY7SgHiMGgTcMEgGA1UdIwRBMD+AFKOetkhnQhI2Qb1t4Lm0oFKLl/GzoRykGjAYMRYwFAYDVQQDDA1KZXRQcm9maWxlIENBggkA0myxg7KDeeEwEwYDVR0lBAwwCgYIKwYBBQUHAwEwCwYDVR0PBAQDAgWgMA0GCSqGSIb3DQEBCwUAA4ICAQBonMu8oa3vmNAa4RQP8gPGlX3SQaA3WCRUAj6Zrlk8AesKV1YSkh5D2l+yUk6njysgzfr1bIR5xF8eup5xXc4/G7NtVYRSMvrd6rfQcHOyK5UFJLm+8utmyMIDrZOzLQuTsT8NxFpbCVCfV5wNRu4rChrCuArYVGaKbmp9ymkw1PU6+HoO5i2wU3ikTmRv8IRjrlSStyNzXpnPTwt7bja19ousk56r40SmlmC04GdDHErr0ei2UbjUua5kw71Qn9g02tL9fERI2sSRjQrvPbn9INwRWl5+k05mlKekbtbu2ev2woJFZK4WEXAd/GaAdeZZdumv8T2idDFL7cAirJwcrbfpawPeXr52oKTPnXfi0l5+g9Gnt/wfiXCrPElX6ycTR6iL3GC2VR4jTz6YatT4Ntz59/THOT7NJQhr6AyLkhhJCdkzE2cob/KouVp4ivV7Q3Fc6HX7eepHAAF/DpxwgOrg9smX6coXLgfp0b1RU2u/tUNID04rpNxTMueTtrT8WSskqvaJd3RH8r7cnRj6Y2hltkja82HlpDURDxDTRvv+krbwMr26SB/40BjpMUrDRCeKuiBahC0DCoU/4+ze1l94wVUhdkCfL0GpJrMSCDEK+XEurU18Hb7WT+ThXbkdl6VpFdHsRvqAnhR2g4b+Qzgidmuky5NUZVfEaZqV/g==</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>工具</category>
+      </categories>
+      <tags>
+        <tag>intellij</tag>
       </tags>
   </entry>
   <entry>
@@ -2881,6 +2881,171 @@ MySQL服务初始化(仅适用5.7)</li>
       </categories>
       <tags>
         <tag>写作</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>启航</title>
+    <url>/2021/05/26/%E5%90%AF%E8%88%AA/</url>
+    <content><![CDATA[<h1 id="启航"><a href="#启航" class="headerlink" title="启航"></a>启航</h1><h2 id="从业务骨干到管理者"><a href="#从业务骨干到管理者" class="headerlink" title="从业务骨干到管理者"></a>从业务骨干到管理者</h2><p>新任管理者问题：</p>
+<ul>
+<li>时间不够用。</li>
+<li>应该授权给谁</li>
+<li>目标打不成</li>
+<li>下属没动力</li>
+</ul>
+<p>据调查一个管理者在成为<code>24</code>个月内就失败了，根本原因是没有经过系统的管理者培训，下面分五个单元来讲述管理者的入门。</p>
+<h2 id="单元一-管理者的角色与职责"><a href="#单元一-管理者的角色与职责" class="headerlink" title="单元一 管理者的角色与职责"></a>单元一 管理者的角色与职责</h2><p>从三个方面来讲述管理者的角色与职责。</p>
+<h3 id="1-1-管理四大功能"><a href="#1-1-管理四大功能" class="headerlink" title="1.1 管理四大功能"></a>1.1 管理四大功能</h3><p><img src="https://gitee.com/lengrongfu/blog-static-file/raw/master/img20210524154834.png" style="zoom:30%;"></p>
+<h4 id="1-1-1-管理是什么？"><a href="#1-1-1-管理是什么？" class="headerlink" title="1.1.1 管理是什么？"></a>1.1.1 管理是什么？</h4><p>​        管理是运用有限的资源创造最高合理利润以及透过他人把事情做好。</p>
+<p>管理者的工作包含利用有限的资源来<strong>规划</strong>、<strong>组织</strong>、<strong>领导</strong>、<strong>控制</strong>四大工作。</p>
+<h4 id="1-1-2-规划"><a href="#1-1-2-规划" class="headerlink" title="1.1.2 规划"></a>1.1.2 规划</h4><p>​        规划指的是管理者要制定目标，针对每项目标要达成的任务内容以及资源情况来展开工作的计划。</p>
+<h4 id="1-1-3-组织"><a href="#1-1-3-组织" class="headerlink" title="1.1.3 组织"></a>1.1.3 组织</h4><p>​        组织是按照规划的结果来安排成员工作，授权给成员。并且要为了团队来招募成员，使团队成员有效分工，执行各项工作。</p>
+<h4 id="1-1-4-领导"><a href="#1-1-4-领导" class="headerlink" title="1.1.4 领导"></a>1.1.4 领导</h4><p>​        领导是指对成员工作的指导，沟通他们的想法，并且利用影响力来带领成员、引导他们、激励他们促进达成组织的目标。</p>
+<h4 id="1-1-5-控制"><a href="#1-1-5-控制" class="headerlink" title="1.1.5 控制"></a>1.1.5 控制</h4><p>​        控制是指团队成员在执行任务的时候，持续观察，监督进度，还需要适当提出反馈建议；还需要在公司指定的时间进行绩效的面谈考核。</p>
+<h3 id="1-2-关键工作分析"><a href="#1-2-关键工作分析" class="headerlink" title="1.2 关键工作分析"></a>1.2 关键工作分析</h3><p>​        管理者有那么多工作，我们肯定是做不完的，所以要找到关键工作，利用有限的资源来创造最高的利润。</p>
+<p>​        管理者需要掌握自我的关键工作，了解下属的关键工作。透过与下属的共同合作，达成团队的整体成果。</p>
+<p>​        关键工作是指：在组织内个人必须负责承担的事情，并且可以处理的责任范围。</p>
+<p>​        关键工作分为做人和做事两方面。</p>
+<h5 id="1-2-1-做人"><a href="#1-2-1-做人" class="headerlink" title="1.2.1 做人"></a>1.2.1 做人</h5><p>​        做人是指职位赋予管理者运用人力，以发挥人力功能的工作。这里面又可以分为两类：<strong>人力资源</strong>、 <strong>自我启发</strong>。</p>
+<h6 id="1-2-1-1-人力资源"><a href="#1-2-1-1-人力资源" class="headerlink" title="1.2.1.1 人力资源"></a>1.2.1.1 人力资源</h6><p>​        人力资源工作是指管理者发展团队人才的重要任务，主要在团队筛选、任用、培训、领导、发展与激励。</p>
+<p>​       这些工作做的越多，越能提升下属的能力，开发下属潜能。</p>
+<h6 id="1-2-1-2-自我启发"><a href="#1-2-1-2-自我启发" class="headerlink" title="1.2.1.2 自我启发"></a>1.2.1.2 自我启发</h6><p>​        自我启发工作就是管理者的自我成长工作，每个管理者都应该持续的追求成长、追求创新、多多阅读，并且要做好自身的自我管理、情绪管理、健康管理，才能面对挑战，更上一层楼。</p>
+<p>​        这个工作做的越多，越能提升自我的能力。</p>
+<h5 id="1-2-2-做事"><a href="#1-2-2-做事" class="headerlink" title="1.2.2 做事"></a>1.2.2 做事</h5><p>​        做事是指职位所赋予管理者的任务，完成公司所交互的工作目标。这里面又可以分为两类：<strong>例行工作</strong>、<strong>发展工作</strong>。</p>
+<h6 id="1-2-2-1-例行工作"><a href="#1-2-2-1-例行工作" class="headerlink" title="1.2.2.1 例行工作"></a>1.2.2.1 例行工作</h6><p>​        例行工作是指经常重复的工作，有周期性或循环性质的工作。</p>
+<p>​        这些事情呢做的越多越熟练，但是会导致个人的折旧，又不能不做。</p>
+<p>​        这些工作不能不做，但是可以做好标准化，授权出去，让下属执行。</p>
+<h6 id="1-2-2-2-发展工作"><a href="#1-2-2-2-发展工作" class="headerlink" title="1.2.2.2 发展工作"></a>1.2.2.2 发展工作</h6><p>​        发展工作是指运用新方式，以创新的工作手法改进工作流程。</p>
+<p>​        目的在于提升效率，创造绩效。</p>
+<p>​        这些工作是能够创新、改善工作、做的好的话能增加绩效、提高工作质量。</p>
+<p>身为管理者需要多做可以创造价值的发展工作，少做容易折旧的例行工作。</p>
+<blockquote>
+<p>总结一下管理者的价值：</p>
+<ul>
+<li>多做发展工作</li>
+<li>控制例行工作</li>
+<li>培养人力资源</li>
+<li>持续自我启发</li>
+</ul>
+</blockquote>
+<blockquote>
+<p> 做一个关键工作分析表：<img src="https://gitee.com/lengrongfu/blog-static-file/raw/master/img20210524171352.png" style="zoom:50%;"></p>
+</blockquote>
+<h3 id="1-3-管理必备技能"><a href="#1-3-管理必备技能" class="headerlink" title="1.3 管理必备技能"></a>1.3 管理必备技能</h3><p>​        管理者进行不同的管理工作，需要具备不同的技能。</p>
+<h4 id="1-3-1-专业技能"><a href="#1-3-1-专业技能" class="headerlink" title="1.3.1 专业技能"></a>1.3.1 专业技能</h4><p>​        对个人工作产业或专业领域所具备的专业知识与能力。</p>
+<h4 id="1-3-2-人才技能"><a href="#1-3-2-人才技能" class="headerlink" title="1.3.2 人才技能"></a>1.3.2 人才技能</h4><p>​        与他人可以进行良好的互动，顺利交流、顺利沟通、顺利协调。</p>
+<h4 id="1-3-3-概念化技能"><a href="#1-3-3-概念化技能" class="headerlink" title="1.3.3 概念化技能"></a>1.3.3 概念化技能</h4><p>​        是指快速搜集、处理信息及迅速做出结论的逻辑化能力。</p>
+<p>管理者在组织层级职位上的变化会导致使用技能比例将会变化。</p>
+<p><img src="https://gitee.com/lengrongfu/blog-static-file/raw/master/20210524172515.png" style="zoom:50%;"></p>
+<p>管理者和下属的五大差异点：</p>
+<ul>
+<li>1、管理别人的时间而不是自己的时间。</li>
+<li>2、创造良好的工作环境和氛围，协助下属完成工作。</li>
+<li>3、绩效衡量标准发生改变。</li>
+<li>4、必须面对长期无解的问题和压力。</li>
+<li>5、关键资源是下属，发展下属能力共同创造绩效。</li>
+</ul>
+<h2 id="单元二-管理者的规划工作"><a href="#单元二-管理者的规划工作" class="headerlink" title="单元二 管理者的规划工作"></a>单元二 管理者的规划工作</h2><p>​        没有明确目标就像在迷雾中开车。</p>
+<h3 id="2-1-设定工作目标"><a href="#2-1-设定工作目标" class="headerlink" title="2.1 设定工作目标"></a>2.1 设定工作目标</h3><p>为什么要设定工作目标：</p>
+<ul>
+<li>有目标使工作有方向感。</li>
+<li>有了目标，知道如何改进绩效超目标改进。</li>
+<li>目标如果达成，将获得满足感。</li>
+<li>达成目标，建立信心，挑战更高的目标。</li>
+</ul>
+<p>设定目标要满足<strong>SMART原则</strong>。</p>
+<ul>
+<li><code>Specific</code>具体明确的。</li>
+<li><code>Measurable</code>可以衡量。</li>
+<li><code>Attainable</code>能够达成的。</li>
+<li><code>Relevant</code>与关键工作相关的。</li>
+<li><code>Time</code>有时间限制的可以追踪的。</li>
+</ul>
+<h3 id="2-2-工作计划展开"><a href="#2-2-工作计划展开" class="headerlink" title="2.2 工作计划展开"></a>2.2 工作计划展开</h3><p>​        工作计划展开是在协助管理者构建阶段目标，展开各项工作的技巧。</p>
+<p>​        可以运用任务分解的三个步骤来分解任务，步骤一：运用思维导图进行任务分解。步骤二：运用工具方法做排序规划。步骤三：运用甘特图规划项目活动进度。</p>
+<ul>
+<li>思维导图分解任务：以关键任务为中心，拆分任务，之后再进行梳理、总结提炼。</li>
+<li>项目排序规划：运用重要、紧急四相现来进行任务的排序。这也是时间规划的一个方法，多做重要不紧急的事情，他们是大石头。</li>
+</ul>
+<p>运用<code>5w2h</code>工作法来进行工作任务的排序，用来理清工作细节、自我问询、自我思考、整理出工作内容、做出工作排序。<code>5w2h</code>分别是<code>why 何因</code>、<code>what 何事</code> 、<code>who 何人</code>、<code>when 何时</code>、<code>where 何地</code>、<code>how 如何做</code>、<code>how match 多少成本</code>。</p>
+<ul>
+<li>规划项目进度：以时间为横轴，事件为纵轴。</li>
+</ul>
+<h2 id="单元三-管理者的组织工作"><a href="#单元三-管理者的组织工作" class="headerlink" title="单元三 管理者的组织工作"></a>单元三 管理者的组织工作</h2><p>​        这里面主要学习工作授权和招聘选才。</p>
+<h3 id="3-1-授权"><a href="#3-1-授权" class="headerlink" title="3.1 授权"></a>3.1 授权</h3><p>新任管理者必须学会的3件事：</p>
+<ul>
+<li>不再事必躬亲，而是授权给下属。</li>
+<li>告诉下属需要完成什么事，而不是如何完成。</li>
+<li>接受授权下属的任务成果，而不是总想如果我来做，一定会做的更好。</li>
+</ul>
+<p>授权的5大步骤：</p>
+<ol>
+<li>要详细说明授权的原因、任务的重要性、任务的SMART目标、任务权责。</li>
+<li>要了解下属对任务的理解以及执行能力；最好让下属复述一遍执行内容，管理者需要确认下属的执行能力；并在关键时候对下属进行指导、协助和培训。</li>
+<li>共同拟定执行计划和执行方式，管理者要倾听下属的执行步骤，管理者进行补充，并及时提供资源以及支持协助完成任务。</li>
+<li>与下属约定追踪核检时间，表达管理者对下属的信息。</li>
+<li>任务完成时，管理者要肯定下属的贡献。</li>
+</ol>
+<p>那些情况不适合授权：</p>
+<ol>
+<li>对下属的赏与罚不能授权给他人。</li>
+<li>涉及公司机密或者个人机密的事件也不能授权给他人去做。</li>
+<li>对下属绩效考评、绩效面谈不能授予他人完成。</li>
+<li>下属能力缺口很大的时候，并不适合授权他去完成任务。</li>
+</ol>
+<h3 id="3-2-招聘人才"><a href="#3-2-招聘人才" class="headerlink" title="3.2 招聘人才"></a>3.2 招聘人才</h3><p>​            招聘人才观：招最好的人、给最大的空间、看最后的结果。</p>
+<h4 id="3-2-1-招最好的人"><a href="#3-2-1-招最好的人" class="headerlink" title="3.2.1 招最好的人"></a>3.2.1 招最好的人</h4><p>​        主要有三点，是否认同公司的文化价值观、胜任岗位要求、具备优秀的学习能力。</p>
+<h5 id="3-2-1-1-胜任岗位"><a href="#3-2-1-1-胜任岗位" class="headerlink" title="3.2.1.1 胜任岗位"></a>3.2.1.1 胜任岗位</h5><p>​        管理者在面试中要把握重点考试内容，</p>
+<ol>
+<li>岗位匹配度、职业承诺、职业动机。</li>
+<li>专业技能、项目经验、通用素质。</li>
+<li>个人特质、职业动机、与团队氛围的匹配度、与其他成员的匹配度。</li>
+</ol>
+<h2 id="单元四-管理者的领导工作"><a href="#单元四-管理者的领导工作" class="headerlink" title="单元四 管理者的领导工作"></a>单元四 管理者的领导工作</h2><p>​        领导这个单元里主要学习如何进行工作指导、如何沟通、如何激励下属。</p>
+<h3 id="4-1-工作指导"><a href="#4-1-工作指导" class="headerlink" title="4.1 工作指导"></a>4.1 工作指导</h3><p>​        交代工作任务后，管理者必须对下属进行工作指导。目的是培养下属的能力以及确保工作的完成。</p>
+<p>​        工作指导的四大步骤是<strong>期望</strong>、<strong>能力</strong>、<strong>投入</strong>、<strong>绩效</strong>。</p>
+<h4 id="4-1-1-期望"><a href="#4-1-1-期望" class="headerlink" title="4.1.1 期望"></a>4.1.1 期望</h4><p>​        期望是指明确告知公司对他的目标期待/任务。</p>
+<h4 id="4-1-2-能力"><a href="#4-1-2-能力" class="headerlink" title="4.1.2 能力"></a>4.1.2 能力</h4><p>​        能力是指观察下属的工作表现，看下属是否具备足够的能力和技巧。</p>
+<h4 id="4-1-3-投入"><a href="#4-1-3-投入" class="headerlink" title="4.1.3 投入"></a>4.1.3 投入</h4><p>​        投入是指工作一段时间之后，观察下属是否具备动力和信心，并且坚持在任务上。</p>
+<h4 id="4-1-4-绩效"><a href="#4-1-4-绩效" class="headerlink" title="4.1.4 绩效"></a>4.1.4 绩效</h4><p>​        绩效是指工作到一个段落时，总结下属的工作表现，给予下属支持或改善指导。</p>
+<p>​        </p>
+<p>​        管理者在工作指导中如果发现下属<strong>技能不足</strong>，就用<strong>培养技能教育的5要点</strong>；发现<strong>有优异表现</strong>，就用<strong>一分钟赞美法</strong>；发现有<strong>表现不理想、失误</strong>，就用<strong>一分钟指正</strong>法。</p>
+<p><strong>培养技能5要点</strong>：要告诉下属，并演示给他看怎么解决，并让他独立尝试，这个过程中进行观察，然后提供反馈。</p>
+<p><strong>赞美下属</strong>：管理者必须说出那些具体的行为值得赞美，以及赞美的原因。告诉下属他的行动，给管理者本人那些正面的感受，对管理者或整个团队组织的影响。当然还要当面正式的向下属表达信任和鼓励，促使下属维持良好的表现。</p>
+<p><strong>指正下属</strong>：</p>
+<ol>
+<li>不带职责的呈现错误具体影响。如：在…..这几个方面你犯了很多错误……。</li>
+<li>指出错误产生的影响。如：你的错误是什么……………..;你的影响是什么……………..</li>
+<li>承认是自己的指示不明而影响下属行动。如：这件事情在……….方面你要承担责任。</li>
+<li>共同检视工作细节，进行正确的改善。如：细节是……..;原因在于………..;可以…………改善</li>
+<li>并且要表达任然对下属信赖和信心。如：希望你记住这次教训，以后为公司做出更多的贡献。</li>
+</ol>
+<h3 id="4-2-沟通"><a href="#4-2-沟通" class="headerlink" title="4.2 沟通"></a>4.2 沟通</h3><ol>
+<li>倾听的三要点<code>ASC</code>提问：<code>ASK</code>提问，清楚明确的提问；<code>Silence</code>沉默，沉默三秒钟让对方更深入的说明；<code>Confirm</code>确认，确认自己理解的意思是否正确。</li>
+<li>下属发生错误的时候如何提问呢？<code>ICE</code>三部曲，以我为开场白、比较以为的表现、让下属做出解释。</li>
+</ol>
+<p>不定期与下属进行一对一面谈技巧：</p>
+<ol>
+<li>要求下属主动的说明目前的具体情况，理清下属现在的那些行为是值得称赞的，有哪些是必须指正的。</li>
+<li>一起深入探讨面临的问题。</li>
+<li>还可以鼓励下属多多思考，针对问题提出不同的方案、分析和讨论。</li>
+<li>达成共识，决定改善的计划。</li>
+</ol>
+<h2 id="单元五-管理者的控制工作"><a href="#单元五-管理者的控制工作" class="headerlink" title="单元五 管理者的控制工作"></a>单元五 管理者的控制工作</h2><p>绩效评估面谈的6大步骤。</p>
+<ol>
+<li>绩效面谈时下属是紧张的，所以要营造放松的气氛，让双方能放松的会谈，然后在聚焦到锁定的焦点。</li>
+<li>使用绩效计划或者评分表来评估；</li>
+<li>展开绩效分析；向下属提问找出目标与实际行动大幅落差的原因，再研究如何解决。</li>
+<li>列出行动计划。</li>
+<li>将谈话记录建档。</li>
+<li>安排后续的会议。</li>
+</ol>
+]]></content>
+      <categories>
+        <category>软技能</category>
+      </categories>
+      <tags>
+        <tag>管理</tag>
       </tags>
   </entry>
   <entry>

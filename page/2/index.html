@@ -184,6 +184,113 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://lengrongfu.github.io/2019/06/29/Badger%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8B-SkipList%E5%9F%BA%E7%A1%80%E7%AF%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lengrongfu">
+      <meta itemprop="description" content="通过持续的学习，记录了成为软件工程师的成长轨迹">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LRF成长记">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/06/29/Badger%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8B-SkipList%E5%9F%BA%E7%A1%80%E7%AF%87/" class="post-title-link" itemprop="url">Badger源码学习之-SkipList基础篇</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-06-29 15:07:15 15:07:15" itemprop="dateCreated datePublished" datetime="2019-06-29T15:07:15+08:00">2019-06-29 15:07:15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-05-12 09:56:12 09:56:12" itemprop="dateModified" datetime="2021-05-12T09:56:12+08:00">2021-05-12 09:56:12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Badger/" itemprop="url" rel="index"><span itemprop="name">Badger</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2019/06/29/Badger%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8B-SkipList%E5%9F%BA%E7%A1%80%E7%AF%87/" class="post-meta-item leancloud_visitors" data-flag-title="Badger源码学习之-SkipList基础篇" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>5.2k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>5 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          Badger源码学习之-SkipList基础篇
+SkipList 全称跳跃表，具体定义可以查看维基百科的定义，或者论文。SkipList是一个有序的高效的链表结构，数组数据结构的search的时间复杂度为O(lgn)，通过二分法搜索，但是插入和删除的时间复杂度为O(n)；链表的search的时间复杂度为O(n)，插入和删除的时间复杂度为O(lg)。SkipList这个数据结构很好的结合了这两种数据结构的特性，search、insert、delete的时间复杂度都是O(lgn)，但是空间复杂度比其他的高，利用了空间换取时间的做法。
+
+SkipList是根据链表而来的，其数据结构类似与链表。
+
+链
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2019/06/29/Badger%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8B-SkipList%E5%9F%BA%E7%A1%80%E7%AF%87/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="http://lengrongfu.github.io/2019/06/19/linux-sed/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1232,121 +1339,6 @@ Q&A
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://lengrongfu.github.io/2019/04/05/Introduction-to-Algorithms-lecture-2/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="lengrongfu">
-      <meta itemprop="description" content="通过持续的学习，记录了成为软件工程师的成长轨迹">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="LRF成长记">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2019/04/05/Introduction-to-Algorithms-lecture-2/" class="post-title-link" itemprop="url">渐进符号、替换、递归树、主方法</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2019-04-05 22:57:18 22:57:18" itemprop="dateCreated datePublished" datetime="2019-04-05T22:57:18+08:00">2019-04-05 22:57:18</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-05-12 09:56:12 09:56:12" itemprop="dateModified" datetime="2021-05-12T09:56:12+08:00">2021-05-12 09:56:12</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Algorithms-and-Datastructure/" itemprop="url" rel="index"><span itemprop="name">Algorithms and Datastructure</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2019/04/05/Introduction-to-Algorithms-lecture-2/" class="post-meta-item leancloud_visitors" data-flag-title="渐进符号、替换、递归树、主方法" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span><br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>816</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          这节课的主要知识就是讲诉了使用三种方法去求解递归式。
-
-渐进记号
-渐进记号主要有三种，具体定义参考课本。把渐进记号用来描述算法的运行时间。
-
-Θ 记号(上界)
-f(n) = Θ(g(n))使得存在正数常量c1、c2、n0,使得对所有 n≥n0,有0≤c1g(n) ≤ f(n)≤ c2g(n)
-
-Ω 记号（下界）
-f(n)=Ω(g(n)) 使得存在正数常量c和n0,使得对所有n≥n0有 0 ≤ cg(n) ≤ f(n).
-
-O 记号
-Θ记号渐进的给出一个函数的上界和下界，当只有一个渐进上界时，使用O记号。
-f(n) = O(g(n)) 使得存在正数常量c,n0，使得对所有n≥n0,有0≤f(n)
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2019/04/05/Introduction-to-Algorithms-lecture-2/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1416,7 +1408,7 @@ f(n) = O(g(n)) 使得存在正数常量c,n0，使得对所有n≥n0,有0≤f(n)
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">58</span>
+          <span class="site-state-item-count">59</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1429,7 +1421,7 @@ f(n) = O(g(n)) 使得存在正数常量c,n0，使得对所有n≥n0,有0≤f(n)
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">81</span>
+        <span class="site-state-item-count">82</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1482,12 +1474,12 @@ f(n) = O(g(n)) 使得存在正数常量c,n0，使得对所有n≥n0,有0≤f(n)
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">179k</span>
+    <span title="Symbols count total">182k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">2:42</span>
+    <span title="Reading time total">2:46</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
   </div>
