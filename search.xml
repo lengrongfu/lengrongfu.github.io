@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>读大数据时代</title>
-    <url>/2018/09/04/%E8%AF%BB%E5%A4%A7%E6%95%B0%E6%8D%AE%E6%97%B6%E4%BB%A3/</url>
-    <content><![CDATA[<!--
-
--->
-]]></content>
-  </entry>
-  <entry>
     <title>搭建一个自己的blog</title>
     <url>/2018/09/03/%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84blog/</url>
     <content><![CDATA[<span id="more"></span>
@@ -55,49 +47,12 @@
       </tags>
   </entry>
   <entry>
-    <title>Sqoop User Guide(Sqoop使用指南)</title>
-    <url>/2018/09/11/Sqoop/</url>
-    <content><![CDATA[<h1 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h1><blockquote>
-<p><code>Sqoop</code>是一种用于转换<code>Hadoop</code>和关系型数据库之间的数据。你可以导出关系型数据库如<code>mysql</code>到<code>HDFS</code>上，在<code>Hadoop MapReduce</code>上进行数据转换，然后在导出到关系型数据库中。<code>Sqoop</code>依靠数据库来描述要导入的数据的模式，<code>Sqoop</code>使用<code>MapReduce</code>来做数据的导入和导出，它提供并行操作和容错.</p>
-</blockquote>
-<p><img src="/2018/09/11/Sqoop/sqoop.png" alt="sqoop"></p>
-<h1 id="2、基本使用"><a href="#2、基本使用" class="headerlink" title="2、基本使用"></a>2、基本使用</h1><blockquote>
-<p>使用<code>Sqoop</code>，可以把关系型数据库中的数据导入到<code>HDFS</code>中。对于数据库，<code>Sqoop</code>将逐行读取表格到<code>HDFS</code>,此导入过程的输出是一组文件，其中包含导入的表或数据集的副本(<code>parquet</code>)，导入是由<code>MapReduce</code>并行执行的，因此输出会在多个<code>parquet</code>文件中。</p>
-</blockquote>
-<blockquote>
-<p>导入过程的副产品是生成的java类，</p>
-</blockquote>
-<blockquote>
-<p>在进行数据操作之后(使用<code>MapReduce</code>或者<code>Hive</code>)计算之后，会有一个结果集，然后你可以将其导出回关系型数据库中，<code>Sqoop</code>的导出过程将并行读取<code>HDFS</code>中的一组分割文本文件，将他们解析为记录，并将它们作为新行插入目录数据库表中，供外部应用程序或用户使用。</p>
-</blockquote>
-<blockquote>
-<p><code>Sqoop</code>包含一些其它命令，如：可以列出目前所有可用的数据库，<code>sqoop-list-databases --connect=jdbc:mysql://10.1.4.99:3306/test --username=lrf --password=lrf</code>,列出数据库中的所有表：<code>sqoop-list-tables --connect=jdbc:mysql://10.1.4.99:3306/test --username=lrf --password=lrf</code>,还包括一个原始的SQl执行shell:<code>sqoop-eval</code></p>
-</blockquote>
-<blockquote>
-<p>可以自定义导入,对于数据库，可以控制导入的特定行范围或列，</p>
-</blockquote>
-<h1 id="3、Sqoop-工具"><a href="#3、Sqoop-工具" class="headerlink" title="3、Sqoop 工具"></a>3、Sqoop 工具</h1><p><code>Sqoop</code>时相关工具的集合，要使用<code>Sqoop</code>,需要指定要使用的工具和控制工具的参数。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sqoop -<span class="built_in">help</span></span></span><br><span class="line">usage: sqoop COMMAND [ARGS]</span><br><span class="line"></span><br><span class="line">Available commands:</span><br><span class="line">  codegen            Generate code to interact with database records #生成与数据库交互的代码</span><br><span class="line">  create-hive-table  Import a table definition into Hive # 导入表定义到hive</span><br><span class="line">  eval               Evaluate a SQL statement and display the results # 评估sql语句并显示结果</span><br><span class="line">  export             Export an HDFS directory to a database table # 将HDFS目录导出到数据库</span><br><span class="line">  help               List available commands # 列出可用命令</span><br><span class="line">  import             Import a table from a database to HDFS # 从数据库中导入一个指定表到HDFS</span><br><span class="line">  import-all-tables  Import tables from a database to HDFS # 把一个数据库中的表都导入到HDFS</span><br><span class="line">  import-mainframe   Import mainframe datasets to HDFS # 导入主数据库到HDFS</span><br><span class="line">  list-databases     List available databases on a server # </span><br><span class="line">  list-tables        List available tables in a database</span><br><span class="line">  version            Display version information</span><br><span class="line"></span><br><span class="line">See &#x27;sqoop help COMMAND&#x27; for information on a specific command.</span><br></pre></td></tr></table></figure></p>
-<h1 id="4、从mysql-到-HDFS"><a href="#4、从mysql-到-HDFS" class="headerlink" title="4、从mysql 到 HDFS"></a>4、从mysql 到 HDFS</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 导入指定的表</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sqoop import --connect jdbc:mysql://&lt;dburi&gt;/&lt;dbname&gt;?zeroDateTimeBehavior=CONVERT_TO_NULL <span class="comment"># db</span></span></span><br><span class="line">                --username &lt;username&gt; # db user</span><br><span class="line">                --password &lt;password&gt; # db pwd</span><br><span class="line">                --table &lt;tablename&gt; # db table</span><br><span class="line">                --check-column &lt;col&gt; # 要检查的列的名称</span><br><span class="line">                --incremental &lt;mode&gt;  # 改模式决定sqoop如何定义哪些行为新的行。取值为append或lastmodified</span><br><span class="line">                --last-value &lt;value&gt; # 前一个导入中检查列的最大值</span><br><span class="line">                --target-dir &lt;hdfs-dir&gt; # HDFS 的写入目录，例如：/user/hdfs/result.</span><br><span class="line"><span class="meta">#</span><span class="bash"> 列子</span></span><br><span class="line">sqoop import --connect jdbc:mysql://10.1.4.99:3306/test?zeroDateTimeBehavior=CONVERT_TO_NULL --table student --username lrf --password lrf --target-dir hdfs://hadoop-11.146.dev.net/user/hdfs/test/student</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 导入数据库下的所有表</span></span><br><span class="line">sqoop import-all-tables \</span><br><span class="line">    --username &lt;username&gt; # db user</span><br><span class="line">    --password &lt;password&gt; # db pwd</span><br><span class="line">    --check-column &lt;col&gt; # 要检查的列的名称</span><br><span class="line">    --incremental &lt;mode&gt;  # 改模式决定sqoop如何定义哪些行为新的行。取值为append或lastmodified</span><br><span class="line">    --last-value &lt;value&gt; # 前一个导入中检查列的最大值</span><br><span class="line"><span class="meta">#</span><span class="bash"> 列子,不能指定导入，默认会全部导入到/user/hdfs目录下</span></span><br><span class="line">sqoop import-all-tables --connect jdbc:mysql://10.1.4.99:3306/test?zeroDateTimeBehavior=CONVERT_TO_NULL --username lrf --password lrf </span><br></pre></td></tr></table></figure>
-<h1 id="5、从HDFS-到Mysql"><a href="#5、从HDFS-到Mysql" class="headerlink" title="5、从HDFS 到Mysql"></a>5、从HDFS 到Mysql</h1><blockquote>
-<p>需要先创建好对应 HDFS 中的数据结构的 MySQL 表，然后在集群的 Master 节点上执行如下命令，指定要导的数据文件的路径<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sqoop <span class="built_in">export</span> --connect jdbc:mysql://&lt;dburi&gt;/&lt;dbname&gt;</span> </span><br><span class="line">               --username &lt;username&gt; </span><br><span class="line">               --password &lt;password&gt; </span><br><span class="line">               --table &lt;tablename&gt; </span><br><span class="line">               --export-dir &lt;hdfs-dir&gt;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 列子</span></span><br><span class="line">sqoop export --connect jdbc:mysql://10.1.4.99:3306/test --username lrf --password lrf --table student </span><br><span class="line">--export-dir hdfs://hadoop-11.146.dev.net/user/hdfs/test/student</span><br></pre></td></tr></table></figure></p>
-</blockquote>
-<h1 id="6、从mysql-到Hive"><a href="#6、从mysql-到Hive" class="headerlink" title="6、从mysql 到Hive"></a>6、从mysql 到Hive</h1><blockquote>
-<p>在集群的 Master 节点上执行如下命令后，从MySQL数据库导入数据的同时，也会新建一个 Hive 表。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sqoop import --connect jdbc:mysql://&lt;dburi&gt;/&lt;dbname&gt;</span> </span><br><span class="line">               --username &lt;username&gt; </span><br><span class="line">               --password &lt;password&gt; </span><br><span class="line">               --table &lt;tablename&gt; </span><br><span class="line">               --check-column &lt;col&gt; </span><br><span class="line">               --incremental &lt;mode&gt; </span><br><span class="line">               --last-value &lt;value&gt; </span><br><span class="line">               --fields-terminated-by &quot;\t&quot; </span><br><span class="line">               --lines-terminated-by &quot;\n&quot; </span><br><span class="line">               --hive-import </span><br><span class="line">               --warehouse-dir &lt;hdfs-dir&gt; </span><br><span class="line">               --hive-table &lt;hive-tablename&gt;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 列子</span></span><br><span class="line">sqoop import-all-tables \</span><br><span class="line">    -m 3 \ </span><br><span class="line">    --connect jdbc:mysql://10.1.4.99:3306/test?zeroDateTimeBehavior=CONVERT_TO_NULL \ #mysql连接，zeroDateTimeBehavior 处理异常时间的配置,比如0，</span><br><span class="line">    --username=lrf \</span><br><span class="line">    --password=lrf \</span><br><span class="line">    --compression-codec=snappy \</span><br><span class="line">    --as-parquetfile \</span><br><span class="line">    --warehouse-dir=/user/hive/warehouse \</span><br><span class="line">    --hive-import</span><br></pre></td></tr></table></figure></p>
-</blockquote>
-<h1 id="7、从Hive到mysql"><a href="#7、从Hive到mysql" class="headerlink" title="7、从Hive到mysql"></a>7、从Hive到mysql</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sqoop <span class="built_in">export</span> --connect jdbc:mysql://&lt;dburi&gt;/&lt;dbname&gt;</span> </span><br><span class="line">               --username &lt;username&gt; </span><br><span class="line">               --password &lt;password&gt; </span><br><span class="line">               --table &lt;tablename&gt; </span><br><span class="line">               --export-dir &lt;hive-dir&gt;</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 例子,如果导出时要指定hive表的字段，不然分割不了，导出默认是使用逗号分割的，需要指定hive的列对应上mysql中的列，下列中的columns字段就是hive表中的字段。</span></span><br><span class="line">sqoop export --connect jdbc:mysql://10.1.4.99:3306/test --username lrf --password lrf --table nginx_access_logs --columns reote_addr,time_local,request,status,body_bytes_sent,http_referer,http_user_agent,http_x_forwarded_for --export-dir hdfs://hadoop-11.146.dev.net/user/hive/warehouse/nginx_access_logs</span><br></pre></td></tr></table></figure>
-<h1 id="8、使用sql条件导入到hdfs或hive"><a href="#8、使用sql条件导入到hdfs或hive" class="headerlink" title="8、使用sql条件导入到hdfs或hive"></a>8、使用sql条件导入到hdfs或hive</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sqoop import --connect jdbc:mysql://&lt;dburi&gt;/&lt;dbname&gt; </span><br><span class="line">             --username &lt;username&gt; </span><br><span class="line">             --password &lt;password&gt; </span><br><span class="line">             --query &lt;query-sql&gt; </span><br><span class="line">             --split-by &lt;sp-column&gt; # 查询的条件,如:&#x27;select * from student where age &gt; 20&#x27;</span><br><span class="line">             --hive-import </span><br><span class="line">             --hive-table &lt;hive-tablename&gt; </span><br><span class="line">             --target-dir &lt;hdfs-dir&gt;</span><br></pre></td></tr></table></figure>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
-<li><a href="https://sqoop.apache.org/docs/1.4.7/SqoopUserGuide.html">https://sqoop.apache.org/docs/1.4.7/SqoopUserGuide.html</a></li>
-<li><a href="https://sqoop.apache.org/docs/1.4.7/SqoopUserGuide.html#_connecting_to_a_database_server">https://sqoop.apache.org/docs/1.4.7/SqoopUserGuide.html#_connecting_to_a_database_server</a></li>
-</ul>
+    <title>读大数据时代</title>
+    <url>/2018/09/04/%E8%AF%BB%E5%A4%A7%E6%95%B0%E6%8D%AE%E6%97%B6%E4%BB%A3/</url>
+    <content><![CDATA[<!--
+
+-->
 ]]></content>
-      <categories>
-        <category>Hadoop</category>
-      </categories>
-      <tags>
-        <tag>Sqoop</tag>
-        <tag>Hadoop</tag>
-      </tags>
   </entry>
   <entry>
     <title>cloudera hadoop 安装</title>
@@ -155,67 +110,48 @@
       </tags>
   </entry>
   <entry>
-    <title>cloudera 问题解决</title>
-    <url>/2018/10/16/cloudera-problem/</url>
-    <content><![CDATA[<blockquote>
-<p>如下为记录<code>cloudera</code> 使用过程中的一些常见问题。</p>
+    <title>Sqoop User Guide(Sqoop使用指南)</title>
+    <url>/2018/09/11/Sqoop/</url>
+    <content><![CDATA[<h1 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h1><blockquote>
+<p><code>Sqoop</code>是一种用于转换<code>Hadoop</code>和关系型数据库之间的数据。你可以导出关系型数据库如<code>mysql</code>到<code>HDFS</code>上，在<code>Hadoop MapReduce</code>上进行数据转换，然后在导出到关系型数据库中。<code>Sqoop</code>依靠数据库来描述要导入的数据的模式，<code>Sqoop</code>使用<code>MapReduce</code>来做数据的导入和导出，它提供并行操作和容错.</p>
 </blockquote>
-<h1 id="1、服务没有设置-opt这个挂载点"><a href="#1、服务没有设置-opt这个挂载点" class="headerlink" title="1、服务没有设置/opt这个挂载点"></a>1、服务没有设置<code>/opt</code>这个挂载点</h1><ul>
-<li><code>cloudera</code>所有的数据都是存储在<code>/opt</code>这个根目录下的，所以服务器在安装系统的时候最好让运维同事挂载一个大空间到这个目录下。</li>
-<li>如果安装的时候不知道，安装软件的时候可以选择存储空间,如果安装的时候也不知道，没有设置的话那就很悲催了。</li>
-<li>如果没有设置就回存到根目录的<code>/opt</code>下，这里面的存储空间一般都很小。说一下解决办法。<br>1、重装（我没这精力）<br>2、把<code>/opt</code>这个目录移动到一个大的挂载点上去，然后使用软连接，本人就是这么做的。</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 步骤</span></span><br><span class="line"><span class="meta">#</span><span class="bash">1、先停掉集群。</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv cloudera cloudera.bak</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv cloudera.bak /data/cloudera</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ln -sv /data/cloudera cloudera</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 经过上面的步骤之后再重启集群就可以了。</span></span><br></pre></td></tr></table></figure>
-<h1 id="2、Error-creating-LevelDB-timeseries-store-in-directory-var-lib-cloudera-service-monitor-ts"><a href="#2、Error-creating-LevelDB-timeseries-store-in-directory-var-lib-cloudera-service-monitor-ts" class="headerlink" title="2、Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts"></a>2、Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts</h1><blockquote>
-<p>具体现象如下，报找不到一个文件。解释一下出现这个问题的原因，还是由于根目录下的空间不够了，因此我移动了一个占有很<br>大空间的包，就是错误中的 <code>/var/lib/cloudera-service-monitor</code> 这个目录，然后通过软连接进行访问的。</p>
+<p><img src="/2018/09/11/Sqoop/sqoop.png" alt="sqoop"></p>
+<h1 id="2、基本使用"><a href="#2、基本使用" class="headerlink" title="2、基本使用"></a>2、基本使用</h1><blockquote>
+<p>使用<code>Sqoop</code>，可以把关系型数据库中的数据导入到<code>HDFS</code>中。对于数据库，<code>Sqoop</code>将逐行读取表格到<code>HDFS</code>,此导入过程的输出是一组文件，其中包含导入的表或数据集的副本(<code>parquet</code>)，导入是由<code>MapReduce</code>并行执行的，因此输出会在多个<code>parquet</code>文件中。</p>
 </blockquote>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2018-10-16 16:24:25,993 INFO com.cloudera.cmon.firehose.Main: Cluster size: SMALL</span><br><span class="line">2018-10-16 16:24:26,056 INFO com.cloudera.cmon.tstore.leveldb.LDBResourceManager: Max file descriptors: 32768</span><br><span class="line">2018-10-16 16:24:26,057 INFO com.cloudera.cmon.tstore.leveldb.LDBResourceManager: Setting maximum open fds to: 768</span><br><span class="line">2018-10-16 16:24:26,181 ERROR com.cloudera.cmon.firehose.Main: Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts</span><br><span class="line">org.fusesource.leveldbjni.internal.NativeDB$DBException: Corruption: 3 missing files; e.g.: /data/lib/ts/ts_entity_metadata/000072.sst</span><br><span class="line">        at org.fusesource.leveldbjni.internal.NativeDB.checkStatus(NativeDB.java:194)</span><br><span class="line">        at org.fusesource.leveldbjni.internal.NativeDB.open(NativeDB.java:212)</span><br><span class="line">        at org.fusesource.leveldbjni.JniDBFactory.open(JniDBFactory.java:168)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBUtils.openVersionedDB(LDBUtils.java:264)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBUtils.openVersionedDB(LDBUtils.java:212)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBTimeSeriesMetadataStore.openMetadataDB(LDBTimeSeriesMetadataStore.java:148)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBTimeSeriesMetadataStore.&lt;init&gt;(LDBTimeSeriesMetadataStore.java:138)</span><br><span class="line">        at com.cloudera.cmon.firehose.Main.main(Main.java:453)</span><br></pre></td></tr></table></figure>
-<ul>
-<li>说一下解决办法：</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进行如下的操作，再重启就可以了。亲测可以</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv /var/lib/cloudera-service-monitor /var/lib/cloudera-service-monitor.moved</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv /var/lib/cloudera-host-monitor /var/lib/cloudera-host-monitor.moved</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>参考：<a href="https://community.cloudera.com/t5/Security-Apache-Sentry/Host-Monitor-and-Service-Monitor-is-not-starting-after/td-p/49207">https://community.cloudera.com/t5/Security-Apache-Sentry/Host-Monitor-and-Service-Monitor-is-not-starting-after/td-p/49207</a></li>
+<blockquote>
+<p>导入过程的副产品是生成的java类，</p>
+</blockquote>
+<blockquote>
+<p>在进行数据操作之后(使用<code>MapReduce</code>或者<code>Hive</code>)计算之后，会有一个结果集，然后你可以将其导出回关系型数据库中，<code>Sqoop</code>的导出过程将并行读取<code>HDFS</code>中的一组分割文本文件，将他们解析为记录，并将它们作为新行插入目录数据库表中，供外部应用程序或用户使用。</p>
+</blockquote>
+<blockquote>
+<p><code>Sqoop</code>包含一些其它命令，如：可以列出目前所有可用的数据库，<code>sqoop-list-databases --connect=jdbc:mysql://10.1.4.99:3306/test --username=lrf --password=lrf</code>,列出数据库中的所有表：<code>sqoop-list-tables --connect=jdbc:mysql://10.1.4.99:3306/test --username=lrf --password=lrf</code>,还包括一个原始的SQl执行shell:<code>sqoop-eval</code></p>
+</blockquote>
+<blockquote>
+<p>可以自定义导入,对于数据库，可以控制导入的特定行范围或列，</p>
+</blockquote>
+<h1 id="3、Sqoop-工具"><a href="#3、Sqoop-工具" class="headerlink" title="3、Sqoop 工具"></a>3、Sqoop 工具</h1><p><code>Sqoop</code>时相关工具的集合，要使用<code>Sqoop</code>,需要指定要使用的工具和控制工具的参数。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sqoop -<span class="built_in">help</span></span></span><br><span class="line">usage: sqoop COMMAND [ARGS]</span><br><span class="line"></span><br><span class="line">Available commands:</span><br><span class="line">  codegen            Generate code to interact with database records #生成与数据库交互的代码</span><br><span class="line">  create-hive-table  Import a table definition into Hive # 导入表定义到hive</span><br><span class="line">  eval               Evaluate a SQL statement and display the results # 评估sql语句并显示结果</span><br><span class="line">  export             Export an HDFS directory to a database table # 将HDFS目录导出到数据库</span><br><span class="line">  help               List available commands # 列出可用命令</span><br><span class="line">  import             Import a table from a database to HDFS # 从数据库中导入一个指定表到HDFS</span><br><span class="line">  import-all-tables  Import tables from a database to HDFS # 把一个数据库中的表都导入到HDFS</span><br><span class="line">  import-mainframe   Import mainframe datasets to HDFS # 导入主数据库到HDFS</span><br><span class="line">  list-databases     List available databases on a server # </span><br><span class="line">  list-tables        List available tables in a database</span><br><span class="line">  version            Display version information</span><br><span class="line"></span><br><span class="line">See &#x27;sqoop help COMMAND&#x27; for information on a specific command.</span><br></pre></td></tr></table></figure></p>
+<h1 id="4、从mysql-到-HDFS"><a href="#4、从mysql-到-HDFS" class="headerlink" title="4、从mysql 到 HDFS"></a>4、从mysql 到 HDFS</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 导入指定的表</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sqoop import --connect jdbc:mysql://&lt;dburi&gt;/&lt;dbname&gt;?zeroDateTimeBehavior=CONVERT_TO_NULL <span class="comment"># db</span></span></span><br><span class="line">                --username &lt;username&gt; # db user</span><br><span class="line">                --password &lt;password&gt; # db pwd</span><br><span class="line">                --table &lt;tablename&gt; # db table</span><br><span class="line">                --check-column &lt;col&gt; # 要检查的列的名称</span><br><span class="line">                --incremental &lt;mode&gt;  # 改模式决定sqoop如何定义哪些行为新的行。取值为append或lastmodified</span><br><span class="line">                --last-value &lt;value&gt; # 前一个导入中检查列的最大值</span><br><span class="line">                --target-dir &lt;hdfs-dir&gt; # HDFS 的写入目录，例如：/user/hdfs/result.</span><br><span class="line"><span class="meta">#</span><span class="bash"> 列子</span></span><br><span class="line">sqoop import --connect jdbc:mysql://10.1.4.99:3306/test?zeroDateTimeBehavior=CONVERT_TO_NULL --table student --username lrf --password lrf --target-dir hdfs://hadoop-11.146.dev.net/user/hdfs/test/student</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 导入数据库下的所有表</span></span><br><span class="line">sqoop import-all-tables \</span><br><span class="line">    --username &lt;username&gt; # db user</span><br><span class="line">    --password &lt;password&gt; # db pwd</span><br><span class="line">    --check-column &lt;col&gt; # 要检查的列的名称</span><br><span class="line">    --incremental &lt;mode&gt;  # 改模式决定sqoop如何定义哪些行为新的行。取值为append或lastmodified</span><br><span class="line">    --last-value &lt;value&gt; # 前一个导入中检查列的最大值</span><br><span class="line"><span class="meta">#</span><span class="bash"> 列子,不能指定导入，默认会全部导入到/user/hdfs目录下</span></span><br><span class="line">sqoop import-all-tables --connect jdbc:mysql://10.1.4.99:3306/test?zeroDateTimeBehavior=CONVERT_TO_NULL --username lrf --password lrf </span><br></pre></td></tr></table></figure>
+<h1 id="5、从HDFS-到Mysql"><a href="#5、从HDFS-到Mysql" class="headerlink" title="5、从HDFS 到Mysql"></a>5、从HDFS 到Mysql</h1><blockquote>
+<p>需要先创建好对应 HDFS 中的数据结构的 MySQL 表，然后在集群的 Master 节点上执行如下命令，指定要导的数据文件的路径<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sqoop <span class="built_in">export</span> --connect jdbc:mysql://&lt;dburi&gt;/&lt;dbname&gt;</span> </span><br><span class="line">               --username &lt;username&gt; </span><br><span class="line">               --password &lt;password&gt; </span><br><span class="line">               --table &lt;tablename&gt; </span><br><span class="line">               --export-dir &lt;hdfs-dir&gt;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 列子</span></span><br><span class="line">sqoop export --connect jdbc:mysql://10.1.4.99:3306/test --username lrf --password lrf --table student </span><br><span class="line">--export-dir hdfs://hadoop-11.146.dev.net/user/hdfs/test/student</span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<h1 id="6、从mysql-到Hive"><a href="#6、从mysql-到Hive" class="headerlink" title="6、从mysql 到Hive"></a>6、从mysql 到Hive</h1><blockquote>
+<p>在集群的 Master 节点上执行如下命令后，从MySQL数据库导入数据的同时，也会新建一个 Hive 表。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sqoop import --connect jdbc:mysql://&lt;dburi&gt;/&lt;dbname&gt;</span> </span><br><span class="line">               --username &lt;username&gt; </span><br><span class="line">               --password &lt;password&gt; </span><br><span class="line">               --table &lt;tablename&gt; </span><br><span class="line">               --check-column &lt;col&gt; </span><br><span class="line">               --incremental &lt;mode&gt; </span><br><span class="line">               --last-value &lt;value&gt; </span><br><span class="line">               --fields-terminated-by &quot;\t&quot; </span><br><span class="line">               --lines-terminated-by &quot;\n&quot; </span><br><span class="line">               --hive-import </span><br><span class="line">               --warehouse-dir &lt;hdfs-dir&gt; </span><br><span class="line">               --hive-table &lt;hive-tablename&gt;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 列子</span></span><br><span class="line">sqoop import-all-tables \</span><br><span class="line">    -m 3 \ </span><br><span class="line">    --connect jdbc:mysql://10.1.4.99:3306/test?zeroDateTimeBehavior=CONVERT_TO_NULL \ #mysql连接，zeroDateTimeBehavior 处理异常时间的配置,比如0，</span><br><span class="line">    --username=lrf \</span><br><span class="line">    --password=lrf \</span><br><span class="line">    --compression-codec=snappy \</span><br><span class="line">    --as-parquetfile \</span><br><span class="line">    --warehouse-dir=/user/hive/warehouse \</span><br><span class="line">    --hive-import</span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<h1 id="7、从Hive到mysql"><a href="#7、从Hive到mysql" class="headerlink" title="7、从Hive到mysql"></a>7、从Hive到mysql</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sqoop <span class="built_in">export</span> --connect jdbc:mysql://&lt;dburi&gt;/&lt;dbname&gt;</span> </span><br><span class="line">               --username &lt;username&gt; </span><br><span class="line">               --password &lt;password&gt; </span><br><span class="line">               --table &lt;tablename&gt; </span><br><span class="line">               --export-dir &lt;hive-dir&gt;</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 例子,如果导出时要指定hive表的字段，不然分割不了，导出默认是使用逗号分割的，需要指定hive的列对应上mysql中的列，下列中的columns字段就是hive表中的字段。</span></span><br><span class="line">sqoop export --connect jdbc:mysql://10.1.4.99:3306/test --username lrf --password lrf --table nginx_access_logs --columns reote_addr,time_local,request,status,body_bytes_sent,http_referer,http_user_agent,http_x_forwarded_for --export-dir hdfs://hadoop-11.146.dev.net/user/hive/warehouse/nginx_access_logs</span><br></pre></td></tr></table></figure>
+<h1 id="8、使用sql条件导入到hdfs或hive"><a href="#8、使用sql条件导入到hdfs或hive" class="headerlink" title="8、使用sql条件导入到hdfs或hive"></a>8、使用sql条件导入到hdfs或hive</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sqoop import --connect jdbc:mysql://&lt;dburi&gt;/&lt;dbname&gt; </span><br><span class="line">             --username &lt;username&gt; </span><br><span class="line">             --password &lt;password&gt; </span><br><span class="line">             --query &lt;query-sql&gt; </span><br><span class="line">             --split-by &lt;sp-column&gt; # 查询的条件,如:&#x27;select * from student where age &gt; 20&#x27;</span><br><span class="line">             --hive-import </span><br><span class="line">             --hive-table &lt;hive-tablename&gt; </span><br><span class="line">             --target-dir &lt;hdfs-dir&gt;</span><br></pre></td></tr></table></figure>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="https://sqoop.apache.org/docs/1.4.7/SqoopUserGuide.html">https://sqoop.apache.org/docs/1.4.7/SqoopUserGuide.html</a></li>
+<li><a href="https://sqoop.apache.org/docs/1.4.7/SqoopUserGuide.html#_connecting_to_a_database_server">https://sqoop.apache.org/docs/1.4.7/SqoopUserGuide.html#_connecting_to_a_database_server</a></li>
 </ul>
 ]]></content>
       <categories>
         <category>Hadoop</category>
       </categories>
       <tags>
-        <tag>cloudera</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>es 索引按时间自动创建</title>
-    <url>/2018/10/17/es-dynamic-index-create/</url>
-    <content><![CDATA[<h1 id="index"><a href="#index" class="headerlink" title="index"></a>index</h1><p>通过创建<code>template</code>来进行动态模版的创建。</p>
-<ul>
-<li><p>创建模版</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT _template/template_1</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;template&quot;</span>: <span class="string">&quot;test-*&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;settings&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;number_of_shards&quot;</span>: <span class="number">1</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">&quot;mappings&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;type1&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;_source&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;enabled&quot;</span>: <span class="literal">false</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">&quot;properties&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;host_name&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;keyword&quot;</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">&quot;created_at&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;date&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;format&quot;</span>: <span class="string">&quot;EEE MMM dd HH:mm:ss Z YYYY&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>创建第一天的数据</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT test<span class="number">-2018.08</span><span class="number">.10</span>/type1</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;host_name&quot;</span>:<span class="string">&quot;&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;created_at&quot;</span>:<span class="string">&quot;&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>创建第二天的数据<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT test<span class="number">-2018.08</span><span class="number">.11</span>/type1</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;host_name&quot;</span>:<span class="string">&quot;&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;created_at&quot;</span>:<span class="string">&quot;&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>后面都是依次类推。</p>
-<h2 id="禁止自动创建索引"><a href="#禁止自动创建索引" class="headerlink" title="禁止自动创建索引"></a>禁止自动创建索引</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim config/elasticsearch.yml</span><br><span class="line">action.auto_create_index: false</span><br></pre></td></tr></table></figure>
-<h2 id="删除索引"><a href="#删除索引" class="headerlink" title="删除索引"></a>删除索引</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#用以下的请求来 删除索引:</span><br><span class="line">DELETE /my_index</span><br><span class="line">#你也可以这样删除多个索引：</span><br><span class="line"></span><br><span class="line">DELETE /index_one,index_two</span><br><span class="line">DELETE /index_*</span><br><span class="line">#你甚至可以这样删除 全部 索引：</span><br><span class="line">DELETE /_all</span><br><span class="line">DELETE /*</span><br></pre></td></tr></table></figure>
-<p>为了避免意外的执行了删除所有数据的命令，可加入如下的配置。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim config/elasticsearch.yml</span><br><span class="line">action.destructive_requires_name: true</span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置之后就不能再执行删除所有的数据的命令，只能指定索引的删除</span></span><br></pre></td></tr></table></figure></p>
-<h2 id="索引设置"><a href="#索引设置" class="headerlink" title="索引设置"></a>索引设置</h2><p>可以通过修改配置自定义索引行为，详细配置参照<a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/index-modules.html">索引模块</a>。</p>
-<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
-<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/_creating_an_index.html">https://www.elastic.co/guide/cn/elasticsearch/guide/current/_creating_an_index.html</a></li>
-<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/index-templates.html">https://www.elastic.co/guide/cn/elasticsearch/guide/current/index-templates.html</a></li>
-<li><a href="https://www.elastic.co/blog/managing-time-based-indices-efficiently">有效地管理Elasticsearch基于时间的指数</a></li>
-<li><a href="https://luyiisme.github.io/2017/04/13/es-rollover-index/">更高效的数据</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>es</category>
-      </categories>
-      <tags>
-        <tag>elasticsearch</tag>
-        <tag>es template</tag>
+        <tag>Sqoop</tag>
+        <tag>Hadoop</tag>
       </tags>
   </entry>
   <entry>
@@ -318,52 +254,59 @@ system call filters failed to install; check the logs and fix your configuration
       </tags>
   </entry>
   <entry>
-    <title>ES X-Pack 5.4.3破解安装</title>
-    <url>/2018/10/17/es-xpack-install/</url>
-    <content><![CDATA[<p>假如已经有<code>es</code>和<code>kibana</code>了。</p>
-<p>下面的为安装路径.<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">esHome=/data/home/elastic/elasticsearch-5.4.3</span><br><span class="line">xpackHome=/data/home/xpack</span><br><span class="line">kibanaHome=/data/home/kibana</span><br></pre></td></tr></table></figure></p>
-<h2 id="1、下载xpakc"><a href="#1、下载xpakc" class="headerlink" title="1、下载xpakc"></a>1、下载xpakc</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 下载xpack压缩包</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;xpackHome&#125;</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> wget -c <span class="string">&#x27;https://artifacts.elastic.co/downloads/packs/x-pack/x-pack-5.4.3.zip</span></span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h2 id="2、Elasticsearch安装X-Pack"><a href="#2、Elasticsearch安装X-Pack" class="headerlink" title="2、Elasticsearch安装X-Pack"></a>2、Elasticsearch安装X-Pack</h2><p><code>ES</code>安装<code>x-pack</code>有两种方法。</p>
-<h3 id="一、手动安装"><a href="#一、手动安装" class="headerlink" title="一、手动安装"></a>一、手动安装</h3><ul>
-<li>安装插件</li>
+    <title>cloudera 问题解决</title>
+    <url>/2018/10/16/cloudera-problem/</url>
+    <content><![CDATA[<blockquote>
+<p>如下为记录<code>cloudera</code> 使用过程中的一些常见问题。</p>
+</blockquote>
+<h1 id="1、服务没有设置-opt这个挂载点"><a href="#1、服务没有设置-opt这个挂载点" class="headerlink" title="1、服务没有设置/opt这个挂载点"></a>1、服务没有设置<code>/opt</code>这个挂载点</h1><ul>
+<li><code>cloudera</code>所有的数据都是存储在<code>/opt</code>这个根目录下的，所以服务器在安装系统的时候最好让运维同事挂载一个大空间到这个目录下。</li>
+<li>如果安装的时候不知道，安装软件的时候可以选择存储空间,如果安装的时候也不知道，没有设置的话那就很悲催了。</li>
+<li>如果没有设置就回存到根目录的<code>/opt</code>下，这里面的存储空间一般都很小。说一下解决办法。<br>1、重装（我没这精力）<br>2、把<code>/opt</code>这个目录移动到一个大的挂载点上去，然后使用软连接，本人就是这么做的。</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ./bin/elasticsearch-plugin install file://<span class="variable">$&#123;xpackHome&#125;</span>/x-pack-5.4.3.zip</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 步骤</span></span><br><span class="line"><span class="meta">#</span><span class="bash">1、先停掉集群。</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv cloudera cloudera.bak</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv cloudera.bak /data/cloudera</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ln -sv /data/cloudera cloudera</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 经过上面的步骤之后再重启集群就可以了。</span></span><br></pre></td></tr></table></figure>
+<h1 id="2、Error-creating-LevelDB-timeseries-store-in-directory-var-lib-cloudera-service-monitor-ts"><a href="#2、Error-creating-LevelDB-timeseries-store-in-directory-var-lib-cloudera-service-monitor-ts" class="headerlink" title="2、Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts"></a>2、Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts</h1><blockquote>
+<p>具体现象如下，报找不到一个文件。解释一下出现这个问题的原因，还是由于根目录下的空间不够了，因此我移动了一个占有很<br>大空间的包，就是错误中的 <code>/var/lib/cloudera-service-monitor</code> 这个目录，然后通过软连接进行访问的。</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2018-10-16 16:24:25,993 INFO com.cloudera.cmon.firehose.Main: Cluster size: SMALL</span><br><span class="line">2018-10-16 16:24:26,056 INFO com.cloudera.cmon.tstore.leveldb.LDBResourceManager: Max file descriptors: 32768</span><br><span class="line">2018-10-16 16:24:26,057 INFO com.cloudera.cmon.tstore.leveldb.LDBResourceManager: Setting maximum open fds to: 768</span><br><span class="line">2018-10-16 16:24:26,181 ERROR com.cloudera.cmon.firehose.Main: Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts</span><br><span class="line">org.fusesource.leveldbjni.internal.NativeDB$DBException: Corruption: 3 missing files; e.g.: /data/lib/ts/ts_entity_metadata/000072.sst</span><br><span class="line">        at org.fusesource.leveldbjni.internal.NativeDB.checkStatus(NativeDB.java:194)</span><br><span class="line">        at org.fusesource.leveldbjni.internal.NativeDB.open(NativeDB.java:212)</span><br><span class="line">        at org.fusesource.leveldbjni.JniDBFactory.open(JniDBFactory.java:168)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBUtils.openVersionedDB(LDBUtils.java:264)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBUtils.openVersionedDB(LDBUtils.java:212)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBTimeSeriesMetadataStore.openMetadataDB(LDBTimeSeriesMetadataStore.java:148)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBTimeSeriesMetadataStore.&lt;init&gt;(LDBTimeSeriesMetadataStore.java:138)</span><br><span class="line">        at com.cloudera.cmon.firehose.Main.main(Main.java:453)</span><br></pre></td></tr></table></figure>
 <ul>
-<li>破解<code>xpack</code></li>
+<li>说一下解决办法：</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;esHome&#125;</span>/plugins</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> touch LicenseVerifier.java</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> vim LicenseVerifier.java</span></span><br><span class="line"></span><br><span class="line">package org.elasticsearch.license;</span><br><span class="line"></span><br><span class="line">import java.nio.*;</span><br><span class="line">import java.util.*;</span><br><span class="line">import java.security.*;</span><br><span class="line">import org.elasticsearch.common.xcontent.*;</span><br><span class="line">import org.apache.lucene.util.*;</span><br><span class="line">import org.elasticsearch.common.io.*;</span><br><span class="line">import java.io.*;</span><br><span class="line"></span><br><span class="line">public class LicenseVerifier</span><br><span class="line">&#123;</span><br><span class="line">    public static boolean verifyLicense(final License license, final byte[] encryptedPublicKeyData) &#123;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static boolean verifyLicense(final License license) &#123;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进行如下的操作，再重启就可以了。亲测可以</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv /var/lib/cloudera-service-monitor /var/lib/cloudera-service-monitor.moved</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv /var/lib/cloudera-host-monitor /var/lib/cloudera-host-monitor.moved</span></span><br></pre></td></tr></table></figure>
 <ul>
-<li>编译</li>
+<li>参考：<a href="https://community.cloudera.com/t5/Security-Apache-Sentry/Host-Monitor-and-Service-Monitor-is-not-starting-after/td-p/49207">https://community.cloudera.com/t5/Security-Apache-Sentry/Host-Monitor-and-Service-Monitor-is-not-starting-after/td-p/49207</a></li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;esHome&#125;</span>/plugins</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> javac -cp <span class="string">&quot;<span class="variable">$&#123;esHome&#125;</span>/lib/elasticsearch-5.4.3.jar:<span class="variable">$&#123;esHome&#125;</span>/lib/lucene-core-6.5.1.jar:<span class="variable">$&#123;esHome&#125;</span>/plugins/x-pack/x-pack-5.4.3.jar&quot;</span> LicenseVerifier.java</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>Hadoop</category>
+      </categories>
+      <tags>
+        <tag>cloudera</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>es 索引按时间自动创建</title>
+    <url>/2018/10/17/es-dynamic-index-create/</url>
+    <content><![CDATA[<h1 id="index"><a href="#index" class="headerlink" title="index"></a>index</h1><p>通过创建<code>template</code>来进行动态模版的创建。</p>
 <ul>
-<li>替换class文件</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 解压</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;esHome&#125;</span>/plugins/x-pack/</span></span><br><span class="line">mkdir test</span><br><span class="line">mv x-pack-5.4.3.jar test/</span><br><span class="line">cd test/</span><br><span class="line">jar xvf x-pack-5.4.3.jar</span><br><span class="line"><span class="meta">#</span><span class="bash">替换</span></span><br><span class="line">cd ./org/elasticsearch/license</span><br><span class="line">rm -f LicenseVerifier.class</span><br><span class="line">mv $&#123;esHome&#125;/plugins/LicenseVerifier.class .</span><br><span class="line"><span class="meta">#</span><span class="bash"> 打包</span></span><br><span class="line">cd $&#123;esHome&#125;/plugins/x-pack/test</span><br><span class="line">jar cvf x-pack-5.4.3.jar .</span><br><span class="line">mv x-pack-5.4.3.jar ../</span><br><span class="line"><span class="meta">#</span><span class="bash">删除临时文件</span></span><br><span class="line">cd ../</span><br><span class="line">rm -rf test</span><br><span class="line">cd ../</span><br><span class="line">rm LicenseVerifier.java</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>申请license</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">来此注册，并下载license文件</span></span><br><span class="line">https://license.elastic.co/registration</span><br></pre></td></tr></table></figure>
+<li><p>创建模版</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT _template/template_1</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;template&quot;</span>: <span class="string">&quot;test-*&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;settings&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;number_of_shards&quot;</span>: <span class="number">1</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">&quot;mappings&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;type1&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;_source&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;enabled&quot;</span>: <span class="literal">false</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">&quot;properties&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;host_name&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;keyword&quot;</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">&quot;created_at&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;date&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;format&quot;</span>: <span class="string">&quot;EEE MMM dd HH:mm:ss Z YYYY&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 </li>
-<li><p>修改license</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;                                                                                                                                                                                                       </span><br><span class="line">       <span class="attr">&quot;license&quot;</span>: &#123;</span><br><span class="line">           <span class="attr">&quot;uid&quot;</span>: <span class="string">&quot;01957577-fa6e-426f-9257-200ccdfaee73&quot;</span>,</span><br><span class="line">           <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;platinum&quot;</span>,</span><br><span class="line">           <span class="attr">&quot;issue_date_in_millis&quot;</span>: <span class="number">1534464000000</span>,</span><br><span class="line">           <span class="attr">&quot;expiry_date_in_millis&quot;</span>: <span class="number">2524579200999</span>,</span><br><span class="line">           <span class="attr">&quot;max_nodes&quot;</span>: <span class="number">100</span>,</span><br><span class="line">           <span class="attr">&quot;issued_to&quot;</span>: <span class="string">&quot;leng rongfu (no)&quot;</span>,</span><br><span class="line">           <span class="attr">&quot;issuer&quot;</span>: <span class="string">&quot;Web Form&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;signature&quot;</span>: <span class="string">&quot;AAAAAwAAAA0p6LA0HKNGcIOkCCRqAAABmC9ZN0hjZDBGYnVyRXpCOW5Bb3FjZDAxOWpSbTVoMVZwUzRxVk1PSmkxaktJRVl5MUYvUWh3bHZVUTllbXNPbzBUemtnbWpBbmlWRmRZb25KNFlBR2x0TXc2K2p1Y1VtMG1UQU9TRGZVSGRwaE   JGUjE3bXd3LzRqZ05iLzRteWFNekdxRGpIYlFwYkJiNUs0U1hTVlJKNVlXekMrSlVUdFIvV0FNeWdOYnlESDc3MWhlY3hSQmdKSjJ2ZTcvYlBFOHhPQlV3ZHdDQ0tHcG5uOElCaDJ4K1hob29xSG85N0kvTWV3THhlQk9NL01VMFRjNDZpZEVXeUtUMXIyMlIveFpJUk    k2WUdveEZaME9XWitGUi9WNTZVQW1FMG1DenhZU0ZmeXlZakVEMjZFT2NvOWxpZGlqVmlHNC8rWVVUYzMwRGVySHpIdURzKzFiRDl4TmM1TUp2VTBOUlJZUlAyV0ZVL2kvVk10L0NsbXNFYVZwT3NSU082dFNNa2prQ0ZsclZ4NTltbU1CVE5lR09Bck93V2J1Y3c9PQ    AAAQBENsHqhC2OW/yYxaKP5tS/GHT9TrEbcEtI62k//Id9p2DzSHUv+xekDbfiu550wMrBnoeOi4xV4X6C2WcJCYLSM/QRTotlm11SGvWnUgRXFst83n/nceh3l3Y9D3Odec4zAhrhrYynisls2WfCFGSEW5EUO1II+3C5xhyKMyLROlAxkwNco0H4zD3GlEjZNqC3CK    8cQRRmeJ1lIPvb/Tw8JbbG5zjQuYhQakMAbXqIeL9BLla7sAP4+M8lmvh4Z6bwUGy1MQ9j1+ijdswWMNVs8Vr7CnxZ1j4pla2ZWkGSr4sNfI0LF6U25HC4ofb8CQkrKoAq80EPdINnrfyr56CU&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;start_date_in_millis&quot;</span>: <span class="number">1534464000000</span></span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">&quot;license&quot;</span>:&#123;</span><br><span class="line">        <span class="attr">&quot;uid&quot;</span>:<span class="string">&quot;01957577-fa6e-426f-9257-200ccdfaee73&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;type&quot;</span>:<span class="string">&quot;platinum&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;issue_date_in_millis&quot;</span>:<span class="number">1534464000000</span>,</span><br><span class="line">        <span class="attr">&quot;expiry_date_in_millis&quot;</span>:<span class="number">2524579200999</span>,</span><br><span class="line">        <span class="attr">&quot;max_nodes&quot;</span>:<span class="number">100</span>,</span><br><span class="line">        <span class="attr">&quot;issued_to&quot;</span>:<span class="string">&quot;leng rongfu (no)&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;issuer&quot;</span>:<span class="string">&quot;Web Form&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;signature&quot;</span>:<span class="string">&quot;AAAAAwAAAA0p6LA0HKNGcIOkCCRqAAABmC9ZN0hjZDBGYnVyRXpCOW5Bb3FjZDAxOWpSbTVoMVZwUzRxVk1PSmkxaktJRVl5MUYvUWh3bHZVUTllbXNPbzBUemtnbWpBbmlWRmRZb25KNFlBR2x0TXc2K2p1Y1VtMG1UQU9TRGZVSGRwaEJGUjE3bXd3LzRqZ05iLzRteWFNekdxRGpIYlFwYkJiNUs0U1hTVlJKNVlXekMrSlVUdFIvV0FNeWdOYnlESDc3MWhlY3hSQmdKSjJ2ZTcvYlBFOHhPQlV3ZHdDQ0tHcG5uOElCaDJ4K1hob29xSG85N0kvTWV3THhlQk9NL01VMFRjNDZpZEVXeUtUMXIyMlIveFpJUkk2WUdveEZaME9XWitGUi9WNTZVQW1FMG1DenhZU0ZmeXlZakVEMjZFT2NvOWxpZGlqVmlHNC8rWVVUYzMwRGVySHpIdURzKzFiRDl4TmM1TUp2VTBOUlJZUlAyV0ZVL2kvVk10L0NsbXNFYVZwT3NSU082dFNNa2prQ0ZsclZ4NTltbU1CVE5lR09Bck93V2J1Y3c9PQAAAQBENsHqhC2OW/yYxaKP5tS/GHT9TrEbcEtI62k//Id9p2DzSHUv+xekDbfiu550wMrBnoeOi4xV4X6C2WcJCYLSM/QRTotlm11SGvWnUgRXFst83n/nceh3l3Y9D3Odec4zAhrhrYynisls2WfCFGSEW5EUO1II+3C5xhyKMyLROlAxkwNco0H4zD3GlEjZNqC3CK8cQRRmeJ1lIPvb/Tw8JbbG5zjQuYhQakMAbXqIeL9BLla7sAP4+M8lmvh4Z6bwUGy1MQ9j1+ijdswWMNVs8Vr7CnxZ1j4pla2ZWkGSr4sNfI0LF6U25HC4ofb8CQkrKoAq80EPdINnrfyr56CU&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;start_date_in_millis&quot;</span>:<span class="number">1534464000000</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>ps：<code>platinum</code>表示白金版，可以使用所有功能。其他的如<code>expiry_date_in_millis</code>、<code>max_nodes</code>等根据自己需要修改即可,<code>expiry_date_in_millis</code>是过期时间,使用的是<code>uninx时间</code>,我设置的是到<code>2049</code>年.</p>
-<ul>
-<li>查看lience</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> curl -XGET -u elastic:changeme <span class="string">&#x27;http://&#123;host&#125;:9200/_license&#x27;</span></span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>注册新修改的lience</li>
-<li><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> curl -XPUT -u elastic:changeme <span class="string">&#x27;http://&#123;host&#125;:9200/_xpack/license?acknowledge=true&#x27;</span> -d @lience.json</span></span><br></pre></td></tr></table></figure>
+<li><p>创建第一天的数据</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT test<span class="number">-2018.08</span><span class="number">.10</span>/type1</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;host_name&quot;</span>:<span class="string">&quot;&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;created_at&quot;</span>:<span class="string">&quot;&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>创建第二天的数据<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT test<span class="number">-2018.08</span><span class="number">.11</span>/type1</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;host_name&quot;</span>:<span class="string">&quot;&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;created_at&quot;</span>:<span class="string">&quot;&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
-</li>
-</ul>
-<h3 id="二、直接导入文件"><a href="#二、直接导入文件" class="headerlink" title="二、直接导入文件"></a>二、直接导入文件</h3><p>如果有破解好的文件，直接把<code>plugins</code>下的<code>x-pack</code>文件夹进行压缩，复制到其它节点的<code>plugins</code>路径下，重启就可以使用。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"># 下载地址</span><br><span class="line">$ wget -c https://note.youdao.com/yws/api/personal/file/WEBe693b8fab3b4cad482e5b354cd4176cd?method=download&amp;shareKey=a16d1e40a0ec4461a4f619f325c3f150</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h2 id="3、kibana安装X-Pack"><a href="#3、kibana安装X-Pack" class="headerlink" title="3、kibana安装X-Pack"></a>3、kibana安装X-Pack</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;kibanaHome&#125;</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./bin/kibana-plugin install file://<span class="variable">$&#123;xpackHome&#125;</span>/x-pack-5.4.3.zip</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><ul>
-<li><a href="https://my.oschina.net/guol/blog/1204258">https://my.oschina.net/guol/blog/1204258</a></li>
-<li><a href="https://mp.weixin.qq.com/s/NN01SalzLz2Ue6Q4exCfAw">https://mp.weixin.qq.com/s/NN01SalzLz2Ue6Q4exCfAw</a></li>
+<p>后面都是依次类推。</p>
+<h2 id="禁止自动创建索引"><a href="#禁止自动创建索引" class="headerlink" title="禁止自动创建索引"></a>禁止自动创建索引</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim config/elasticsearch.yml</span><br><span class="line">action.auto_create_index: false</span><br></pre></td></tr></table></figure>
+<h2 id="删除索引"><a href="#删除索引" class="headerlink" title="删除索引"></a>删除索引</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#用以下的请求来 删除索引:</span><br><span class="line">DELETE /my_index</span><br><span class="line">#你也可以这样删除多个索引：</span><br><span class="line"></span><br><span class="line">DELETE /index_one,index_two</span><br><span class="line">DELETE /index_*</span><br><span class="line">#你甚至可以这样删除 全部 索引：</span><br><span class="line">DELETE /_all</span><br><span class="line">DELETE /*</span><br></pre></td></tr></table></figure>
+<p>为了避免意外的执行了删除所有数据的命令，可加入如下的配置。<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim config/elasticsearch.yml</span><br><span class="line">action.destructive_requires_name: true</span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置之后就不能再执行删除所有的数据的命令，只能指定索引的删除</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="索引设置"><a href="#索引设置" class="headerlink" title="索引设置"></a>索引设置</h2><p>可以通过修改配置自定义索引行为，详细配置参照<a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.6/index-modules.html">索引模块</a>。</p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/_creating_an_index.html">https://www.elastic.co/guide/cn/elasticsearch/guide/current/_creating_an_index.html</a></li>
+<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/index-templates.html">https://www.elastic.co/guide/cn/elasticsearch/guide/current/index-templates.html</a></li>
+<li><a href="https://www.elastic.co/blog/managing-time-based-indices-efficiently">有效地管理Elasticsearch基于时间的指数</a></li>
+<li><a href="https://luyiisme.github.io/2017/04/13/es-rollover-index/">更高效的数据</a></li>
 </ul>
 ]]></content>
       <categories>
@@ -371,8 +314,7 @@ system call filters failed to install; check the logs and fix your configuration
       </categories>
       <tags>
         <tag>elasticsearch</tag>
-        <tag>install</tag>
-        <tag>X-pack</tag>
+        <tag>es template</tag>
       </tags>
   </entry>
   <entry>
@@ -441,6 +383,64 @@ system call filters failed to install; check the logs and fix your configuration
         <tag>elasticsearch</tag>
         <tag>install</tag>
         <tag>es 运维</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>ES X-Pack 5.4.3破解安装</title>
+    <url>/2018/10/17/es-xpack-install/</url>
+    <content><![CDATA[<p>假如已经有<code>es</code>和<code>kibana</code>了。</p>
+<p>下面的为安装路径.<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">esHome=/data/home/elastic/elasticsearch-5.4.3</span><br><span class="line">xpackHome=/data/home/xpack</span><br><span class="line">kibanaHome=/data/home/kibana</span><br></pre></td></tr></table></figure></p>
+<h2 id="1、下载xpakc"><a href="#1、下载xpakc" class="headerlink" title="1、下载xpakc"></a>1、下载xpakc</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 下载xpack压缩包</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;xpackHome&#125;</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> wget -c <span class="string">&#x27;https://artifacts.elastic.co/downloads/packs/x-pack/x-pack-5.4.3.zip</span></span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="2、Elasticsearch安装X-Pack"><a href="#2、Elasticsearch安装X-Pack" class="headerlink" title="2、Elasticsearch安装X-Pack"></a>2、Elasticsearch安装X-Pack</h2><p><code>ES</code>安装<code>x-pack</code>有两种方法。</p>
+<h3 id="一、手动安装"><a href="#一、手动安装" class="headerlink" title="一、手动安装"></a>一、手动安装</h3><ul>
+<li>安装插件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ./bin/elasticsearch-plugin install file://<span class="variable">$&#123;xpackHome&#125;</span>/x-pack-5.4.3.zip</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>破解<code>xpack</code></li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;esHome&#125;</span>/plugins</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> touch LicenseVerifier.java</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> vim LicenseVerifier.java</span></span><br><span class="line"></span><br><span class="line">package org.elasticsearch.license;</span><br><span class="line"></span><br><span class="line">import java.nio.*;</span><br><span class="line">import java.util.*;</span><br><span class="line">import java.security.*;</span><br><span class="line">import org.elasticsearch.common.xcontent.*;</span><br><span class="line">import org.apache.lucene.util.*;</span><br><span class="line">import org.elasticsearch.common.io.*;</span><br><span class="line">import java.io.*;</span><br><span class="line"></span><br><span class="line">public class LicenseVerifier</span><br><span class="line">&#123;</span><br><span class="line">    public static boolean verifyLicense(final License license, final byte[] encryptedPublicKeyData) &#123;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static boolean verifyLicense(final License license) &#123;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ul>
+<li>编译</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;esHome&#125;</span>/plugins</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> javac -cp <span class="string">&quot;<span class="variable">$&#123;esHome&#125;</span>/lib/elasticsearch-5.4.3.jar:<span class="variable">$&#123;esHome&#125;</span>/lib/lucene-core-6.5.1.jar:<span class="variable">$&#123;esHome&#125;</span>/plugins/x-pack/x-pack-5.4.3.jar&quot;</span> LicenseVerifier.java</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ul>
+<li>替换class文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 解压</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;esHome&#125;</span>/plugins/x-pack/</span></span><br><span class="line">mkdir test</span><br><span class="line">mv x-pack-5.4.3.jar test/</span><br><span class="line">cd test/</span><br><span class="line">jar xvf x-pack-5.4.3.jar</span><br><span class="line"><span class="meta">#</span><span class="bash">替换</span></span><br><span class="line">cd ./org/elasticsearch/license</span><br><span class="line">rm -f LicenseVerifier.class</span><br><span class="line">mv $&#123;esHome&#125;/plugins/LicenseVerifier.class .</span><br><span class="line"><span class="meta">#</span><span class="bash"> 打包</span></span><br><span class="line">cd $&#123;esHome&#125;/plugins/x-pack/test</span><br><span class="line">jar cvf x-pack-5.4.3.jar .</span><br><span class="line">mv x-pack-5.4.3.jar ../</span><br><span class="line"><span class="meta">#</span><span class="bash">删除临时文件</span></span><br><span class="line">cd ../</span><br><span class="line">rm -rf test</span><br><span class="line">cd ../</span><br><span class="line">rm LicenseVerifier.java</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>申请license</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">来此注册，并下载license文件</span></span><br><span class="line">https://license.elastic.co/registration</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改license</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;                                                                                                                                                                                                       </span><br><span class="line">       <span class="attr">&quot;license&quot;</span>: &#123;</span><br><span class="line">           <span class="attr">&quot;uid&quot;</span>: <span class="string">&quot;01957577-fa6e-426f-9257-200ccdfaee73&quot;</span>,</span><br><span class="line">           <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;platinum&quot;</span>,</span><br><span class="line">           <span class="attr">&quot;issue_date_in_millis&quot;</span>: <span class="number">1534464000000</span>,</span><br><span class="line">           <span class="attr">&quot;expiry_date_in_millis&quot;</span>: <span class="number">2524579200999</span>,</span><br><span class="line">           <span class="attr">&quot;max_nodes&quot;</span>: <span class="number">100</span>,</span><br><span class="line">           <span class="attr">&quot;issued_to&quot;</span>: <span class="string">&quot;leng rongfu (no)&quot;</span>,</span><br><span class="line">           <span class="attr">&quot;issuer&quot;</span>: <span class="string">&quot;Web Form&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;signature&quot;</span>: <span class="string">&quot;AAAAAwAAAA0p6LA0HKNGcIOkCCRqAAABmC9ZN0hjZDBGYnVyRXpCOW5Bb3FjZDAxOWpSbTVoMVZwUzRxVk1PSmkxaktJRVl5MUYvUWh3bHZVUTllbXNPbzBUemtnbWpBbmlWRmRZb25KNFlBR2x0TXc2K2p1Y1VtMG1UQU9TRGZVSGRwaE   JGUjE3bXd3LzRqZ05iLzRteWFNekdxRGpIYlFwYkJiNUs0U1hTVlJKNVlXekMrSlVUdFIvV0FNeWdOYnlESDc3MWhlY3hSQmdKSjJ2ZTcvYlBFOHhPQlV3ZHdDQ0tHcG5uOElCaDJ4K1hob29xSG85N0kvTWV3THhlQk9NL01VMFRjNDZpZEVXeUtUMXIyMlIveFpJUk    k2WUdveEZaME9XWitGUi9WNTZVQW1FMG1DenhZU0ZmeXlZakVEMjZFT2NvOWxpZGlqVmlHNC8rWVVUYzMwRGVySHpIdURzKzFiRDl4TmM1TUp2VTBOUlJZUlAyV0ZVL2kvVk10L0NsbXNFYVZwT3NSU082dFNNa2prQ0ZsclZ4NTltbU1CVE5lR09Bck93V2J1Y3c9PQ    AAAQBENsHqhC2OW/yYxaKP5tS/GHT9TrEbcEtI62k//Id9p2DzSHUv+xekDbfiu550wMrBnoeOi4xV4X6C2WcJCYLSM/QRTotlm11SGvWnUgRXFst83n/nceh3l3Y9D3Odec4zAhrhrYynisls2WfCFGSEW5EUO1II+3C5xhyKMyLROlAxkwNco0H4zD3GlEjZNqC3CK    8cQRRmeJ1lIPvb/Tw8JbbG5zjQuYhQakMAbXqIeL9BLla7sAP4+M8lmvh4Z6bwUGy1MQ9j1+ijdswWMNVs8Vr7CnxZ1j4pla2ZWkGSr4sNfI0LF6U25HC4ofb8CQkrKoAq80EPdINnrfyr56CU&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;start_date_in_millis&quot;</span>: <span class="number">1534464000000</span></span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">&quot;license&quot;</span>:&#123;</span><br><span class="line">        <span class="attr">&quot;uid&quot;</span>:<span class="string">&quot;01957577-fa6e-426f-9257-200ccdfaee73&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;type&quot;</span>:<span class="string">&quot;platinum&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;issue_date_in_millis&quot;</span>:<span class="number">1534464000000</span>,</span><br><span class="line">        <span class="attr">&quot;expiry_date_in_millis&quot;</span>:<span class="number">2524579200999</span>,</span><br><span class="line">        <span class="attr">&quot;max_nodes&quot;</span>:<span class="number">100</span>,</span><br><span class="line">        <span class="attr">&quot;issued_to&quot;</span>:<span class="string">&quot;leng rongfu (no)&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;issuer&quot;</span>:<span class="string">&quot;Web Form&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;signature&quot;</span>:<span class="string">&quot;AAAAAwAAAA0p6LA0HKNGcIOkCCRqAAABmC9ZN0hjZDBGYnVyRXpCOW5Bb3FjZDAxOWpSbTVoMVZwUzRxVk1PSmkxaktJRVl5MUYvUWh3bHZVUTllbXNPbzBUemtnbWpBbmlWRmRZb25KNFlBR2x0TXc2K2p1Y1VtMG1UQU9TRGZVSGRwaEJGUjE3bXd3LzRqZ05iLzRteWFNekdxRGpIYlFwYkJiNUs0U1hTVlJKNVlXekMrSlVUdFIvV0FNeWdOYnlESDc3MWhlY3hSQmdKSjJ2ZTcvYlBFOHhPQlV3ZHdDQ0tHcG5uOElCaDJ4K1hob29xSG85N0kvTWV3THhlQk9NL01VMFRjNDZpZEVXeUtUMXIyMlIveFpJUkk2WUdveEZaME9XWitGUi9WNTZVQW1FMG1DenhZU0ZmeXlZakVEMjZFT2NvOWxpZGlqVmlHNC8rWVVUYzMwRGVySHpIdURzKzFiRDl4TmM1TUp2VTBOUlJZUlAyV0ZVL2kvVk10L0NsbXNFYVZwT3NSU082dFNNa2prQ0ZsclZ4NTltbU1CVE5lR09Bck93V2J1Y3c9PQAAAQBENsHqhC2OW/yYxaKP5tS/GHT9TrEbcEtI62k//Id9p2DzSHUv+xekDbfiu550wMrBnoeOi4xV4X6C2WcJCYLSM/QRTotlm11SGvWnUgRXFst83n/nceh3l3Y9D3Odec4zAhrhrYynisls2WfCFGSEW5EUO1II+3C5xhyKMyLROlAxkwNco0H4zD3GlEjZNqC3CK8cQRRmeJ1lIPvb/Tw8JbbG5zjQuYhQakMAbXqIeL9BLla7sAP4+M8lmvh4Z6bwUGy1MQ9j1+ijdswWMNVs8Vr7CnxZ1j4pla2ZWkGSr4sNfI0LF6U25HC4ofb8CQkrKoAq80EPdINnrfyr56CU&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;start_date_in_millis&quot;</span>:<span class="number">1534464000000</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>ps：<code>platinum</code>表示白金版，可以使用所有功能。其他的如<code>expiry_date_in_millis</code>、<code>max_nodes</code>等根据自己需要修改即可,<code>expiry_date_in_millis</code>是过期时间,使用的是<code>uninx时间</code>,我设置的是到<code>2049</code>年.</p>
+<ul>
+<li>查看lience</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> curl -XGET -u elastic:changeme <span class="string">&#x27;http://&#123;host&#125;:9200/_license&#x27;</span></span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>注册新修改的lience</li>
+<li><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> curl -XPUT -u elastic:changeme <span class="string">&#x27;http://&#123;host&#125;:9200/_xpack/license?acknowledge=true&#x27;</span> -d @lience.json</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="二、直接导入文件"><a href="#二、直接导入文件" class="headerlink" title="二、直接导入文件"></a>二、直接导入文件</h3><p>如果有破解好的文件，直接把<code>plugins</code>下的<code>x-pack</code>文件夹进行压缩，复制到其它节点的<code>plugins</code>路径下，重启就可以使用。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"># 下载地址</span><br><span class="line">$ wget -c https://note.youdao.com/yws/api/personal/file/WEBe693b8fab3b4cad482e5b354cd4176cd?method=download&amp;shareKey=a16d1e40a0ec4461a4f619f325c3f150</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="3、kibana安装X-Pack"><a href="#3、kibana安装X-Pack" class="headerlink" title="3、kibana安装X-Pack"></a>3、kibana安装X-Pack</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> <span class="variable">$&#123;kibanaHome&#125;</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./bin/kibana-plugin install file://<span class="variable">$&#123;xpackHome&#125;</span>/x-pack-5.4.3.zip</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><ul>
+<li><a href="https://my.oschina.net/guol/blog/1204258">https://my.oschina.net/guol/blog/1204258</a></li>
+<li><a href="https://mp.weixin.qq.com/s/NN01SalzLz2Ue6Q4exCfAw">https://mp.weixin.qq.com/s/NN01SalzLz2Ue6Q4exCfAw</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>es</category>
+      </categories>
+      <tags>
+        <tag>elasticsearch</tag>
+        <tag>install</tag>
+        <tag>X-pack</tag>
       </tags>
   </entry>
   <entry>
@@ -657,6 +657,19 @@ system call filters failed to install; check the logs and fix your configuration
       </tags>
   </entry>
   <entry>
+    <title>linux 记录操作记录</title>
+    <url>/2018/10/17/linux-recording-user-log/</url>
+    <content><![CDATA[<h1 id="记录操作记录"><a href="#记录操作记录" class="headerlink" title="记录操作记录"></a>记录操作记录</h1><h2 id="方案一"><a href="#方案一" class="headerlink" title="方案一"></a>方案一</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 把如下内容加入/etc/profile文件里面</span></span><br><span class="line">PS1=&quot;`whoami`@`hostname`:&quot;&#x27;[\u@\h \W]\$&#x27;</span><br><span class="line">PS1=&quot;[\u@\h \W]\$&quot; # 和上面的线上不一样，这种比较常规</span><br><span class="line">history</span><br><span class="line">USER_IP=`who -u am i 2&gt;/dev/null| awk &#x27;&#123;print $NF&#125;&#x27;|sed -e &#x27;s/[()]//g&#x27;` </span><br><span class="line">if [ &quot;$USER_IP&quot; = &quot;&quot; ] </span><br><span class="line">then</span><br><span class="line">USER_IP=`hostname` </span><br><span class="line">fi</span><br><span class="line">if [ ! -d /tmp/history ] </span><br><span class="line">then</span><br><span class="line">mkdir /tmp/history</span><br><span class="line">chmod 777 /tmp/history</span><br><span class="line">fi</span><br><span class="line">if [ ! -d /tmp/history/$&#123;LOGNAME&#125; ] </span><br><span class="line">then</span><br><span class="line">mkdir /tmp/history/$&#123;LOGNAME&#125; </span><br><span class="line">chmod 300 /tmp/history/$&#123;LOGNAME&#125; </span><br><span class="line">fi</span><br><span class="line">export HISTSIZE=4096 </span><br><span class="line">DT=`date +&quot;%Y%m%d_%H%M%S&quot;` </span><br><span class="line">export HISTFILE=&quot;/tmp/history/$&#123;LOGNAME&#125;/$&#123;USER_IP&#125; history.$DT&quot;</span><br><span class="line">chmod 600 /tmp/history/$&#123;LOGNAME&#125;/*history* 2&gt;/dev/null</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">source</span>一下</span></span><br><span class="line">source /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 日志记录在 /tmp/<span class="built_in">history</span> 目录下</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="方案二"><a href="#方案二" class="headerlink" title="方案二"></a>方案二</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 把如下内容加入到/etc/profile中</span></span><br><span class="line"><span class="meta">#</span><span class="bash">设置<span class="built_in">history</span>格式</span></span><br><span class="line">export HISTTIMEFORMAT=&quot;[%Y-%m-%d %H:%M:%S] [`who am i 2&gt;/dev/null| \</span><br><span class="line">awk &#x27;&#123;print $NF&#125;&#x27;|sed -e &#x27;s/[()]//g&#x27;`] &quot;</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash">登录时清空当前缓存</span></span><br><span class="line">echo &quot;&quot; &gt; .bash_history</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash">记录shell执行的每一条命令</span></span><br><span class="line">export PROMPT_COMMAND=&#x27;\</span><br><span class="line">if [ -z &quot;$OLD_PWD&quot; ];then</span><br><span class="line">export OLD_PWD=$PWD;</span><br><span class="line">fi;</span><br><span class="line">if [ ! -z &quot;$LAST_CMD&quot; ] &amp;&amp; [ &quot;$(history 1)&quot; != &quot;$LAST_CMD&quot; ]; then</span><br><span class="line">logger -t `whoami`_shell_cmd &quot;[$OLD_PWD]$(history 1)&quot;;</span><br><span class="line">fi ;</span><br><span class="line">export LAST_CMD=&quot;$(history 1)&quot;;</span><br><span class="line">export OLD_PWD=$PWD;&#x27;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="built_in">source</span>一下</span></span><br><span class="line">source /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 日志记录</span></span><br><span class="line">/var/log/messages</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>linux</tag>
+        <tag>维护</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>mysql-install</title>
     <url>/2018/10/17/mysql-install/</url>
     <content><![CDATA[<h1 id="mysql-centos7-安装指南-Yum"><a href="#mysql-centos7-安装指南-Yum" class="headerlink" title="mysql centos7 安装指南(Yum)"></a>mysql centos7 安装指南(Yum)</h1><ul>
@@ -705,19 +718,6 @@ MySQL服务初始化(仅适用5.7)</li>
       <tags>
         <tag>install</tag>
         <tag>mysql</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>linux 记录操作记录</title>
-    <url>/2018/10/17/linux-recording-user-log/</url>
-    <content><![CDATA[<h1 id="记录操作记录"><a href="#记录操作记录" class="headerlink" title="记录操作记录"></a>记录操作记录</h1><h2 id="方案一"><a href="#方案一" class="headerlink" title="方案一"></a>方案一</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 把如下内容加入/etc/profile文件里面</span></span><br><span class="line">PS1=&quot;`whoami`@`hostname`:&quot;&#x27;[\u@\h \W]\$&#x27;</span><br><span class="line">PS1=&quot;[\u@\h \W]\$&quot; # 和上面的线上不一样，这种比较常规</span><br><span class="line">history</span><br><span class="line">USER_IP=`who -u am i 2&gt;/dev/null| awk &#x27;&#123;print $NF&#125;&#x27;|sed -e &#x27;s/[()]//g&#x27;` </span><br><span class="line">if [ &quot;$USER_IP&quot; = &quot;&quot; ] </span><br><span class="line">then</span><br><span class="line">USER_IP=`hostname` </span><br><span class="line">fi</span><br><span class="line">if [ ! -d /tmp/history ] </span><br><span class="line">then</span><br><span class="line">mkdir /tmp/history</span><br><span class="line">chmod 777 /tmp/history</span><br><span class="line">fi</span><br><span class="line">if [ ! -d /tmp/history/$&#123;LOGNAME&#125; ] </span><br><span class="line">then</span><br><span class="line">mkdir /tmp/history/$&#123;LOGNAME&#125; </span><br><span class="line">chmod 300 /tmp/history/$&#123;LOGNAME&#125; </span><br><span class="line">fi</span><br><span class="line">export HISTSIZE=4096 </span><br><span class="line">DT=`date +&quot;%Y%m%d_%H%M%S&quot;` </span><br><span class="line">export HISTFILE=&quot;/tmp/history/$&#123;LOGNAME&#125;/$&#123;USER_IP&#125; history.$DT&quot;</span><br><span class="line">chmod 600 /tmp/history/$&#123;LOGNAME&#125;/*history* 2&gt;/dev/null</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">source</span>一下</span></span><br><span class="line">source /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 日志记录在 /tmp/<span class="built_in">history</span> 目录下</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h2 id="方案二"><a href="#方案二" class="headerlink" title="方案二"></a>方案二</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 把如下内容加入到/etc/profile中</span></span><br><span class="line"><span class="meta">#</span><span class="bash">设置<span class="built_in">history</span>格式</span></span><br><span class="line">export HISTTIMEFORMAT=&quot;[%Y-%m-%d %H:%M:%S] [`who am i 2&gt;/dev/null| \</span><br><span class="line">awk &#x27;&#123;print $NF&#125;&#x27;|sed -e &#x27;s/[()]//g&#x27;`] &quot;</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash">登录时清空当前缓存</span></span><br><span class="line">echo &quot;&quot; &gt; .bash_history</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash">记录shell执行的每一条命令</span></span><br><span class="line">export PROMPT_COMMAND=&#x27;\</span><br><span class="line">if [ -z &quot;$OLD_PWD&quot; ];then</span><br><span class="line">export OLD_PWD=$PWD;</span><br><span class="line">fi;</span><br><span class="line">if [ ! -z &quot;$LAST_CMD&quot; ] &amp;&amp; [ &quot;$(history 1)&quot; != &quot;$LAST_CMD&quot; ]; then</span><br><span class="line">logger -t `whoami`_shell_cmd &quot;[$OLD_PWD]$(history 1)&quot;;</span><br><span class="line">fi ;</span><br><span class="line">export LAST_CMD=&quot;$(history 1)&quot;;</span><br><span class="line">export OLD_PWD=$PWD;&#x27;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="built_in">source</span>一下</span></span><br><span class="line">source /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 日志记录</span></span><br><span class="line">/var/log/messages</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>linux</tag>
-        <tag>维护</tag>
       </tags>
   </entry>
   <entry>
@@ -810,6 +810,18 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
+    <title>Docker-Source-code-analysis</title>
+    <url>/2018/10/31/Docker-Source-code-analysis/</url>
+    <content><![CDATA[<h1 id="学习参考"><a href="#学习参考" class="headerlink" title="学习参考"></a>学习参考</h1><ul>
+<li><a href="http://wangfakang.github.io/docker6/">docker源码讲解</a></li>
+<li><a href="http://www.infoq.com/cn/articles/docker-source-code-analysis-part1">docker 源码分析</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>后续学习</category>
+      </categories>
+  </entry>
+  <entry>
     <title>DAWN Group</title>
     <url>/2018/10/31/DAWN-Group/</url>
     <content><![CDATA[<p><code>DAWN</code> 是<code>Spark</code> 和 <code>Mesos</code> 核心作者之一的 <code>Matei</code> 在斯坦福推出的以普及机器学习实践为目的的开源项目，他们想要使人工智能应用程序构建更加容易。<br>仅以此文记录需要持续关注这个开源项目，里面有很多很好的项目，和很好的<code>bolg</code>。</p>
@@ -828,18 +840,6 @@ MySQL服务初始化(仅适用5.7)</li>
         <tag>DAWN</tag>
         <tag>stanford</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>Docker-Source-code-analysis</title>
-    <url>/2018/10/31/Docker-Source-code-analysis/</url>
-    <content><![CDATA[<h1 id="学习参考"><a href="#学习参考" class="headerlink" title="学习参考"></a>学习参考</h1><ul>
-<li><a href="http://wangfakang.github.io/docker6/">docker源码讲解</a></li>
-<li><a href="http://www.infoq.com/cn/articles/docker-source-code-analysis-part1">docker 源码分析</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>后续学习</category>
-      </categories>
   </entry>
   <entry>
     <title>ZooKeeper kerberos 客户端认证</title>
@@ -1161,36 +1161,6 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
-    <title>18年的回顾,19年的展望</title>
-    <url>/2019/01/04/2018-2019/</url>
-    <content><![CDATA[<h1 id="18年的计划"><a href="#18年的计划" class="headerlink" title="18年的计划"></a>18年的计划</h1><ul>
-<li>大概说一下年初的计划，17年毕业，短短的半年体重就有点指数函数上升的趋势，所以呢，新年初的第一个计划就是控制住体重，少吃多运动，控制住体重；</li>
-<li>作为一个刚入门不久的技术小菜鸟来说最大的新年愿望就是来年能吊打哪些曾经鄙视我们的老鸟了，这种想法还是想想就好了。年初的愿望是把自己的技术广度和深度提高一些。</li>
-<li>新年还有一个愿望，就是希望这一年里能挤出更多的时间来看书，只要是自己感兴趣的书。</li>
-<li>还要尽量缩短自己的短板，都是曾经的通。</li>
-</ul>
-<h1 id="18年完成情况"><a href="#18年完成情况" class="headerlink" title="18年完成情况"></a>18年完成情况</h1><ul>
-<li>现在的体重，只能用惊讶来形容，不过总体最后一个季度还是比较好的，每周都有运动；</li>
-<li>技术上没有达到预期，广度和深度都有所增加，但是呢都不及预期。</li>
-<li>这一年就看来两类书籍，一类和投资理财以及经济有关，还有一类呢就是技术书籍，看书的过程中呢也会去豆瓣上写写观后感。</li>
-<li>短板还在弥补中。<h1 id="18总结"><a href="#18总结" class="headerlink" title="18总结"></a>18总结</h1>这一年除了工作上还做了这么几件有意义的事：</li>
-<li>其一是，意识到了保险的重要性，所以年初来的时候就各种学习，买了一个一年期的重疾险，因为资金和知识都有限，经过这一年的积累呢，已经有了一些自己的思考，找了一个我们这个年龄比较好的长期重疾险，之后呢医疗险也是要买上的。</li>
-<li>其二是，今年开始学习投资理财了，现在虽然本金不多，但是呢经验最重要，在上半年的时候呢主要都是投了P2P,后来有了危机感，就赶紧全部撤出来，投了活期；年中的时候股票开了户，也看了几本书，积累不多，就买了一只大金融板块股票，后面呢陆续学习，陆续发现自己离”价值投资”(炒股)还很远，就又改买了基金和指数ETF，但是后面贸易战来了，导致股市开始一直下跌，结果呢就是到现在我依然深陷其中，但是呢，我一点都不慌。</li>
-<li>其三是，九月份左右的时候搭建了自己的博客，并开始了持续的输出，积累点滴，十二月份的时候开通了微信公众号，开始了共同成长。<br><img src="/2019/01/04/2018-2019/kgHIYGF6.jpg" alt="kgHIYGF6.jpg"></li>
-</ul>
-<h1 id="19-flag"><a href="#19-flag" class="headerlink" title="19 flag"></a>19 flag</h1><ul>
-<li>更加深入的学习未掌握的技术。</li>
-<li>每个月10篇博客和10篇公众号。</li>
-<li>对投资理财更加深入的学习。</li>
-<li>体重下降一些。</li>
-<li>每个月看一本书，并且写出读后感。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>生活</category>
-      </categories>
-  </entry>
-  <entry>
     <title>spring boot validate 统一处理</title>
     <url>/2018/12/27/spring-validate-common-handler/</url>
     <content><![CDATA[<h1 id="统一处理validate的校验"><a href="#统一处理validate的校验" class="headerlink" title="统一处理validate的校验"></a>统一处理<code>validate</code>的校验</h1><p>在开发业务系统的过程中都会设计到一些接口请求参数的校验，之前都是单个接口进行处理，现在介绍一种方法统一处理这个校验。</p>
@@ -1309,6 +1279,65 @@ MySQL服务初始化(仅适用5.7)</li>
       </categories>
       <tags>
         <tag>spring boot validate</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>18年的回顾,19年的展望</title>
+    <url>/2019/01/04/2018-2019/</url>
+    <content><![CDATA[<h1 id="18年的计划"><a href="#18年的计划" class="headerlink" title="18年的计划"></a>18年的计划</h1><ul>
+<li>大概说一下年初的计划，17年毕业，短短的半年体重就有点指数函数上升的趋势，所以呢，新年初的第一个计划就是控制住体重，少吃多运动，控制住体重；</li>
+<li>作为一个刚入门不久的技术小菜鸟来说最大的新年愿望就是来年能吊打哪些曾经鄙视我们的老鸟了，这种想法还是想想就好了。年初的愿望是把自己的技术广度和深度提高一些。</li>
+<li>新年还有一个愿望，就是希望这一年里能挤出更多的时间来看书，只要是自己感兴趣的书。</li>
+<li>还要尽量缩短自己的短板，都是曾经的通。</li>
+</ul>
+<h1 id="18年完成情况"><a href="#18年完成情况" class="headerlink" title="18年完成情况"></a>18年完成情况</h1><ul>
+<li>现在的体重，只能用惊讶来形容，不过总体最后一个季度还是比较好的，每周都有运动；</li>
+<li>技术上没有达到预期，广度和深度都有所增加，但是呢都不及预期。</li>
+<li>这一年就看来两类书籍，一类和投资理财以及经济有关，还有一类呢就是技术书籍，看书的过程中呢也会去豆瓣上写写观后感。</li>
+<li>短板还在弥补中。<h1 id="18总结"><a href="#18总结" class="headerlink" title="18总结"></a>18总结</h1>这一年除了工作上还做了这么几件有意义的事：</li>
+<li>其一是，意识到了保险的重要性，所以年初来的时候就各种学习，买了一个一年期的重疾险，因为资金和知识都有限，经过这一年的积累呢，已经有了一些自己的思考，找了一个我们这个年龄比较好的长期重疾险，之后呢医疗险也是要买上的。</li>
+<li>其二是，今年开始学习投资理财了，现在虽然本金不多，但是呢经验最重要，在上半年的时候呢主要都是投了P2P,后来有了危机感，就赶紧全部撤出来，投了活期；年中的时候股票开了户，也看了几本书，积累不多，就买了一只大金融板块股票，后面呢陆续学习，陆续发现自己离”价值投资”(炒股)还很远，就又改买了基金和指数ETF，但是后面贸易战来了，导致股市开始一直下跌，结果呢就是到现在我依然深陷其中，但是呢，我一点都不慌。</li>
+<li>其三是，九月份左右的时候搭建了自己的博客，并开始了持续的输出，积累点滴，十二月份的时候开通了微信公众号，开始了共同成长。<br><img src="/2019/01/04/2018-2019/kgHIYGF6.jpg" alt="kgHIYGF6.jpg"></li>
+</ul>
+<h1 id="19-flag"><a href="#19-flag" class="headerlink" title="19 flag"></a>19 flag</h1><ul>
+<li>更加深入的学习未掌握的技术。</li>
+<li>每个月10篇博客和10篇公众号。</li>
+<li>对投资理财更加深入的学习。</li>
+<li>体重下降一些。</li>
+<li>每个月看一本书，并且写出读后感。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>生活</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>ES cluster reroute</title>
+    <url>/2019/01/24/es-cluster-reroute/</url>
+    <content><![CDATA[<blockquote>
+<p><code>ES</code>集群重新路由命令可以显示的执行包括特定命令的集群重新路由分配命令。例如，可以显示地将分片从一个节点移动到另一个节点，可以取消分配。</p>
+</blockquote>
+<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><h2 id="支持的命令如下"><a href="#支持的命令如下" class="headerlink" title="支持的命令如下"></a>支持的命令如下</h2><ul>
+<li><code>move</code><br>  将现有的分片迁移到其他节点。接受 <code>index</code>和<code>shard</code>索引名称和分片编号，<code>from_node</code>节点移动分片<code>from</code>，以及<code>to_node</code>节点将分片移动到。</li>
+<li><code>cancel</code><br>  取消分享碎片（或恢复）。接受<code>index</code>和<code>shard</code>索引名称和分片编号，以及<code>node</code>取消分片分配的节点。它还接受<code>allow_primary</code>标志以明确指定允许取消主分片的分配。这可以用于强制从主分片重新同步现有副本，方法是取消它们并允许它们通过标准重新分配过程重新初始化。</li>
+<li><p><code>allocate_replica</code><br>  将未分配的副本分片分配给节点。接受<code>index</code>和<code>shard</code>索引名称和分片编号，并将分片分配给<code>node</code>。</p>
+<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2></li>
+<li><p><code>move</code><br>  主要是想要手动控制分片分配到某台固定的机器上。把<code>node_1</code>上的<code>index_name</code>移动到<code>node_2</code>节点上，可能会有各种原因需要进行迁移，比如<code>node_1</code>机器的磁盘不够了或者是其他原因等。</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST _cluster/reroute</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;commands&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;move&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;index&quot;</span>: <span class="string">&quot;index_name&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;shard&quot;</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="attr">&quot;from_node&quot;</span>: <span class="string">&quot;node_1&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;to_node&quot;</span>: <span class="string">&quot;node_2&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>cancel</code><br>  主要是把移动中的分片取消，这个是因为其他原因导致分片重新分配了，但是又不想让它重新分配，所以只能取消分片分配的过程。如下是<code>node_1</code>这台机器上的<code>index_name</code>的分片号<code>0</code>进行了移动，所以取消它。</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST _cluster/reroute</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;commands&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;cancel&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;index&quot;</span>: <span class="string">&quot;index_name&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;shard&quot;</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="attr">&quot;node&quot;</span>: <span class="string">&quot;node_1&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><ul>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.4/cluster-reroute.html">https://www.elastic.co/guide/en/elasticsearch/reference/5.4/cluster-reroute.html</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>es</category>
+      </categories>
+      <tags>
+        <tag>es cluster manage</tag>
       </tags>
   </entry>
   <entry>
@@ -1482,35 +1511,6 @@ MySQL服务初始化(仅适用5.7)</li>
       <tags>
         <tag>概念</tag>
         <tag>监控基础</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>ES cluster reroute</title>
-    <url>/2019/01/24/es-cluster-reroute/</url>
-    <content><![CDATA[<blockquote>
-<p><code>ES</code>集群重新路由命令可以显示的执行包括特定命令的集群重新路由分配命令。例如，可以显示地将分片从一个节点移动到另一个节点，可以取消分配。</p>
-</blockquote>
-<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><h2 id="支持的命令如下"><a href="#支持的命令如下" class="headerlink" title="支持的命令如下"></a>支持的命令如下</h2><ul>
-<li><code>move</code><br>  将现有的分片迁移到其他节点。接受 <code>index</code>和<code>shard</code>索引名称和分片编号，<code>from_node</code>节点移动分片<code>from</code>，以及<code>to_node</code>节点将分片移动到。</li>
-<li><code>cancel</code><br>  取消分享碎片（或恢复）。接受<code>index</code>和<code>shard</code>索引名称和分片编号，以及<code>node</code>取消分片分配的节点。它还接受<code>allow_primary</code>标志以明确指定允许取消主分片的分配。这可以用于强制从主分片重新同步现有副本，方法是取消它们并允许它们通过标准重新分配过程重新初始化。</li>
-<li><p><code>allocate_replica</code><br>  将未分配的副本分片分配给节点。接受<code>index</code>和<code>shard</code>索引名称和分片编号，并将分片分配给<code>node</code>。</p>
-<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2></li>
-<li><p><code>move</code><br>  主要是想要手动控制分片分配到某台固定的机器上。把<code>node_1</code>上的<code>index_name</code>移动到<code>node_2</code>节点上，可能会有各种原因需要进行迁移，比如<code>node_1</code>机器的磁盘不够了或者是其他原因等。</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST _cluster/reroute</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;commands&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;move&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;index&quot;</span>: <span class="string">&quot;index_name&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;shard&quot;</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="attr">&quot;from_node&quot;</span>: <span class="string">&quot;node_1&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;to_node&quot;</span>: <span class="string">&quot;node_2&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><code>cancel</code><br>  主要是把移动中的分片取消，这个是因为其他原因导致分片重新分配了，但是又不想让它重新分配，所以只能取消分片分配的过程。如下是<code>node_1</code>这台机器上的<code>index_name</code>的分片号<code>0</code>进行了移动，所以取消它。</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST _cluster/reroute</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;commands&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;cancel&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;index&quot;</span>: <span class="string">&quot;index_name&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;shard&quot;</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="attr">&quot;node&quot;</span>: <span class="string">&quot;node_1&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><ul>
-<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.4/cluster-reroute.html">https://www.elastic.co/guide/en/elasticsearch/reference/5.4/cluster-reroute.html</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>es</category>
-      </categories>
-      <tags>
-        <tag>es cluster manage</tag>
       </tags>
   </entry>
   <entry>
@@ -2393,6 +2393,49 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
+    <title>代码质量好坏如何评判</title>
+    <url>/2021/05/24/%E4%BB%A3%E7%A0%81%E8%B4%A8%E9%87%8F%E5%A5%BD%E5%9D%8F%E5%A6%82%E4%BD%95%E8%AF%84%E5%88%A4/</url>
+    <content><![CDATA[<h1 id="代码质量好坏如何评判？"><a href="#代码质量好坏如何评判？" class="headerlink" title="代码质量好坏如何评判？"></a>代码质量好坏如何评判？</h1><h2 id="代码质量”好”和”坏”指什么？"><a href="#代码质量”好”和”坏”指什么？" class="headerlink" title="代码质量”好”和”坏”指什么？"></a>代码质量”好”和”坏”指什么？</h2><p>“好”可以表示代码的质量高，”坏”表示代码的质量低。</p>
+<h2 id="代码质量”高”又是指什么？"><a href="#代码质量”高”又是指什么？" class="headerlink" title="代码质量”高”又是指什么？"></a>代码质量”高”又是指什么？</h2><p>代码质量高指代码：可维护性、可读性、可扩展性、灵活性、简洁性、可复用、可测试性。其中<strong>可维护性、可读性、可扩展性</strong>是最重要的三个指标。</p>
+<h3 id="可维护性"><a href="#可维护性" class="headerlink" title="可维护性"></a>可维护性</h3><p>可维护性是一个主观性很强的评判标准，因为熟悉系统的资深工程师可能会任务易维护，但是资历浅的工程师就会认为难维护。</p>
+<ul>
+<li>所谓可维护性就是指，在不破坏原有代码设计、不引入新的<code>BUG</code>的情况下，能够快速地修改或者添加代码。</li>
+<li>所谓代码不易维护就是值，修改或者添加代码需要冒着极大的引入新<code>bug</code>的风险，并且需要花费很长的时间才能完成。</li>
+</ul>
+<h3 id="可读性"><a href="#可读性" class="headerlink" title="可读性"></a>可读性</h3><p>代码的可读性从如下几个方面来进行评价。</p>
+<ul>
+<li>是否符合编码规范、命名是否达意、注释是否详尽、函数是否长短合适、模块划分是否清晰、是否符合高内聚低耦合等。</li>
+</ul>
+<p>但是最简单的评价标准就是让同事来做<code>Code Receive</code>,如果同事能够轻松的读懂你的代码，那就是可读性很好，反之就是需要改善代码了。</p>
+<h3 id="可扩展性"><a href="#可扩展性" class="headerlink" title="可扩展性"></a>可扩展性</h3><ul>
+<li>可扩展性表示，我们在不修改或少量修改原有代码的情况下，通过扩展的方式添加新的功能代码。</li>
+</ul>
+<h3 id="灵活性"><a href="#灵活性" class="headerlink" title="灵活性"></a>灵活性</h3><p>代码灵活性主要提现在易扩展方面。</p>
+<h3 id="简洁性"><a href="#简洁性" class="headerlink" title="简洁性"></a>简洁性</h3><p>我们要遵从<code>KISS</code>原则，代码要尽可能的简单；但是<strong>思从深而行从简，真正的高手能云淡风轻地用最简单的方法解决最复杂的问题。这也是一个编程老手跟编程新手的本质区别之一。</strong></p>
+<h3 id="可复用性"><a href="#可复用性" class="headerlink" title="可复用性"></a>可复用性</h3><ul>
+<li>可复用性是很多设计模式、思想、原则所要达到的最终效果。</li>
+</ul>
+<h3 id="可测试性"><a href="#可测试性" class="headerlink" title="可测试性"></a>可测试性</h3><ul>
+<li>可测试就能从侧面上非常准确地反应代码质量的好坏。</li>
+</ul>
+<p>要写出满足上述评价标准的高质量代码，我们需要掌握一些更加细化、更加能落地的编程方法论，包括面向对象设计思想、设计原则、设计模式、编码规范、重构技巧等。</p>
+<p>如：</p>
+<ul>
+<li>面向对象中的继承、多态能让我们写出可复用的代码；</li>
+<li>编码规范能让我们写出可读性好的代码。</li>
+<li>设计原则中的单一职责、DRY、基于接口而非实现、里氏替换原则等可以写出易复用、灵活、可读性好、易扩展、易维护的代码；</li>
+<li>设计模式可以写出易扩展的代码。</li>
+<li>持续重构可以时刻保持代码的可维护性。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>设计模式</category>
+      </categories>
+      <tags>
+        <tag>设计模式</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>技术写作 第一课</title>
     <url>/2021/05/21/%E6%8A%80%E6%9C%AF%E5%86%99%E4%BD%9C-%E7%AC%AC%E4%B8%80%E8%8A%82/</url>
     <content><![CDATA[<blockquote>
@@ -2708,49 +2751,6 @@ MySQL服务初始化(仅适用5.7)</li>
       </categories>
       <tags>
         <tag>写作</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>代码质量好坏如何评判</title>
-    <url>/2021/05/24/%E4%BB%A3%E7%A0%81%E8%B4%A8%E9%87%8F%E5%A5%BD%E5%9D%8F%E5%A6%82%E4%BD%95%E8%AF%84%E5%88%A4/</url>
-    <content><![CDATA[<h1 id="代码质量好坏如何评判？"><a href="#代码质量好坏如何评判？" class="headerlink" title="代码质量好坏如何评判？"></a>代码质量好坏如何评判？</h1><h2 id="代码质量”好”和”坏”指什么？"><a href="#代码质量”好”和”坏”指什么？" class="headerlink" title="代码质量”好”和”坏”指什么？"></a>代码质量”好”和”坏”指什么？</h2><p>“好”可以表示代码的质量高，”坏”表示代码的质量低。</p>
-<h2 id="代码质量”高”又是指什么？"><a href="#代码质量”高”又是指什么？" class="headerlink" title="代码质量”高”又是指什么？"></a>代码质量”高”又是指什么？</h2><p>代码质量高指代码：可维护性、可读性、可扩展性、灵活性、简洁性、可复用、可测试性。其中<strong>可维护性、可读性、可扩展性</strong>是最重要的三个指标。</p>
-<h3 id="可维护性"><a href="#可维护性" class="headerlink" title="可维护性"></a>可维护性</h3><p>可维护性是一个主观性很强的评判标准，因为熟悉系统的资深工程师可能会任务易维护，但是资历浅的工程师就会认为难维护。</p>
-<ul>
-<li>所谓可维护性就是指，在不破坏原有代码设计、不引入新的<code>BUG</code>的情况下，能够快速地修改或者添加代码。</li>
-<li>所谓代码不易维护就是值，修改或者添加代码需要冒着极大的引入新<code>bug</code>的风险，并且需要花费很长的时间才能完成。</li>
-</ul>
-<h3 id="可读性"><a href="#可读性" class="headerlink" title="可读性"></a>可读性</h3><p>代码的可读性从如下几个方面来进行评价。</p>
-<ul>
-<li>是否符合编码规范、命名是否达意、注释是否详尽、函数是否长短合适、模块划分是否清晰、是否符合高内聚低耦合等。</li>
-</ul>
-<p>但是最简单的评价标准就是让同事来做<code>Code Receive</code>,如果同事能够轻松的读懂你的代码，那就是可读性很好，反之就是需要改善代码了。</p>
-<h3 id="可扩展性"><a href="#可扩展性" class="headerlink" title="可扩展性"></a>可扩展性</h3><ul>
-<li>可扩展性表示，我们在不修改或少量修改原有代码的情况下，通过扩展的方式添加新的功能代码。</li>
-</ul>
-<h3 id="灵活性"><a href="#灵活性" class="headerlink" title="灵活性"></a>灵活性</h3><p>代码灵活性主要提现在易扩展方面。</p>
-<h3 id="简洁性"><a href="#简洁性" class="headerlink" title="简洁性"></a>简洁性</h3><p>我们要遵从<code>KISS</code>原则，代码要尽可能的简单；但是<strong>思从深而行从简，真正的高手能云淡风轻地用最简单的方法解决最复杂的问题。这也是一个编程老手跟编程新手的本质区别之一。</strong></p>
-<h3 id="可复用性"><a href="#可复用性" class="headerlink" title="可复用性"></a>可复用性</h3><ul>
-<li>可复用性是很多设计模式、思想、原则所要达到的最终效果。</li>
-</ul>
-<h3 id="可测试性"><a href="#可测试性" class="headerlink" title="可测试性"></a>可测试性</h3><ul>
-<li>可测试就能从侧面上非常准确地反应代码质量的好坏。</li>
-</ul>
-<p>要写出满足上述评价标准的高质量代码，我们需要掌握一些更加细化、更加能落地的编程方法论，包括面向对象设计思想、设计原则、设计模式、编码规范、重构技巧等。</p>
-<p>如：</p>
-<ul>
-<li>面向对象中的继承、多态能让我们写出可复用的代码；</li>
-<li>编码规范能让我们写出可读性好的代码。</li>
-<li>设计原则中的单一职责、DRY、基于接口而非实现、里氏替换原则等可以写出易复用、灵活、可读性好、易扩展、易维护的代码；</li>
-<li>设计模式可以写出易扩展的代码。</li>
-<li>持续重构可以时刻保持代码的可维护性。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>设计模式</category>
-      </categories>
-      <tags>
-        <tag>设计模式</tag>
       </tags>
   </entry>
   <entry>
