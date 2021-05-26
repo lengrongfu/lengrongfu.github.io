@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>读大数据时代</title>
-    <url>/2018/09/04/%E8%AF%BB%E5%A4%A7%E6%95%B0%E6%8D%AE%E6%97%B6%E4%BB%A3/</url>
-    <content><![CDATA[<!--
-
--->
-]]></content>
-  </entry>
-  <entry>
     <title>搭建一个自己的blog</title>
     <url>/2018/09/03/%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84blog/</url>
     <content><![CDATA[<span id="more"></span>
@@ -53,6 +45,14 @@
         <tag>github-pages</tag>
         <tag>安装教程</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>读大数据时代</title>
+    <url>/2018/09/04/%E8%AF%BB%E5%A4%A7%E6%95%B0%E6%8D%AE%E6%97%B6%E4%BB%A3/</url>
+    <content><![CDATA[<!--
+
+-->
+]]></content>
   </entry>
   <entry>
     <title>cloudera hadoop 安装</title>
@@ -155,6 +155,37 @@
       </tags>
   </entry>
   <entry>
+    <title>cloudera 问题解决</title>
+    <url>/2018/10/16/cloudera-problem/</url>
+    <content><![CDATA[<blockquote>
+<p>如下为记录<code>cloudera</code> 使用过程中的一些常见问题。</p>
+</blockquote>
+<h1 id="1、服务没有设置-opt这个挂载点"><a href="#1、服务没有设置-opt这个挂载点" class="headerlink" title="1、服务没有设置/opt这个挂载点"></a>1、服务没有设置<code>/opt</code>这个挂载点</h1><ul>
+<li><code>cloudera</code>所有的数据都是存储在<code>/opt</code>这个根目录下的，所以服务器在安装系统的时候最好让运维同事挂载一个大空间到这个目录下。</li>
+<li>如果安装的时候不知道，安装软件的时候可以选择存储空间,如果安装的时候也不知道，没有设置的话那就很悲催了。</li>
+<li>如果没有设置就回存到根目录的<code>/opt</code>下，这里面的存储空间一般都很小。说一下解决办法。<br>1、重装（我没这精力）<br>2、把<code>/opt</code>这个目录移动到一个大的挂载点上去，然后使用软连接，本人就是这么做的。</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 步骤</span></span><br><span class="line"><span class="meta">#</span><span class="bash">1、先停掉集群。</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv cloudera cloudera.bak</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv cloudera.bak /data/cloudera</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ln -sv /data/cloudera cloudera</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 经过上面的步骤之后再重启集群就可以了。</span></span><br></pre></td></tr></table></figure>
+<h1 id="2、Error-creating-LevelDB-timeseries-store-in-directory-var-lib-cloudera-service-monitor-ts"><a href="#2、Error-creating-LevelDB-timeseries-store-in-directory-var-lib-cloudera-service-monitor-ts" class="headerlink" title="2、Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts"></a>2、Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts</h1><blockquote>
+<p>具体现象如下，报找不到一个文件。解释一下出现这个问题的原因，还是由于根目录下的空间不够了，因此我移动了一个占有很<br>大空间的包，就是错误中的 <code>/var/lib/cloudera-service-monitor</code> 这个目录，然后通过软连接进行访问的。</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2018-10-16 16:24:25,993 INFO com.cloudera.cmon.firehose.Main: Cluster size: SMALL</span><br><span class="line">2018-10-16 16:24:26,056 INFO com.cloudera.cmon.tstore.leveldb.LDBResourceManager: Max file descriptors: 32768</span><br><span class="line">2018-10-16 16:24:26,057 INFO com.cloudera.cmon.tstore.leveldb.LDBResourceManager: Setting maximum open fds to: 768</span><br><span class="line">2018-10-16 16:24:26,181 ERROR com.cloudera.cmon.firehose.Main: Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts</span><br><span class="line">org.fusesource.leveldbjni.internal.NativeDB$DBException: Corruption: 3 missing files; e.g.: /data/lib/ts/ts_entity_metadata/000072.sst</span><br><span class="line">        at org.fusesource.leveldbjni.internal.NativeDB.checkStatus(NativeDB.java:194)</span><br><span class="line">        at org.fusesource.leveldbjni.internal.NativeDB.open(NativeDB.java:212)</span><br><span class="line">        at org.fusesource.leveldbjni.JniDBFactory.open(JniDBFactory.java:168)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBUtils.openVersionedDB(LDBUtils.java:264)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBUtils.openVersionedDB(LDBUtils.java:212)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBTimeSeriesMetadataStore.openMetadataDB(LDBTimeSeriesMetadataStore.java:148)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBTimeSeriesMetadataStore.&lt;init&gt;(LDBTimeSeriesMetadataStore.java:138)</span><br><span class="line">        at com.cloudera.cmon.firehose.Main.main(Main.java:453)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>说一下解决办法：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进行如下的操作，再重启就可以了。亲测可以</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv /var/lib/cloudera-service-monitor /var/lib/cloudera-service-monitor.moved</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv /var/lib/cloudera-host-monitor /var/lib/cloudera-host-monitor.moved</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>参考：<a href="https://community.cloudera.com/t5/Security-Apache-Sentry/Host-Monitor-and-Service-Monitor-is-not-starting-after/td-p/49207">https://community.cloudera.com/t5/Security-Apache-Sentry/Host-Monitor-and-Service-Monitor-is-not-starting-after/td-p/49207</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Hadoop</category>
+      </categories>
+      <tags>
+        <tag>cloudera</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>elk 搭建</title>
     <url>/2018/10/17/elk-install/</url>
     <content><![CDATA[<h1 id="ELK"><a href="#ELK" class="headerlink" title="ELK"></a>ELK</h1><h2 id="一、ElasticSearch"><a href="#一、ElasticSearch" class="headerlink" title="一、ElasticSearch"></a>一、ElasticSearch</h2><h3 id="1、安装"><a href="#1、安装" class="headerlink" title="1、安装"></a>1、安装</h3><ul>
@@ -251,37 +282,6 @@ system call filters failed to install; check the logs and fix your configuration
         <tag>logstash</tag>
         <tag>kibana</tag>
         <tag>install</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>cloudera 问题解决</title>
-    <url>/2018/10/16/cloudera-problem/</url>
-    <content><![CDATA[<blockquote>
-<p>如下为记录<code>cloudera</code> 使用过程中的一些常见问题。</p>
-</blockquote>
-<h1 id="1、服务没有设置-opt这个挂载点"><a href="#1、服务没有设置-opt这个挂载点" class="headerlink" title="1、服务没有设置/opt这个挂载点"></a>1、服务没有设置<code>/opt</code>这个挂载点</h1><ul>
-<li><code>cloudera</code>所有的数据都是存储在<code>/opt</code>这个根目录下的，所以服务器在安装系统的时候最好让运维同事挂载一个大空间到这个目录下。</li>
-<li>如果安装的时候不知道，安装软件的时候可以选择存储空间,如果安装的时候也不知道，没有设置的话那就很悲催了。</li>
-<li>如果没有设置就回存到根目录的<code>/opt</code>下，这里面的存储空间一般都很小。说一下解决办法。<br>1、重装（我没这精力）<br>2、把<code>/opt</code>这个目录移动到一个大的挂载点上去，然后使用软连接，本人就是这么做的。</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 步骤</span></span><br><span class="line"><span class="meta">#</span><span class="bash">1、先停掉集群。</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv cloudera cloudera.bak</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv cloudera.bak /data/cloudera</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ln -sv /data/cloudera cloudera</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 经过上面的步骤之后再重启集群就可以了。</span></span><br></pre></td></tr></table></figure>
-<h1 id="2、Error-creating-LevelDB-timeseries-store-in-directory-var-lib-cloudera-service-monitor-ts"><a href="#2、Error-creating-LevelDB-timeseries-store-in-directory-var-lib-cloudera-service-monitor-ts" class="headerlink" title="2、Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts"></a>2、Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts</h1><blockquote>
-<p>具体现象如下，报找不到一个文件。解释一下出现这个问题的原因，还是由于根目录下的空间不够了，因此我移动了一个占有很<br>大空间的包，就是错误中的 <code>/var/lib/cloudera-service-monitor</code> 这个目录，然后通过软连接进行访问的。</p>
-</blockquote>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2018-10-16 16:24:25,993 INFO com.cloudera.cmon.firehose.Main: Cluster size: SMALL</span><br><span class="line">2018-10-16 16:24:26,056 INFO com.cloudera.cmon.tstore.leveldb.LDBResourceManager: Max file descriptors: 32768</span><br><span class="line">2018-10-16 16:24:26,057 INFO com.cloudera.cmon.tstore.leveldb.LDBResourceManager: Setting maximum open fds to: 768</span><br><span class="line">2018-10-16 16:24:26,181 ERROR com.cloudera.cmon.firehose.Main: Error creating LevelDB timeseries store in directory /var/lib/cloudera-service-monitor/ts</span><br><span class="line">org.fusesource.leveldbjni.internal.NativeDB$DBException: Corruption: 3 missing files; e.g.: /data/lib/ts/ts_entity_metadata/000072.sst</span><br><span class="line">        at org.fusesource.leveldbjni.internal.NativeDB.checkStatus(NativeDB.java:194)</span><br><span class="line">        at org.fusesource.leveldbjni.internal.NativeDB.open(NativeDB.java:212)</span><br><span class="line">        at org.fusesource.leveldbjni.JniDBFactory.open(JniDBFactory.java:168)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBUtils.openVersionedDB(LDBUtils.java:264)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBUtils.openVersionedDB(LDBUtils.java:212)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBTimeSeriesMetadataStore.openMetadataDB(LDBTimeSeriesMetadataStore.java:148)</span><br><span class="line">        at com.cloudera.cmon.tstore.leveldb.LDBTimeSeriesMetadataStore.&lt;init&gt;(LDBTimeSeriesMetadataStore.java:138)</span><br><span class="line">        at com.cloudera.cmon.firehose.Main.main(Main.java:453)</span><br></pre></td></tr></table></figure>
-<ul>
-<li>说一下解决办法：</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进行如下的操作，再重启就可以了。亲测可以</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv /var/lib/cloudera-service-monitor /var/lib/cloudera-service-monitor.moved</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mv /var/lib/cloudera-host-monitor /var/lib/cloudera-host-monitor.moved</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>参考：<a href="https://community.cloudera.com/t5/Security-Apache-Sentry/Host-Monitor-and-Service-Monitor-is-not-starting-after/td-p/49207">https://community.cloudera.com/t5/Security-Apache-Sentry/Host-Monitor-and-Service-Monitor-is-not-starting-after/td-p/49207</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Hadoop</category>
-      </categories>
-      <tags>
-        <tag>cloudera</tag>
       </tags>
   </entry>
   <entry>
@@ -657,19 +657,6 @@ system call filters failed to install; check the logs and fix your configuration
       </tags>
   </entry>
   <entry>
-    <title>linux 记录操作记录</title>
-    <url>/2018/10/17/linux-recording-user-log/</url>
-    <content><![CDATA[<h1 id="记录操作记录"><a href="#记录操作记录" class="headerlink" title="记录操作记录"></a>记录操作记录</h1><h2 id="方案一"><a href="#方案一" class="headerlink" title="方案一"></a>方案一</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 把如下内容加入/etc/profile文件里面</span></span><br><span class="line">PS1=&quot;`whoami`@`hostname`:&quot;&#x27;[\u@\h \W]\$&#x27;</span><br><span class="line">PS1=&quot;[\u@\h \W]\$&quot; # 和上面的线上不一样，这种比较常规</span><br><span class="line">history</span><br><span class="line">USER_IP=`who -u am i 2&gt;/dev/null| awk &#x27;&#123;print $NF&#125;&#x27;|sed -e &#x27;s/[()]//g&#x27;` </span><br><span class="line">if [ &quot;$USER_IP&quot; = &quot;&quot; ] </span><br><span class="line">then</span><br><span class="line">USER_IP=`hostname` </span><br><span class="line">fi</span><br><span class="line">if [ ! -d /tmp/history ] </span><br><span class="line">then</span><br><span class="line">mkdir /tmp/history</span><br><span class="line">chmod 777 /tmp/history</span><br><span class="line">fi</span><br><span class="line">if [ ! -d /tmp/history/$&#123;LOGNAME&#125; ] </span><br><span class="line">then</span><br><span class="line">mkdir /tmp/history/$&#123;LOGNAME&#125; </span><br><span class="line">chmod 300 /tmp/history/$&#123;LOGNAME&#125; </span><br><span class="line">fi</span><br><span class="line">export HISTSIZE=4096 </span><br><span class="line">DT=`date +&quot;%Y%m%d_%H%M%S&quot;` </span><br><span class="line">export HISTFILE=&quot;/tmp/history/$&#123;LOGNAME&#125;/$&#123;USER_IP&#125; history.$DT&quot;</span><br><span class="line">chmod 600 /tmp/history/$&#123;LOGNAME&#125;/*history* 2&gt;/dev/null</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">source</span>一下</span></span><br><span class="line">source /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 日志记录在 /tmp/<span class="built_in">history</span> 目录下</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h2 id="方案二"><a href="#方案二" class="headerlink" title="方案二"></a>方案二</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 把如下内容加入到/etc/profile中</span></span><br><span class="line"><span class="meta">#</span><span class="bash">设置<span class="built_in">history</span>格式</span></span><br><span class="line">export HISTTIMEFORMAT=&quot;[%Y-%m-%d %H:%M:%S] [`who am i 2&gt;/dev/null| \</span><br><span class="line">awk &#x27;&#123;print $NF&#125;&#x27;|sed -e &#x27;s/[()]//g&#x27;`] &quot;</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash">登录时清空当前缓存</span></span><br><span class="line">echo &quot;&quot; &gt; .bash_history</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash">记录shell执行的每一条命令</span></span><br><span class="line">export PROMPT_COMMAND=&#x27;\</span><br><span class="line">if [ -z &quot;$OLD_PWD&quot; ];then</span><br><span class="line">export OLD_PWD=$PWD;</span><br><span class="line">fi;</span><br><span class="line">if [ ! -z &quot;$LAST_CMD&quot; ] &amp;&amp; [ &quot;$(history 1)&quot; != &quot;$LAST_CMD&quot; ]; then</span><br><span class="line">logger -t `whoami`_shell_cmd &quot;[$OLD_PWD]$(history 1)&quot;;</span><br><span class="line">fi ;</span><br><span class="line">export LAST_CMD=&quot;$(history 1)&quot;;</span><br><span class="line">export OLD_PWD=$PWD;&#x27;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="built_in">source</span>一下</span></span><br><span class="line">source /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 日志记录</span></span><br><span class="line">/var/log/messages</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>linux</tag>
-        <tag>维护</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>mysql-install</title>
     <url>/2018/10/17/mysql-install/</url>
     <content><![CDATA[<h1 id="mysql-centos7-安装指南-Yum"><a href="#mysql-centos7-安装指南-Yum" class="headerlink" title="mysql centos7 安装指南(Yum)"></a>mysql centos7 安装指南(Yum)</h1><ul>
@@ -718,6 +705,19 @@ MySQL服务初始化(仅适用5.7)</li>
       <tags>
         <tag>install</tag>
         <tag>mysql</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>linux 记录操作记录</title>
+    <url>/2018/10/17/linux-recording-user-log/</url>
+    <content><![CDATA[<h1 id="记录操作记录"><a href="#记录操作记录" class="headerlink" title="记录操作记录"></a>记录操作记录</h1><h2 id="方案一"><a href="#方案一" class="headerlink" title="方案一"></a>方案一</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 把如下内容加入/etc/profile文件里面</span></span><br><span class="line">PS1=&quot;`whoami`@`hostname`:&quot;&#x27;[\u@\h \W]\$&#x27;</span><br><span class="line">PS1=&quot;[\u@\h \W]\$&quot; # 和上面的线上不一样，这种比较常规</span><br><span class="line">history</span><br><span class="line">USER_IP=`who -u am i 2&gt;/dev/null| awk &#x27;&#123;print $NF&#125;&#x27;|sed -e &#x27;s/[()]//g&#x27;` </span><br><span class="line">if [ &quot;$USER_IP&quot; = &quot;&quot; ] </span><br><span class="line">then</span><br><span class="line">USER_IP=`hostname` </span><br><span class="line">fi</span><br><span class="line">if [ ! -d /tmp/history ] </span><br><span class="line">then</span><br><span class="line">mkdir /tmp/history</span><br><span class="line">chmod 777 /tmp/history</span><br><span class="line">fi</span><br><span class="line">if [ ! -d /tmp/history/$&#123;LOGNAME&#125; ] </span><br><span class="line">then</span><br><span class="line">mkdir /tmp/history/$&#123;LOGNAME&#125; </span><br><span class="line">chmod 300 /tmp/history/$&#123;LOGNAME&#125; </span><br><span class="line">fi</span><br><span class="line">export HISTSIZE=4096 </span><br><span class="line">DT=`date +&quot;%Y%m%d_%H%M%S&quot;` </span><br><span class="line">export HISTFILE=&quot;/tmp/history/$&#123;LOGNAME&#125;/$&#123;USER_IP&#125; history.$DT&quot;</span><br><span class="line">chmod 600 /tmp/history/$&#123;LOGNAME&#125;/*history* 2&gt;/dev/null</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">source</span>一下</span></span><br><span class="line">source /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 日志记录在 /tmp/<span class="built_in">history</span> 目录下</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="方案二"><a href="#方案二" class="headerlink" title="方案二"></a>方案二</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 把如下内容加入到/etc/profile中</span></span><br><span class="line"><span class="meta">#</span><span class="bash">设置<span class="built_in">history</span>格式</span></span><br><span class="line">export HISTTIMEFORMAT=&quot;[%Y-%m-%d %H:%M:%S] [`who am i 2&gt;/dev/null| \</span><br><span class="line">awk &#x27;&#123;print $NF&#125;&#x27;|sed -e &#x27;s/[()]//g&#x27;`] &quot;</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash">登录时清空当前缓存</span></span><br><span class="line">echo &quot;&quot; &gt; .bash_history</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash">记录shell执行的每一条命令</span></span><br><span class="line">export PROMPT_COMMAND=&#x27;\</span><br><span class="line">if [ -z &quot;$OLD_PWD&quot; ];then</span><br><span class="line">export OLD_PWD=$PWD;</span><br><span class="line">fi;</span><br><span class="line">if [ ! -z &quot;$LAST_CMD&quot; ] &amp;&amp; [ &quot;$(history 1)&quot; != &quot;$LAST_CMD&quot; ]; then</span><br><span class="line">logger -t `whoami`_shell_cmd &quot;[$OLD_PWD]$(history 1)&quot;;</span><br><span class="line">fi ;</span><br><span class="line">export LAST_CMD=&quot;$(history 1)&quot;;</span><br><span class="line">export OLD_PWD=$PWD;&#x27;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="built_in">source</span>一下</span></span><br><span class="line">source /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 日志记录</span></span><br><span class="line">/var/log/messages</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>linux</tag>
+        <tag>维护</tag>
       </tags>
   </entry>
   <entry>
@@ -935,56 +935,6 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
-    <title>docker 网络概念</title>
-    <url>/2018/11/25/docker-network-concept/</url>
-    <content><![CDATA[<h1 id="容器的网络模型"><a href="#容器的网络模型" class="headerlink" title="容器的网络模型"></a>容器的网络模型</h1><p><code>Docker</code>的网络架构是构建在一组称为容器网络模型(CNM)的接口之上的。这个CNM的原理是为了提供多种不同的基础系统架构的应用程可用性。<br>最初的容器网络设计只关注如何在单个主机上运行容器并使他们可以从网络访问；在<code>host</code>模式下，容器在主机的<code>Network Namespace</code>中运行并使用主机IP地址，暴露容器端口在主机外面，容器会使用主机的端口。<br>这个<code>bridge</code>模式对<code>host</code>模式进行了改进，在<code>Bridge</code>模式下，容器通过<code>IPAM</code>IP地址管理模块来提供IP，从它自己的网络空间中获取自己的网络IP，此时容器有自己的网络命名空间，不会出现端口冲突，但是容器如果要暴露服务在主机外部，仍然需要使用主机IP。该技术是使用的<code>NAT</code>网络地址转换实现的，在主机IP:主机端口和容器IP:容器端口之间进行映射，这些转换规则是使用<code>iptables</code>实现的，这种实现限制了解决方案的规模和性能。此方案并没有解决多主机的容器网络通信问题。</p>
-<p><img src="/2018/11/25/docker-network-concept/cnm.png" alt="cnm"></p>
-<h2 id="CNM-结构"><a href="#CNM-结构" class="headerlink" title="CNM 结构"></a>CNM 结构</h2><p>上图是<code>CNM</code>中的几个高级结构，他们都是和<code>&#39;OS</code>无关的。</p>
-<ul>
-<li>Sandbox：沙箱包含网络容器的配置，这包括管理容器的接口，路由表和<code>DNS</code>配置，沙箱是通过<code>Linux</code>的命名空间实现的。一个容器就是一个沙箱盒子。</li>
-<li>Endpoint：一个<code>Endpoint</code>连接一个沙箱和一个网络。</li>
-<li>Network：<code>CNM</code>没有根据<code>OSI</code>模型指定网络，</li>
-</ul>
-<h1 id="CNM-驱动接口"><a href="#CNM-驱动接口" class="headerlink" title="CNM 驱动接口"></a>CNM 驱动接口</h1><p>这个CNM模型提供了两个插件和开放接口提供给用户使用，可以使用他们它们来对网络的功能进行控制。</p>
-<h2 id="网络驱动的类型"><a href="#网络驱动的类型" class="headerlink" title="网络驱动的类型"></a>网络驱动的类型</h2><ul>
-<li>网络驱动程序：<code>Docker</code>网络驱动程序是网络功能的实现，它们是可拔插的，因此可以使用不同的驱动程序提供给不通的应用使用，在集群中可以使用多个网络驱动器，但是单个<code>Docker</code>网络只能通过单个网络驱动程序实现，有两种类型的CNM网络驱动程序。</li>
-<li><ul>
-<li>内置网络驱动程序：<code>Docker</code>引擎内置了几种网络驱动程序，比如，网络驱动，overlay 驱动。</li>
-</ul>
-</li>
-<li><ul>
-<li>插件网络驱动程序：是由社区或者其他供应商提供的，用于与现有软件和硬件的提成，用户还可以自己实现。</li>
-</ul>
-</li>
-<li>IPAM 驱动：<code>Docker</code>有内置的<code>IP</code>地址管理器，如果未指定，则使用默认的子网和网络，用户也可指定子网和网关。</li>
-</ul>
-<h2 id="Docker内置网络驱动程序"><a href="#Docker内置网络驱动程序" class="headerlink" title="Docker内置网络驱动程序"></a>Docker内置网络驱动程序</h2><p><code>Docker</code>内置网络驱动程序是引擎的一部分，不需要任何其他模块，通过使用<code>docker network</code>命令来创建和使用网络模块。</p>
-<ul>
-<li>Bridge：<code>Bridge</code>驱动程序在宿主机上创建<code>Linux</code>网桥，网桥上的容器默认可以通信，也可以配置对容器的外部访问。</li>
-<li>Overlay：<code>overlay</code>驱动程序在宿主机上创建一个覆盖网络，支持开箱即用的多主机网络，通过使用<code>linux</code>网桥和<code>VXLAN</code>让宿主机上物理网络来实现容器到容器的多主机通信。</li>
-<li>MACVLAN：<code>macvlan</code>驱动程序使用<code>macvlan</code>桥接模式在容器和宿主机之间建立连接。</li>
-<li>Host：使用<code>host</code>驱动程序，容器将使用宿主机的网络栈，主机上的所有接口都可以由容器使用。</li>
-<li>None：<code>none</code>驱动程序为容器提供自己的网络堆栈和命名空间，但不配置接口，如果没有其他配置，容器将于宿主机网络完全隔离。</li>
-</ul>
-<p>默认情况下一个<code>Docker</code>主机上有<code>none</code>,<code>bridge</code>,<code>host</code>三种网络驱动程序，这些网络程序不能被删除，当使用<code>Swarm</code>时，会添加两个网络，一个是叫<code>docker_gwbridge</code>的<code>bridge</code>网络，还有一个是叫<code>ingress</code>的<code>overlay</code>的网络程序，这两个网络是自动创建在整个集群中的。</p>
-<h1 id="Linux-网络原理"><a href="#Linux-网络原理" class="headerlink" title="Linux 网络原理"></a>Linux 网络原理</h1><h1 id="名词解释"><a href="#名词解释" class="headerlink" title="名词解释"></a>名词解释</h1><ul>
-<li><a href="https://cizixs.com/2017/02/10/network-virtualization-network-namespace/">Network Namespace</a><br>网络命名空间。</li>
-<li><a href="https://en.wikipedia.org/wiki/Network_address_translation">NAT</a><br>网络地址转换，这是一种网络虚拟化的技术，是为了解决IP不够用的问题。</li>
-<li><a href="https://en.wikipedia.org/wiki/IP_address_management">IPAM</a><br>IP地址管理,对应于CNM模型中的IPAM模块，提供IP管理和生成。</li>
-</ul>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><ul>
-<li><a href="https://github.com/docker/libnetwork/blob/master/docs/design.md">CNM 设计</a></li>
-<li><a href="https://docs.docker.com/engine/extend/legacy_plugins/#installing-a-plugin">Docker 引擎添加插件</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>学习</category>
-      </categories>
-      <tags>
-        <tag>Docker network</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>docker Compose 使用</title>
     <url>/2018/11/24/docker-Compose-user/</url>
     <content><![CDATA[<h1 id="Docker-Compose-是什么"><a href="#Docker-Compose-是什么" class="headerlink" title="Docker Compose 是什么"></a>Docker Compose 是什么</h1><blockquote>
@@ -1074,6 +1024,56 @@ MySQL服务初始化(仅适用5.7)</li>
       <tags>
         <tag>Docker</tag>
         <tag>Compose</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>docker 网络概念</title>
+    <url>/2018/11/25/docker-network-concept/</url>
+    <content><![CDATA[<h1 id="容器的网络模型"><a href="#容器的网络模型" class="headerlink" title="容器的网络模型"></a>容器的网络模型</h1><p><code>Docker</code>的网络架构是构建在一组称为容器网络模型(CNM)的接口之上的。这个CNM的原理是为了提供多种不同的基础系统架构的应用程可用性。<br>最初的容器网络设计只关注如何在单个主机上运行容器并使他们可以从网络访问；在<code>host</code>模式下，容器在主机的<code>Network Namespace</code>中运行并使用主机IP地址，暴露容器端口在主机外面，容器会使用主机的端口。<br>这个<code>bridge</code>模式对<code>host</code>模式进行了改进，在<code>Bridge</code>模式下，容器通过<code>IPAM</code>IP地址管理模块来提供IP，从它自己的网络空间中获取自己的网络IP，此时容器有自己的网络命名空间，不会出现端口冲突，但是容器如果要暴露服务在主机外部，仍然需要使用主机IP。该技术是使用的<code>NAT</code>网络地址转换实现的，在主机IP:主机端口和容器IP:容器端口之间进行映射，这些转换规则是使用<code>iptables</code>实现的，这种实现限制了解决方案的规模和性能。此方案并没有解决多主机的容器网络通信问题。</p>
+<p><img src="/2018/11/25/docker-network-concept/cnm.png" alt="cnm"></p>
+<h2 id="CNM-结构"><a href="#CNM-结构" class="headerlink" title="CNM 结构"></a>CNM 结构</h2><p>上图是<code>CNM</code>中的几个高级结构，他们都是和<code>&#39;OS</code>无关的。</p>
+<ul>
+<li>Sandbox：沙箱包含网络容器的配置，这包括管理容器的接口，路由表和<code>DNS</code>配置，沙箱是通过<code>Linux</code>的命名空间实现的。一个容器就是一个沙箱盒子。</li>
+<li>Endpoint：一个<code>Endpoint</code>连接一个沙箱和一个网络。</li>
+<li>Network：<code>CNM</code>没有根据<code>OSI</code>模型指定网络，</li>
+</ul>
+<h1 id="CNM-驱动接口"><a href="#CNM-驱动接口" class="headerlink" title="CNM 驱动接口"></a>CNM 驱动接口</h1><p>这个CNM模型提供了两个插件和开放接口提供给用户使用，可以使用他们它们来对网络的功能进行控制。</p>
+<h2 id="网络驱动的类型"><a href="#网络驱动的类型" class="headerlink" title="网络驱动的类型"></a>网络驱动的类型</h2><ul>
+<li>网络驱动程序：<code>Docker</code>网络驱动程序是网络功能的实现，它们是可拔插的，因此可以使用不同的驱动程序提供给不通的应用使用，在集群中可以使用多个网络驱动器，但是单个<code>Docker</code>网络只能通过单个网络驱动程序实现，有两种类型的CNM网络驱动程序。</li>
+<li><ul>
+<li>内置网络驱动程序：<code>Docker</code>引擎内置了几种网络驱动程序，比如，网络驱动，overlay 驱动。</li>
+</ul>
+</li>
+<li><ul>
+<li>插件网络驱动程序：是由社区或者其他供应商提供的，用于与现有软件和硬件的提成，用户还可以自己实现。</li>
+</ul>
+</li>
+<li>IPAM 驱动：<code>Docker</code>有内置的<code>IP</code>地址管理器，如果未指定，则使用默认的子网和网络，用户也可指定子网和网关。</li>
+</ul>
+<h2 id="Docker内置网络驱动程序"><a href="#Docker内置网络驱动程序" class="headerlink" title="Docker内置网络驱动程序"></a>Docker内置网络驱动程序</h2><p><code>Docker</code>内置网络驱动程序是引擎的一部分，不需要任何其他模块，通过使用<code>docker network</code>命令来创建和使用网络模块。</p>
+<ul>
+<li>Bridge：<code>Bridge</code>驱动程序在宿主机上创建<code>Linux</code>网桥，网桥上的容器默认可以通信，也可以配置对容器的外部访问。</li>
+<li>Overlay：<code>overlay</code>驱动程序在宿主机上创建一个覆盖网络，支持开箱即用的多主机网络，通过使用<code>linux</code>网桥和<code>VXLAN</code>让宿主机上物理网络来实现容器到容器的多主机通信。</li>
+<li>MACVLAN：<code>macvlan</code>驱动程序使用<code>macvlan</code>桥接模式在容器和宿主机之间建立连接。</li>
+<li>Host：使用<code>host</code>驱动程序，容器将使用宿主机的网络栈，主机上的所有接口都可以由容器使用。</li>
+<li>None：<code>none</code>驱动程序为容器提供自己的网络堆栈和命名空间，但不配置接口，如果没有其他配置，容器将于宿主机网络完全隔离。</li>
+</ul>
+<p>默认情况下一个<code>Docker</code>主机上有<code>none</code>,<code>bridge</code>,<code>host</code>三种网络驱动程序，这些网络程序不能被删除，当使用<code>Swarm</code>时，会添加两个网络，一个是叫<code>docker_gwbridge</code>的<code>bridge</code>网络，还有一个是叫<code>ingress</code>的<code>overlay</code>的网络程序，这两个网络是自动创建在整个集群中的。</p>
+<h1 id="Linux-网络原理"><a href="#Linux-网络原理" class="headerlink" title="Linux 网络原理"></a>Linux 网络原理</h1><h1 id="名词解释"><a href="#名词解释" class="headerlink" title="名词解释"></a>名词解释</h1><ul>
+<li><a href="https://cizixs.com/2017/02/10/network-virtualization-network-namespace/">Network Namespace</a><br>网络命名空间。</li>
+<li><a href="https://en.wikipedia.org/wiki/Network_address_translation">NAT</a><br>网络地址转换，这是一种网络虚拟化的技术，是为了解决IP不够用的问题。</li>
+<li><a href="https://en.wikipedia.org/wiki/IP_address_management">IPAM</a><br>IP地址管理,对应于CNM模型中的IPAM模块，提供IP管理和生成。</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><ul>
+<li><a href="https://github.com/docker/libnetwork/blob/master/docs/design.md">CNM 设计</a></li>
+<li><a href="https://docs.docker.com/engine/extend/legacy_plugins/#installing-a-plugin">Docker 引擎添加插件</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>学习</category>
+      </categories>
+      <tags>
+        <tag>Docker network</tag>
       </tags>
   </entry>
   <entry>
@@ -1881,18 +1881,6 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
-    <title>k8s-service原理</title>
-    <url>/2019/05/14/k8s-service%E5%8E%9F%E7%90%86/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>k8s</category>
-      </categories>
-      <tags>
-        <tag>service</tag>
-        <tag>k8s 源码</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>散列表数据结构</title>
     <url>/2019/05/11/Introduction-to-Algorithms-lecture-7/</url>
     <content><![CDATA[<p>在实际应用中我们需要用到一种动态集合结构。散列表是普通数组的推广，可以对数组直接寻址，故可以在<code>O(1)</code>时间内访问数组的任意元素。散列表中的思想是把关键字映射到数组下标，是通过计算出来的，散列计算过程中容器出现碰撞，解决碰撞也是散列的一个难点，根本问题是哈希计算的问题。</p>
@@ -1910,6 +1898,18 @@ MySQL服务初始化(仅适用5.7)</li>
       </categories>
       <tags>
         <tag>hash</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>k8s-service原理</title>
+    <url>/2019/05/14/k8s-service%E5%8E%9F%E7%90%86/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>k8s</category>
+      </categories>
+      <tags>
+        <tag>service</tag>
+        <tag>k8s 源码</tag>
       </tags>
   </entry>
   <entry>
