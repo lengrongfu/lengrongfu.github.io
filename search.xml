@@ -285,6 +285,32 @@ system call filters failed to install; check the logs and fix your configuration
       </tags>
   </entry>
   <entry>
+    <title>ES 节点重启问题</title>
+    <url>/2018/10/17/es-node-restart-problme/</url>
+    <content><![CDATA[<p><strong>ES 节点离线并重启之后，发现本级上的分片已经再开始在平衡了，就会把本级上的所有分片删除，从新从其他集群上拉取，这样就会出现大量的数据迁移。占用超级多的网络资源。</strong></p>
+<p><strong>之前已经讲过破解和安装x-pack的教程。本文涉及到的是安装成功之后重启服务的问题。ES集群在其中任何一个节点离线之后都会进行数据再平衡，就是把现有的数据进行重新分片,以达到高可用的目的。但是这样也会有很多问题，比如是因为网络抖动引起节点之间通信阻断，本来马上就能好的，可是就出现大量的数据迁移。</strong></p>
+<p><strong>生产环境下建议关闭自动平衡。因为集群中集群的节点数是定的，所以分片也是固定的，如果是添加了新节点，就需要打开自动平衡功能，先把分片平衡了再关闭这个功能。</strong></p>
+<h2 id="停机维护时操作步骤"><a href="#停机维护时操作步骤" class="headerlink" title="停机维护时操作步骤"></a>停机维护时操作步骤</h2><h3 id="1、关闭分片分配"><a href="#1、关闭分片分配" class="headerlink" title="1、关闭分片分配"></a>1、关闭分片分配</h3><figure class="highlight json"><table><tr><td class="code"><pre><span class="line"># 此操作会停止所有的分片动作，以及分片的数据移动。</span><br><span class="line">PUT _cluster/settings</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;transient&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;cluster.routing.allocation.enable&quot;</span>: <span class="string">&quot;none&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="2、执行同步刷新"><a href="#2、执行同步刷新" class="headerlink" title="2、执行同步刷新"></a>2、执行同步刷新</h3><figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST _flush/synced</span><br></pre></td></tr></table></figure>
+<h3 id="3、关闭自动平衡-重要"><a href="#3、关闭自动平衡-重要" class="headerlink" title="3、关闭自动平衡(重要)"></a>3、关闭自动平衡(重要)</h3><figure class="highlight json"><table><tr><td class="code"><pre><span class="line"># 这一项很重要，如果配置了关闭分片分配，没有关闭自平衡，也会在打开分片分配之后出现集群自平衡</span><br><span class="line">PUT /_cluster/settings?pretty</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;transient&quot;</span> : &#123;</span><br><span class="line">    <span class="attr">&quot;cluster.routing.rebalance.enable&quot;</span> : <span class="string">&quot;none&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"># 设置以后需要手动验证一下</span><br><span class="line">curl http:<span class="comment">//&#123;host&#125;:9200/_cluster/settings?pretty</span></span><br></pre></td></tr></table></figure>
+<h3 id="4、延迟副本分片的分配"><a href="#4、延迟副本分片的分配" class="headerlink" title="4、延迟副本分片的分配"></a>4、延迟副本分片的分配</h3><figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /_all/_settings</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;settings&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;index.unassigned.node_left.delayed_timeout&quot;</span>: <span class="string">&quot;5m&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>上面的步骤都做完了，集群自平衡关闭了，分片功能关闭了，就可以停机维护服务</strong></p>
+<h3 id="5、重启之后"><a href="#5、重启之后" class="headerlink" title="5、重启之后"></a>5、重启之后</h3><figure class="highlight json"><table><tr><td class="code"><pre><span class="line"># 打开分片分配，就会把分片上数据不一致的进行同步，不会出现再平衡</span><br><span class="line">PUT _cluster/settings</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;transient&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;cluster.routing.allocation.enable&quot;</span>: <span class="string">&quot;all&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.4/shards-allocation.html#shards-allocation">https://www.elastic.co/guide/en/elasticsearch/reference/5.4/shards-allocation.html#shards-allocation</a></li>
+<li><a href="https://juejin.im/post/5ab5f53f518825556b6cbdea">https://juejin.im/post/5ab5f53f518825556b6cbdea</a></li>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.4/rolling-upgrades.html">https://www.elastic.co/guide/en/elasticsearch/reference/5.4/rolling-upgrades.html</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>es</category>
+      </categories>
+      <tags>
+        <tag>elasticsearch</tag>
+        <tag>es 运维</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>es 索引按时间自动创建</title>
     <url>/2018/10/17/es-dynamic-index-create/</url>
     <content><![CDATA[<h1 id="index"><a href="#index" class="headerlink" title="index"></a>index</h1><p>通过创建<code>template</code>来进行动态模版的创建。</p>
@@ -315,32 +341,6 @@ system call filters failed to install; check the logs and fix your configuration
       <tags>
         <tag>elasticsearch</tag>
         <tag>es template</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>ES 节点重启问题</title>
-    <url>/2018/10/17/es-node-restart-problme/</url>
-    <content><![CDATA[<p><strong>ES 节点离线并重启之后，发现本级上的分片已经再开始在平衡了，就会把本级上的所有分片删除，从新从其他集群上拉取，这样就会出现大量的数据迁移。占用超级多的网络资源。</strong></p>
-<p><strong>之前已经讲过破解和安装x-pack的教程。本文涉及到的是安装成功之后重启服务的问题。ES集群在其中任何一个节点离线之后都会进行数据再平衡，就是把现有的数据进行重新分片,以达到高可用的目的。但是这样也会有很多问题，比如是因为网络抖动引起节点之间通信阻断，本来马上就能好的，可是就出现大量的数据迁移。</strong></p>
-<p><strong>生产环境下建议关闭自动平衡。因为集群中集群的节点数是定的，所以分片也是固定的，如果是添加了新节点，就需要打开自动平衡功能，先把分片平衡了再关闭这个功能。</strong></p>
-<h2 id="停机维护时操作步骤"><a href="#停机维护时操作步骤" class="headerlink" title="停机维护时操作步骤"></a>停机维护时操作步骤</h2><h3 id="1、关闭分片分配"><a href="#1、关闭分片分配" class="headerlink" title="1、关闭分片分配"></a>1、关闭分片分配</h3><figure class="highlight json"><table><tr><td class="code"><pre><span class="line"># 此操作会停止所有的分片动作，以及分片的数据移动。</span><br><span class="line">PUT _cluster/settings</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;transient&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;cluster.routing.allocation.enable&quot;</span>: <span class="string">&quot;none&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="2、执行同步刷新"><a href="#2、执行同步刷新" class="headerlink" title="2、执行同步刷新"></a>2、执行同步刷新</h3><figure class="highlight json"><table><tr><td class="code"><pre><span class="line">POST _flush/synced</span><br></pre></td></tr></table></figure>
-<h3 id="3、关闭自动平衡-重要"><a href="#3、关闭自动平衡-重要" class="headerlink" title="3、关闭自动平衡(重要)"></a>3、关闭自动平衡(重要)</h3><figure class="highlight json"><table><tr><td class="code"><pre><span class="line"># 这一项很重要，如果配置了关闭分片分配，没有关闭自平衡，也会在打开分片分配之后出现集群自平衡</span><br><span class="line">PUT /_cluster/settings?pretty</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;transient&quot;</span> : &#123;</span><br><span class="line">    <span class="attr">&quot;cluster.routing.rebalance.enable&quot;</span> : <span class="string">&quot;none&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"># 设置以后需要手动验证一下</span><br><span class="line">curl http:<span class="comment">//&#123;host&#125;:9200/_cluster/settings?pretty</span></span><br></pre></td></tr></table></figure>
-<h3 id="4、延迟副本分片的分配"><a href="#4、延迟副本分片的分配" class="headerlink" title="4、延迟副本分片的分配"></a>4、延迟副本分片的分配</h3><figure class="highlight json"><table><tr><td class="code"><pre><span class="line">PUT /_all/_settings</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;settings&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;index.unassigned.node_left.delayed_timeout&quot;</span>: <span class="string">&quot;5m&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><strong>上面的步骤都做完了，集群自平衡关闭了，分片功能关闭了，就可以停机维护服务</strong></p>
-<h3 id="5、重启之后"><a href="#5、重启之后" class="headerlink" title="5、重启之后"></a>5、重启之后</h3><figure class="highlight json"><table><tr><td class="code"><pre><span class="line"># 打开分片分配，就会把分片上数据不一致的进行同步，不会出现再平衡</span><br><span class="line">PUT _cluster/settings</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;transient&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;cluster.routing.allocation.enable&quot;</span>: <span class="string">&quot;all&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
-<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.4/shards-allocation.html#shards-allocation">https://www.elastic.co/guide/en/elasticsearch/reference/5.4/shards-allocation.html#shards-allocation</a></li>
-<li><a href="https://juejin.im/post/5ab5f53f518825556b6cbdea">https://juejin.im/post/5ab5f53f518825556b6cbdea</a></li>
-<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.4/rolling-upgrades.html">https://www.elastic.co/guide/en/elasticsearch/reference/5.4/rolling-upgrades.html</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>es</category>
-      </categories>
-      <tags>
-        <tag>elasticsearch</tag>
-        <tag>es 运维</tag>
       </tags>
   </entry>
   <entry>
@@ -1699,60 +1699,6 @@ MySQL服务初始化(仅适用5.7)</li>
       </tags>
   </entry>
   <entry>
-    <title>算法分析、插入排序、归并排序</title>
-    <url>/2019/03/30/Introduction-to-Algorithms-lecture-1/</url>
-    <content><![CDATA[<blockquote>
-<p>本系列文章是我学习算法概论(第三版)这本书的一些笔记和感悟，我没有纯看书，而是结合了<code>MIT</code>的公开课，把书籍作为课本，查看具体细节，主要是看课程，每节课时长<code>60</code>分钟左右，视频在网易公开课上有中文字母。次课程会从数学的角度去分析运行时，课程总共有<code>21</code>，前<code>6</code>课讲解都是排序算法，对应课本上的前三章，这部分不涉及到数据结构,后面的章节都涉及数据结构以及应用。</p>
-</blockquote>
-<h1 id="算法分析"><a href="#算法分析" class="headerlink" title="算法分析"></a>算法分析</h1><h2 id="为什么学习算法和性能"><a href="#为什么学习算法和性能" class="headerlink" title="为什么学习算法和性能"></a>为什么学习算法和性能</h2><ul>
-<li>算法帮助我们去理解可扩展性。</li>
-<li>性能常常用来划分什么是可行的什么是不可行的。</li>
-<li>算法数学提供了一个讨论程序特性的语言。(用数学来刻画程序的特性，比如运行时)。</li>
-<li>性能是计算机的共性。</li>
-<li>程序性能和计算机资源是无关的。比如一台很老的电脑和一台现代的电脑相比，不能说现代电脑就一定比旧电脑运行的快，如果旧电脑运行的算法比较高效的话，一定会在某一时刻运行时间会小于新电脑。</li>
-</ul>
-<h1 id="排序问题"><a href="#排序问题" class="headerlink" title="排序问题"></a>排序问题</h1><p><strong>Input:</strong> 一个序列 <code>&lt;a1,a2,a3,.....,an&gt;</code><br><strong>Output:</strong> 输出一个排序后的序列<code>&lt;a1&#39;,a2&#39;,a3&#39;,......,an&#39;&gt;</code>, 使得 <code>a1&#39; &lt; a2&#39; &lt; a3&#39; &lt; .... &lt; an&#39;</code></p>
-<h2 id="插入排序"><a href="#插入排序" class="headerlink" title="插入排序"></a>插入排序</h2><h2 id="伪代码"><a href="#伪代码" class="headerlink" title="伪代码"></a>伪代码</h2><figure class="highlight c"><table><tr><td class="code"><pre><span class="line">Insertion-SORT(A,n)</span><br><span class="line">    <span class="keyword">for</span> j ← <span class="number">2</span> to n</span><br><span class="line">        <span class="keyword">do</span> key←A[j]</span><br><span class="line">            i←j–<span class="number">1</span></span><br><span class="line">            <span class="keyword">while</span> i &gt; <span class="number">0</span> <span class="keyword">and</span> A[i] &gt; key</span><br><span class="line">                <span class="keyword">do</span> A[i+<span class="number">1</span>] ← A[i] </span><br><span class="line">                i←i–<span class="number">1</span></span><br><span class="line">        A[i+<span class="number">1</span>] = key</span><br></pre></td></tr></table></figure>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">InsertionSort</span><span class="params">(A []<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">for</span> i:= <span class="number">1</span>; i &lt; <span class="built_in">len</span>(A) ; i++  &#123;</span><br><span class="line">		key := A[i]</span><br><span class="line">		j := i<span class="number">-1</span></span><br><span class="line">		<span class="keyword">for</span> ; j &gt;=<span class="number">0</span> &amp;&amp; A[j] &gt; key ; &#123;</span><br><span class="line">			A[j+<span class="number">1</span>] = A[j]</span><br><span class="line">			j = j<span class="number">-1</span></span><br><span class="line">		&#125;</span><br><span class="line">		A[j+<span class="number">1</span>] = key</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="运行时分析"><a href="#运行时分析" class="headerlink" title="运行时分析"></a>运行时分析</h3><ul>
-<li>运行时依赖输入，如果输入是排好序的，那是很容易排序的。</li>
-<li>输入元素的个数，短序列比长序列更好排序。</li>
-<li>通常来说，我们分析的是运行时的上限。</li>
-</ul>
-<p>分析的方式</p>
-<ul>
-<li>最差情况(通常用次分析)<br>T(n) = 算法的最长运行时在任何的输入下。</li>
-<li><p>平均情况<br>T(n) = 算法的预期时间在总体输入下。</p>
-</li>
-<li><p>最好情况<br>T(n) = 在某些输入下运行时间比较好。</p>
-</li>
-</ul>
-<h3 id="插入排序分析"><a href="#插入排序分析" class="headerlink" title="插入排序分析"></a>插入排序分析</h3><p>$$<br>T(n)=\sum_{j=2}^{n} \Theta(j)=\Theta\left(n^{2}\right)<br>$$</p>
-<p>我们分析最差情况，如果输入是逆序的，那么执行的次数就是<code>n+(n-1)+(n-2)+...+1=n(n-1)/2</code> 就是一个等差数列求和，就得到如上的公式，</p>
-<p>$$<br>T(n)=\Theta\left(n^{2}/2\right) + \Theta\left(n-1\right)<br>$$</p>
-<p>忽略低阶项和高价项的常数，就得到如下运行时间，所以插入排序是和输入大小成平方比。</p>
-<p>$$<br>T(n) = \Theta\left(n^{2}\right)<br>$$</p>
-<h2 id="归并排序"><a href="#归并排序" class="headerlink" title="归并排序"></a>归并排序</h2><h3 id="伪代码-1"><a href="#伪代码-1" class="headerlink" title="伪代码"></a>伪代码</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"># MERGE-SORT(A)</span><br><span class="line">    <span class="number">1.</span> Ifn=<span class="number">1</span>,done.</span><br><span class="line">    <span class="number">2.</span> 递归排序 A[ <span class="number">1</span> . . ⎡n/<span class="number">2</span>⎤ ] <span class="keyword">and</span> A[ ⎡n/<span class="number">2</span>⎤+<span class="number">1</span> . . n ] . # ⎡n/<span class="number">2</span>⎤ 向下取整</span><br><span class="line">    <span class="number">3.</span> 合并这两个`<span class="built_in">list</span>`</span><br></pre></td></tr></table></figure>
-<h3 id="归并排序分析"><a href="#归并排序分析" class="headerlink" title="归并排序分析"></a>归并排序分析</h3><p><img src="/2019/03/30/Introduction-to-Algorithms-lecture-1/1557153490587.jpg" alt="公式"></p>
-<p>这个公式在后面会用主方法来进行分析运行的上界。</p>
-<p><img src="/2019/03/30/Introduction-to-Algorithms-lecture-1/2.png" alt="2"></p>
-<p>递归树的高度是<code>lgn</code>，每一个层级运行时为<code>cn</code>，所以<code>Tn = O(cn*lgn)</code>,就是高度乘以每一层的时间，前面的<code>c</code>为常量，可以忽略。</p>
-<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><ul>
-<li><code>Θ(nlgn)</code>比<code>Θ(n2)</code>慢的多。</li>
-<li>归并排序在最坏情况下比插入排序好的多。</li>
-<li>实践中，当<code>n &gt; 30</code> 时，归并排序就比插入排序好的多。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>Algorithms and Datastructure</category>
-      </categories>
-      <tags>
-        <tag>course 学习</tag>
-        <tag>Introduction to Algorithms</tag>
-        <tag>lecture1</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Inverted-index</title>
     <url>/2019/03/24/Inverted-index/</url>
     <content><![CDATA[<h1 id="倒排索引-Inverted-index"><a href="#倒排索引-Inverted-index" class="headerlink" title="倒排索引(Inverted index)"></a>倒排索引(Inverted index)</h1><p>文章写的有点粗糙，都是只描述了思想，没有去抠具体的细节部分，对这些项目的作者刚到敬仰，把一个理论上的技术用在工程上会遇到很多问题。如果文章中有不妥之处，欢迎去我的<code>github</code>提交 <a href="https://github.com/lengrongfu/lengrongfu.github.io/issues">issues</a>.</p>
@@ -1817,6 +1763,60 @@ MySQL服务初始化(仅适用5.7)</li>
         <tag>倒排索引</tag>
         <tag>mysql全文索引</tag>
         <tag>Lucene索引</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>算法分析、插入排序、归并排序</title>
+    <url>/2019/03/30/Introduction-to-Algorithms-lecture-1/</url>
+    <content><![CDATA[<blockquote>
+<p>本系列文章是我学习算法概论(第三版)这本书的一些笔记和感悟，我没有纯看书，而是结合了<code>MIT</code>的公开课，把书籍作为课本，查看具体细节，主要是看课程，每节课时长<code>60</code>分钟左右，视频在网易公开课上有中文字母。次课程会从数学的角度去分析运行时，课程总共有<code>21</code>，前<code>6</code>课讲解都是排序算法，对应课本上的前三章，这部分不涉及到数据结构,后面的章节都涉及数据结构以及应用。</p>
+</blockquote>
+<h1 id="算法分析"><a href="#算法分析" class="headerlink" title="算法分析"></a>算法分析</h1><h2 id="为什么学习算法和性能"><a href="#为什么学习算法和性能" class="headerlink" title="为什么学习算法和性能"></a>为什么学习算法和性能</h2><ul>
+<li>算法帮助我们去理解可扩展性。</li>
+<li>性能常常用来划分什么是可行的什么是不可行的。</li>
+<li>算法数学提供了一个讨论程序特性的语言。(用数学来刻画程序的特性，比如运行时)。</li>
+<li>性能是计算机的共性。</li>
+<li>程序性能和计算机资源是无关的。比如一台很老的电脑和一台现代的电脑相比，不能说现代电脑就一定比旧电脑运行的快，如果旧电脑运行的算法比较高效的话，一定会在某一时刻运行时间会小于新电脑。</li>
+</ul>
+<h1 id="排序问题"><a href="#排序问题" class="headerlink" title="排序问题"></a>排序问题</h1><p><strong>Input:</strong> 一个序列 <code>&lt;a1,a2,a3,.....,an&gt;</code><br><strong>Output:</strong> 输出一个排序后的序列<code>&lt;a1&#39;,a2&#39;,a3&#39;,......,an&#39;&gt;</code>, 使得 <code>a1&#39; &lt; a2&#39; &lt; a3&#39; &lt; .... &lt; an&#39;</code></p>
+<h2 id="插入排序"><a href="#插入排序" class="headerlink" title="插入排序"></a>插入排序</h2><h2 id="伪代码"><a href="#伪代码" class="headerlink" title="伪代码"></a>伪代码</h2><figure class="highlight c"><table><tr><td class="code"><pre><span class="line">Insertion-SORT(A,n)</span><br><span class="line">    <span class="keyword">for</span> j ← <span class="number">2</span> to n</span><br><span class="line">        <span class="keyword">do</span> key←A[j]</span><br><span class="line">            i←j–<span class="number">1</span></span><br><span class="line">            <span class="keyword">while</span> i &gt; <span class="number">0</span> <span class="keyword">and</span> A[i] &gt; key</span><br><span class="line">                <span class="keyword">do</span> A[i+<span class="number">1</span>] ← A[i] </span><br><span class="line">                i←i–<span class="number">1</span></span><br><span class="line">        A[i+<span class="number">1</span>] = key</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">InsertionSort</span><span class="params">(A []<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	<span class="keyword">for</span> i:= <span class="number">1</span>; i &lt; <span class="built_in">len</span>(A) ; i++  &#123;</span><br><span class="line">		key := A[i]</span><br><span class="line">		j := i<span class="number">-1</span></span><br><span class="line">		<span class="keyword">for</span> ; j &gt;=<span class="number">0</span> &amp;&amp; A[j] &gt; key ; &#123;</span><br><span class="line">			A[j+<span class="number">1</span>] = A[j]</span><br><span class="line">			j = j<span class="number">-1</span></span><br><span class="line">		&#125;</span><br><span class="line">		A[j+<span class="number">1</span>] = key</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="运行时分析"><a href="#运行时分析" class="headerlink" title="运行时分析"></a>运行时分析</h3><ul>
+<li>运行时依赖输入，如果输入是排好序的，那是很容易排序的。</li>
+<li>输入元素的个数，短序列比长序列更好排序。</li>
+<li>通常来说，我们分析的是运行时的上限。</li>
+</ul>
+<p>分析的方式</p>
+<ul>
+<li>最差情况(通常用次分析)<br>T(n) = 算法的最长运行时在任何的输入下。</li>
+<li><p>平均情况<br>T(n) = 算法的预期时间在总体输入下。</p>
+</li>
+<li><p>最好情况<br>T(n) = 在某些输入下运行时间比较好。</p>
+</li>
+</ul>
+<h3 id="插入排序分析"><a href="#插入排序分析" class="headerlink" title="插入排序分析"></a>插入排序分析</h3><p>$$<br>T(n)=\sum_{j=2}^{n} \Theta(j)=\Theta\left(n^{2}\right)<br>$$</p>
+<p>我们分析最差情况，如果输入是逆序的，那么执行的次数就是<code>n+(n-1)+(n-2)+...+1=n(n-1)/2</code> 就是一个等差数列求和，就得到如上的公式，</p>
+<p>$$<br>T(n)=\Theta\left(n^{2}/2\right) + \Theta\left(n-1\right)<br>$$</p>
+<p>忽略低阶项和高价项的常数，就得到如下运行时间，所以插入排序是和输入大小成平方比。</p>
+<p>$$<br>T(n) = \Theta\left(n^{2}\right)<br>$$</p>
+<h2 id="归并排序"><a href="#归并排序" class="headerlink" title="归并排序"></a>归并排序</h2><h3 id="伪代码-1"><a href="#伪代码-1" class="headerlink" title="伪代码"></a>伪代码</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"># MERGE-SORT(A)</span><br><span class="line">    <span class="number">1.</span> Ifn=<span class="number">1</span>,done.</span><br><span class="line">    <span class="number">2.</span> 递归排序 A[ <span class="number">1</span> . . ⎡n/<span class="number">2</span>⎤ ] <span class="keyword">and</span> A[ ⎡n/<span class="number">2</span>⎤+<span class="number">1</span> . . n ] . # ⎡n/<span class="number">2</span>⎤ 向下取整</span><br><span class="line">    <span class="number">3.</span> 合并这两个`<span class="built_in">list</span>`</span><br></pre></td></tr></table></figure>
+<h3 id="归并排序分析"><a href="#归并排序分析" class="headerlink" title="归并排序分析"></a>归并排序分析</h3><p><img src="/2019/03/30/Introduction-to-Algorithms-lecture-1/1557153490587.jpg" alt="公式"></p>
+<p>这个公式在后面会用主方法来进行分析运行的上界。</p>
+<p><img src="/2019/03/30/Introduction-to-Algorithms-lecture-1/2.png" alt="2"></p>
+<p>递归树的高度是<code>lgn</code>，每一个层级运行时为<code>cn</code>，所以<code>Tn = O(cn*lgn)</code>,就是高度乘以每一层的时间，前面的<code>c</code>为常量，可以忽略。</p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><ul>
+<li><code>Θ(nlgn)</code>比<code>Θ(n2)</code>慢的多。</li>
+<li>归并排序在最坏情况下比插入排序好的多。</li>
+<li>实践中，当<code>n &gt; 30</code> 时，归并排序就比插入排序好的多。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Algorithms and Datastructure</category>
+      </categories>
+      <tags>
+        <tag>course 学习</tag>
+        <tag>Introduction to Algorithms</tag>
+        <tag>lecture1</tag>
       </tags>
   </entry>
   <entry>
