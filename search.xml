@@ -556,6 +556,35 @@ system call filters failed to install; check the logs and fix your configuration
       </tags>
   </entry>
   <entry>
+    <title>linux-crond</title>
+    <url>/2018/10/17/linux-crond/</url>
+    <content><![CDATA[<h2 id="1-写定时任务要执行的脚本"><a href="#1-写定时任务要执行的脚本" class="headerlink" title="1.写定时任务要执行的脚本"></a>1.写定时任务要执行的脚本</h2><p>如:test.sh</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim test.sh</span><br><span class="line">echo &quot;hello world&quot;</span><br></pre></td></tr></table></figure>
+<h2 id="2-写crontab-表达式"><a href="#2-写crontab-表达式" class="headerlink" title="2.写crontab 表达式"></a>2.写<code>crontab</code> 表达式</h2><ul>
+<li><p>查看表达式书写</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cat /etc/crontab</span><br><span class="line"></span><br><span class="line">SHELL=/bin/bash</span><br><span class="line">PATH=/sbin:/bin:/usr/sbin:/usr/bin</span><br><span class="line">MAILTO=root</span><br><span class="line">HOME=/</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> For details see man 4 crontabs</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Example of job definition:</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> .---------------- minute (0 - 59)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> |  .------------- hour (0 - 23)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> |  |  .---------- day of month (1 - 31)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> |  |  |  .------- month (1 - 12) OR jan,feb,mar,apr ...</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> |  |  |  |  |</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> *  *  *  *  * user-name <span class="built_in">command</span> to be executed</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>命令使用</p>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">crontab -u //设定某个用户的cron服务，一般root用户在执行这个命令的时候需要此参数</span><br><span class="line">crontab -l //列出某个用户cron服务的详细内容</span><br><span class="line">crontab -r //删除没个用户的cron服务</span><br><span class="line">crontab -e //编辑某个用户的cron服务</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>如:</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">crontab -e 进入编辑页面</span><br><span class="line"></span><br><span class="line">0 03 * * * /bin/bash test.sh</span><br><span class="line"></span><br><span class="line">每天凌晨三点执行这个脚本</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ul>
+<li>服务使用命令</li>
+<li>帮助<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> service crond</span></span><br><span class="line">用法：/etc/init.d/crond &#123;start|stop|status|restart|condrestart|try-restart|reload|force-reload&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">service crond start //启动服务</span><br><span class="line">service crond stop //关闭服务</span><br><span class="line">service crond restart //重启服务</span><br><span class="line">service crond reload //重新载入配置</span><br><span class="line">service crond status //查询运行状态</span><br><span class="line"></span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>linux</tag>
+        <tag>crond</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>linux-Keepalived 使用</title>
     <url>/2018/10/17/linux-Keepalived/</url>
     <content><![CDATA[<h1 id="Keepalived-构建一个高可用的集群"><a href="#Keepalived-构建一个高可用的集群" class="headerlink" title="Keepalived 构建一个高可用的集群"></a>Keepalived 构建一个高可用的集群</h1><p>参考文档：</p>
@@ -628,32 +657,16 @@ system call filters failed to install; check the logs and fix your configuration
       </tags>
   </entry>
   <entry>
-    <title>linux-crond</title>
-    <url>/2018/10/17/linux-crond/</url>
-    <content><![CDATA[<h2 id="1-写定时任务要执行的脚本"><a href="#1-写定时任务要执行的脚本" class="headerlink" title="1.写定时任务要执行的脚本"></a>1.写定时任务要执行的脚本</h2><p>如:test.sh</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim test.sh</span><br><span class="line">echo &quot;hello world&quot;</span><br></pre></td></tr></table></figure>
-<h2 id="2-写crontab-表达式"><a href="#2-写crontab-表达式" class="headerlink" title="2.写crontab 表达式"></a>2.写<code>crontab</code> 表达式</h2><ul>
-<li><p>查看表达式书写</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cat /etc/crontab</span><br><span class="line"></span><br><span class="line">SHELL=/bin/bash</span><br><span class="line">PATH=/sbin:/bin:/usr/sbin:/usr/bin</span><br><span class="line">MAILTO=root</span><br><span class="line">HOME=/</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> For details see man 4 crontabs</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Example of job definition:</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> .---------------- minute (0 - 59)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> |  .------------- hour (0 - 23)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> |  |  .---------- day of month (1 - 31)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> |  |  |  .------- month (1 - 12) OR jan,feb,mar,apr ...</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> |  |  |  |  |</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> *  *  *  *  * user-name <span class="built_in">command</span> to be executed</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>命令使用</p>
-</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">crontab -u //设定某个用户的cron服务，一般root用户在执行这个命令的时候需要此参数</span><br><span class="line">crontab -l //列出某个用户cron服务的详细内容</span><br><span class="line">crontab -r //删除没个用户的cron服务</span><br><span class="line">crontab -e //编辑某个用户的cron服务</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>如:</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">crontab -e 进入编辑页面</span><br><span class="line"></span><br><span class="line">0 03 * * * /bin/bash test.sh</span><br><span class="line"></span><br><span class="line">每天凌晨三点执行这个脚本</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<ul>
-<li>服务使用命令</li>
-<li>帮助<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> service crond</span></span><br><span class="line">用法：/etc/init.d/crond &#123;start|stop|status|restart|condrestart|try-restart|reload|force-reload&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">service crond start //启动服务</span><br><span class="line">service crond stop //关闭服务</span><br><span class="line">service crond restart //重启服务</span><br><span class="line">service crond reload //重新载入配置</span><br><span class="line">service crond status //查询运行状态</span><br><span class="line"></span><br></pre></td></tr></table></figure>]]></content>
+    <title>linux 记录操作记录</title>
+    <url>/2018/10/17/linux-recording-user-log/</url>
+    <content><![CDATA[<h1 id="记录操作记录"><a href="#记录操作记录" class="headerlink" title="记录操作记录"></a>记录操作记录</h1><h2 id="方案一"><a href="#方案一" class="headerlink" title="方案一"></a>方案一</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 把如下内容加入/etc/profile文件里面</span></span><br><span class="line">PS1=&quot;`whoami`@`hostname`:&quot;&#x27;[\u@\h \W]\$&#x27;</span><br><span class="line">PS1=&quot;[\u@\h \W]\$&quot; # 和上面的线上不一样，这种比较常规</span><br><span class="line">history</span><br><span class="line">USER_IP=`who -u am i 2&gt;/dev/null| awk &#x27;&#123;print $NF&#125;&#x27;|sed -e &#x27;s/[()]//g&#x27;` </span><br><span class="line">if [ &quot;$USER_IP&quot; = &quot;&quot; ] </span><br><span class="line">then</span><br><span class="line">USER_IP=`hostname` </span><br><span class="line">fi</span><br><span class="line">if [ ! -d /tmp/history ] </span><br><span class="line">then</span><br><span class="line">mkdir /tmp/history</span><br><span class="line">chmod 777 /tmp/history</span><br><span class="line">fi</span><br><span class="line">if [ ! -d /tmp/history/$&#123;LOGNAME&#125; ] </span><br><span class="line">then</span><br><span class="line">mkdir /tmp/history/$&#123;LOGNAME&#125; </span><br><span class="line">chmod 300 /tmp/history/$&#123;LOGNAME&#125; </span><br><span class="line">fi</span><br><span class="line">export HISTSIZE=4096 </span><br><span class="line">DT=`date +&quot;%Y%m%d_%H%M%S&quot;` </span><br><span class="line">export HISTFILE=&quot;/tmp/history/$&#123;LOGNAME&#125;/$&#123;USER_IP&#125; history.$DT&quot;</span><br><span class="line">chmod 600 /tmp/history/$&#123;LOGNAME&#125;/*history* 2&gt;/dev/null</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">source</span>一下</span></span><br><span class="line">source /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 日志记录在 /tmp/<span class="built_in">history</span> 目录下</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="方案二"><a href="#方案二" class="headerlink" title="方案二"></a>方案二</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 把如下内容加入到/etc/profile中</span></span><br><span class="line"><span class="meta">#</span><span class="bash">设置<span class="built_in">history</span>格式</span></span><br><span class="line">export HISTTIMEFORMAT=&quot;[%Y-%m-%d %H:%M:%S] [`who am i 2&gt;/dev/null| \</span><br><span class="line">awk &#x27;&#123;print $NF&#125;&#x27;|sed -e &#x27;s/[()]//g&#x27;`] &quot;</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash">登录时清空当前缓存</span></span><br><span class="line">echo &quot;&quot; &gt; .bash_history</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash">记录shell执行的每一条命令</span></span><br><span class="line">export PROMPT_COMMAND=&#x27;\</span><br><span class="line">if [ -z &quot;$OLD_PWD&quot; ];then</span><br><span class="line">export OLD_PWD=$PWD;</span><br><span class="line">fi;</span><br><span class="line">if [ ! -z &quot;$LAST_CMD&quot; ] &amp;&amp; [ &quot;$(history 1)&quot; != &quot;$LAST_CMD&quot; ]; then</span><br><span class="line">logger -t `whoami`_shell_cmd &quot;[$OLD_PWD]$(history 1)&quot;;</span><br><span class="line">fi ;</span><br><span class="line">export LAST_CMD=&quot;$(history 1)&quot;;</span><br><span class="line">export OLD_PWD=$PWD;&#x27;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="built_in">source</span>一下</span></span><br><span class="line">source /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 日志记录</span></span><br><span class="line">/var/log/messages</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>Linux</category>
       </categories>
       <tags>
         <tag>linux</tag>
-        <tag>crond</tag>
+        <tag>维护</tag>
       </tags>
   </entry>
   <entry>
@@ -705,19 +718,6 @@ MySQL服务初始化(仅适用5.7)</li>
       <tags>
         <tag>install</tag>
         <tag>mysql</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>linux 记录操作记录</title>
-    <url>/2018/10/17/linux-recording-user-log/</url>
-    <content><![CDATA[<h1 id="记录操作记录"><a href="#记录操作记录" class="headerlink" title="记录操作记录"></a>记录操作记录</h1><h2 id="方案一"><a href="#方案一" class="headerlink" title="方案一"></a>方案一</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 把如下内容加入/etc/profile文件里面</span></span><br><span class="line">PS1=&quot;`whoami`@`hostname`:&quot;&#x27;[\u@\h \W]\$&#x27;</span><br><span class="line">PS1=&quot;[\u@\h \W]\$&quot; # 和上面的线上不一样，这种比较常规</span><br><span class="line">history</span><br><span class="line">USER_IP=`who -u am i 2&gt;/dev/null| awk &#x27;&#123;print $NF&#125;&#x27;|sed -e &#x27;s/[()]//g&#x27;` </span><br><span class="line">if [ &quot;$USER_IP&quot; = &quot;&quot; ] </span><br><span class="line">then</span><br><span class="line">USER_IP=`hostname` </span><br><span class="line">fi</span><br><span class="line">if [ ! -d /tmp/history ] </span><br><span class="line">then</span><br><span class="line">mkdir /tmp/history</span><br><span class="line">chmod 777 /tmp/history</span><br><span class="line">fi</span><br><span class="line">if [ ! -d /tmp/history/$&#123;LOGNAME&#125; ] </span><br><span class="line">then</span><br><span class="line">mkdir /tmp/history/$&#123;LOGNAME&#125; </span><br><span class="line">chmod 300 /tmp/history/$&#123;LOGNAME&#125; </span><br><span class="line">fi</span><br><span class="line">export HISTSIZE=4096 </span><br><span class="line">DT=`date +&quot;%Y%m%d_%H%M%S&quot;` </span><br><span class="line">export HISTFILE=&quot;/tmp/history/$&#123;LOGNAME&#125;/$&#123;USER_IP&#125; history.$DT&quot;</span><br><span class="line">chmod 600 /tmp/history/$&#123;LOGNAME&#125;/*history* 2&gt;/dev/null</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">source</span>一下</span></span><br><span class="line">source /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 日志记录在 /tmp/<span class="built_in">history</span> 目录下</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h2 id="方案二"><a href="#方案二" class="headerlink" title="方案二"></a>方案二</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 把如下内容加入到/etc/profile中</span></span><br><span class="line"><span class="meta">#</span><span class="bash">设置<span class="built_in">history</span>格式</span></span><br><span class="line">export HISTTIMEFORMAT=&quot;[%Y-%m-%d %H:%M:%S] [`who am i 2&gt;/dev/null| \</span><br><span class="line">awk &#x27;&#123;print $NF&#125;&#x27;|sed -e &#x27;s/[()]//g&#x27;`] &quot;</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash">登录时清空当前缓存</span></span><br><span class="line">echo &quot;&quot; &gt; .bash_history</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash">记录shell执行的每一条命令</span></span><br><span class="line">export PROMPT_COMMAND=&#x27;\</span><br><span class="line">if [ -z &quot;$OLD_PWD&quot; ];then</span><br><span class="line">export OLD_PWD=$PWD;</span><br><span class="line">fi;</span><br><span class="line">if [ ! -z &quot;$LAST_CMD&quot; ] &amp;&amp; [ &quot;$(history 1)&quot; != &quot;$LAST_CMD&quot; ]; then</span><br><span class="line">logger -t `whoami`_shell_cmd &quot;[$OLD_PWD]$(history 1)&quot;;</span><br><span class="line">fi ;</span><br><span class="line">export LAST_CMD=&quot;$(history 1)&quot;;</span><br><span class="line">export OLD_PWD=$PWD;&#x27;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="built_in">source</span>一下</span></span><br><span class="line">source /etc/profile</span><br><span class="line"><span class="meta">#</span><span class="bash"> 日志记录</span></span><br><span class="line">/var/log/messages</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>linux</tag>
-        <tag>维护</tag>
       </tags>
   </entry>
   <entry>
