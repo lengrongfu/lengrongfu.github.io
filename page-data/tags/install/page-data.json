@@ -1,0 +1,5 @@
+{
+    "componentChunkName": "component---src-templates-tags-js",
+    "path": "/tags/install/",
+    "result": {"data":{"allMarkdownRemark":{"totalCount":4,"edges":[{"node":{"fields":{"slug":"/2018-10-17-mysql-install/"},"frontmatter":{"title":"mysql-install"}}},{"node":{"fields":{"slug":"/2018-10-17-elk-install/"},"frontmatter":{"title":"elk 搭建"}}},{"node":{"fields":{"slug":"/2018-10-17-es-single-node-install/"},"frontmatter":{"title":"es 单节点部署多个服务"}}},{"node":{"fields":{"slug":"/2018-10-17-es-xpack-install/"},"frontmatter":{"title":"ES X-Pack 5.4.3破解安装"}}}]}},"pageContext":{"tag":"install"}},
+    "staticQueryHashes": []}

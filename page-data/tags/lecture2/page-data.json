@@ -1,0 +1,5 @@
+{
+    "componentChunkName": "component---src-templates-tags-js",
+    "path": "/tags/lecture2/",
+    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2019-04-05-Introduction-to-Algorithms-lecture-2/"},"frontmatter":{"title":"渐进符号、替换、递归树、主方法"}}}]}},"pageContext":{"tag":"lecture2"}},
+    "staticQueryHashes": []}

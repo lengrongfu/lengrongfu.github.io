@@ -1,0 +1,5 @@
+{
+    "componentChunkName": "component---src-templates-tags-js",
+    "path": "/tags/kubernetes/",
+    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2022-09-22-jsonpatch-jsonmergepatch/"},"frontmatter":{"title":"JSON Patch and JSON Merge Patch"}}}]}},"pageContext":{"tag":"kubernetes"}},
+    "staticQueryHashes": []}

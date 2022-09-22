@@ -1,0 +1,5 @@
+{
+    "componentChunkName": "component---src-templates-blog-post-js",
+    "path": "/test/",
+    "result": {"data":{"site":{"siteMetadata":{"title":"LRF"}},"markdownRemark":{"id":"952ba87a-ca6d-5514-91d3-a6eab595c88e","excerpt":"计算机体系结构基础 Github 地址 这是龙芯团队胡伟武老师等人编写的《计算机体系结构基础》（第三版）的开源版本。本书纸质版本由机械工业出版社发行，前两版可以通过各种常规渠道购买，第三版纸质版本也即将发行。 计算机体系结构基础","html":"<p><a href=\"https://github.com/foxsen/archbase\">计算机体系结构基础 Github 地址</a> 这是龙芯团队胡伟武老师等人编写的《计算机体系结构基础》（第三版）的开源版本。本书纸质版本由机械工业出版社发行，前两版可以通过各种常规渠道购买，第三版纸质版本也即将发行。</p>\n<p><a href=\"/51c48c1673ebd002ec0838c0c9ba6274/bookdown.pdf\">计算机体系结构基础</a></p>","frontmatter":{"title":"计算机体系结构基础","date":"March 02, 2022","description":null}},"previous":{"fields":{"slug":"/2022-03-01-serverless基础知识/"},"frontmatter":{"title":"Serverless 入门知识"}},"next":{"fields":{"slug":"/2022-05-10-k8s网络之Flannel原理/"},"frontmatter":{"title":"Kubernetes网络之Flannel原理介绍"}}},"pageContext":{"id":"952ba87a-ca6d-5514-91d3-a6eab595c88e","previousPostId":"978b29f5-589f-5781-8b9a-21e46df0632f","nextPostId":"107feb9c-579b-5ff9-becb-a2a38ef1e478"}},
+    "staticQueryHashes": ["2841359383","3257411868"]}

@@ -1,0 +1,5 @@
+{
+    "componentChunkName": "component---src-templates-tags-js",
+    "path": "/tags/数据结构/",
+    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2019-07-03-Badger源码学习之-SkipList基础篇/"},"frontmatter":{"title":"Badger源码学习之-SkipList基础篇"}}}]}},"pageContext":{"tag":"数据结构"}},
+    "staticQueryHashes": []}

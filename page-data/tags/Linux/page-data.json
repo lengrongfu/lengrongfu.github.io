@@ -1,0 +1,5 @@
+{
+    "componentChunkName": "component---src-templates-tags-js",
+    "path": "/tags/Linux/",
+    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2022-05-12-Linux-Network-Namespace/"},"frontmatter":{"title":"Linux网络虚拟化:探索NetWork Namespace"}}}]}},"pageContext":{"tag":"Linux"}},
+    "staticQueryHashes": []}

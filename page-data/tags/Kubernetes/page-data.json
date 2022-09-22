@@ -1,0 +1,5 @@
+{
+    "componentChunkName": "component---src-templates-tags-js",
+    "path": "/tags/Kubernetes/",
+    "result": {"data":{"allMarkdownRemark":{"totalCount":3,"edges":[{"node":{"fields":{"slug":"/2022-07-11-Kubernetes-Scheduler/"},"frontmatter":{"title":"Kubernetes Scheduler"}}},{"node":{"fields":{"slug":"/2021-05-13-Kubernetes-Network/"},"frontmatter":{"title":"Kubernetes Network"}}},{"node":{"fields":{"slug":"/2018-12-12-Kubernetes-Setup/"},"frontmatter":{"title":"Kubernetes 入门学习"}}}]}},"pageContext":{"tag":"Kubernetes"}},
+    "staticQueryHashes": []}

@@ -1,0 +1,5 @@
+{
+    "componentChunkName": "component---src-templates-tags-js",
+    "path": "/tags/云原生/",
+    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2022-08-05-distribution-auth/"},"frontmatter":{"title":"Distribution Auth Type"}}}]}},"pageContext":{"tag":"云原生"}},
+    "staticQueryHashes": []}

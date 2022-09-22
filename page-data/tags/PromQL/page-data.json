@@ -1,0 +1,5 @@
+{
+    "componentChunkName": "component---src-templates-tags-js",
+    "path": "/tags/PromQL/",
+    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2019-03-17-PromQL-常用命令/"},"frontmatter":{"title":"PromQL 常用命令"}}}]}},"pageContext":{"tag":"PromQL"}},
+    "staticQueryHashes": []}

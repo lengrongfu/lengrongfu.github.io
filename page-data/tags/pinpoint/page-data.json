@@ -1,0 +1,5 @@
+{
+    "componentChunkName": "component---src-templates-tags-js",
+    "path": "/tags/pinpoint/",
+    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2018-10-18-pinpoint-add-hbase-kerberos-auth/"},"frontmatter":{"title":"pinpoint 添加 hbase kerberos认证"}}}]}},"pageContext":{"tag":"pinpoint"}},
+    "staticQueryHashes": []}

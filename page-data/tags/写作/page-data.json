@@ -1,0 +1,5 @@
+{
+    "componentChunkName": "component---src-templates-tags-js",
+    "path": "/tags/写作/",
+    "result": {"data":{"allMarkdownRemark":{"totalCount":2,"edges":[{"node":{"fields":{"slug":"/2021-05-25-技术写作/"},"frontmatter":{"title":"技术写作 第二课"}}},{"node":{"fields":{"slug":"/2021-05-21-技术写作-第一节/"},"frontmatter":{"title":"技术写作 第一课"}}}]}},"pageContext":{"tag":"写作"}},
+    "staticQueryHashes": []}

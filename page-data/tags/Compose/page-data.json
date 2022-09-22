@@ -1,0 +1,5 @@
+{
+    "componentChunkName": "component---src-templates-tags-js",
+    "path": "/tags/Compose/",
+    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2018-11-24-docker-Compose-user/"},"frontmatter":{"title":"docker Compose 使用"}}}]}},"pageContext":{"tag":"Compose"}},
+    "staticQueryHashes": []}

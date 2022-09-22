@@ -1,0 +1,5 @@
+{
+    "componentChunkName": "component---src-templates-tags-js",
+    "path": "/tags/golang/",
+    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2019-02-27-go1-12/"},"frontmatter":{"title":"go1.12 发行说明"}}}]}},"pageContext":{"tag":"golang"}},
+    "staticQueryHashes": []}

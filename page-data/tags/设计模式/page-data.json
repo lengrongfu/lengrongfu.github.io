@@ -1,0 +1,5 @@
+{
+    "componentChunkName": "component---src-templates-tags-js",
+    "path": "/tags/设计模式/",
+    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2021-05-24-代码质量好坏如何评判/"},"frontmatter":{"title":"代码质量好坏如何评判"}}}]}},"pageContext":{"tag":"设计模式"}},
+    "staticQueryHashes": []}

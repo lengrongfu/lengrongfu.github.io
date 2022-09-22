@@ -1,0 +1,5 @@
+{
+    "componentChunkName": "component---src-templates-tags-js",
+    "path": "/tags/云计算/",
+    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2018-12-12-Kubernetes-Setup/"},"frontmatter":{"title":"Kubernetes 入门学习"}}}]}},"pageContext":{"tag":"云计算"}},
+    "staticQueryHashes": []}

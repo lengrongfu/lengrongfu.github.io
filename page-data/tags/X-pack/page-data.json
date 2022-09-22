@@ -1,0 +1,5 @@
+{
+    "componentChunkName": "component---src-templates-tags-js",
+    "path": "/tags/X-pack/",
+    "result": {"data":{"allMarkdownRemark":{"totalCount":2,"edges":[{"node":{"fields":{"slug":"/2018-10-17-es-xpack-watch-user/"},"frontmatter":{"title":"es-xpack-watch-user"}}},{"node":{"fields":{"slug":"/2018-10-17-es-xpack-install/"},"frontmatter":{"title":"ES X-Pack 5.4.3破解安装"}}}]}},"pageContext":{"tag":"X-pack"}},
+    "staticQueryHashes": []}

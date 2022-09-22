@@ -1,0 +1,5 @@
+{
+    "componentChunkName": "component---src-templates-tags-js",
+    "path": "/tags/kerberos/",
+    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2018-10-31-ZooKeeper-kerberos/"},"frontmatter":{"title":"ZooKeeper kerberos 客户端认证"}}}]}},"pageContext":{"tag":"kerberos"}},
+    "staticQueryHashes": []}

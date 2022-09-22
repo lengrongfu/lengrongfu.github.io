@@ -1,0 +1,5 @@
+{
+    "componentChunkName": "component---src-templates-tags-js",
+    "path": "/tags/CNI/",
+    "result": {"data":{"allMarkdownRemark":{"totalCount":2,"edges":[{"node":{"fields":{"slug":"/2022-05-11-k8s之CNI规范解读/"},"frontmatter":{"title":"Kubernetes网络之CNI规范解读"}}},{"node":{"fields":{"slug":"/2018-12-05-Container-Networking-Standards/"},"frontmatter":{"title":"Container Networking 标准"}}}]}},"pageContext":{"tag":"CNI"}},
+    "staticQueryHashes": []}

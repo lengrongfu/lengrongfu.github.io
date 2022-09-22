@@ -1,0 +1,5 @@
+{
+    "componentChunkName": "component---src-templates-tags-js",
+    "path": "/tags/elasticsearch/",
+    "result": {"data":{"allMarkdownRemark":{"totalCount":6,"edges":[{"node":{"fields":{"slug":"/2018-10-17-elk-install/"},"frontmatter":{"title":"elk 搭建"}}},{"node":{"fields":{"slug":"/2018-10-17-es-single-node-install/"},"frontmatter":{"title":"es 单节点部署多个服务"}}},{"node":{"fields":{"slug":"/2018-10-17-es-dynamic-index-create/"},"frontmatter":{"title":"es 索引按时间自动创建"}}},{"node":{"fields":{"slug":"/2018-10-17-es-node-restart-problme/"},"frontmatter":{"title":"ES 节点重启问题"}}},{"node":{"fields":{"slug":"/2018-10-17-es-xpack-watch-user/"},"frontmatter":{"title":"es-xpack-watch-user"}}},{"node":{"fields":{"slug":"/2018-10-17-es-xpack-install/"},"frontmatter":{"title":"ES X-Pack 5.4.3破解安装"}}}]}},"pageContext":{"tag":"elasticsearch"}},
+    "staticQueryHashes": []}
