@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/容器调度/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2022-07-11-Kubernetes-Scheduler/"},"frontmatter":{"title":"Kubernetes Scheduler"}}}]}},"pageContext":{"tag":"容器调度"}},
-    "staticQueryHashes": []}

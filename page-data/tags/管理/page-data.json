@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/管理/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2021-05-26-启航/"},"frontmatter":{"title":"启航"}}}]}},"pageContext":{"tag":"管理"}},
-    "staticQueryHashes": []}

@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/CNM/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2018-12-05-Container-Networking-Standards/"},"frontmatter":{"title":"Container Networking 标准"}}}]}},"pageContext":{"tag":"CNM"}},
-    "staticQueryHashes": []}

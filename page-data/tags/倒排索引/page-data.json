@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/倒排索引/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2019-03-25-Inverted-index/"},"frontmatter":{"title":"Inverted-index"}}}]}},"pageContext":{"tag":"倒排索引"}},
-    "staticQueryHashes": []}

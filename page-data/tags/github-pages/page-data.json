@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/github-pages/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2018-09-03-搭建一个自己的blog/"},"frontmatter":{"title":"搭建一个自己的blog"}}}]}},"pageContext":{"tag":"github-pages"}},
-    "staticQueryHashes": []}

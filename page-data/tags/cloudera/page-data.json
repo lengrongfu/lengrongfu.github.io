@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/cloudera/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":2,"edges":[{"node":{"fields":{"slug":"/2018-10-16-cloudera-problem/"},"frontmatter":{"title":"cloudera 问题解决"}}},{"node":{"fields":{"slug":"/2018-09-06-cloudera/"},"frontmatter":{"title":"cloudera hadoop 安装"}}}]}},"pageContext":{"tag":"cloudera"}},
-    "staticQueryHashes": []}

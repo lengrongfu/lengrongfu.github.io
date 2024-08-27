@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/kibana/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2018-10-17-elk-install/"},"frontmatter":{"title":"elk 搭建"}}}]}},"pageContext":{"tag":"kibana"}},
-    "staticQueryHashes": []}

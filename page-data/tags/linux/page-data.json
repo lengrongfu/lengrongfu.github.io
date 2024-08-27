@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/linux/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":5,"edges":[{"node":{"fields":{"slug":"/2019-06-08-Linux-Tcp-端口耗尽/"},"frontmatter":{"title":"Linux Tcp 端口耗尽"}}},{"node":{"fields":{"slug":"/2018-10-17-linux-crond/"},"frontmatter":{"title":"linux-crond"}}},{"node":{"fields":{"slug":"/2018-10-17-linux-recording-user-log/"},"frontmatter":{"title":"linux 记录操作记录"}}},{"node":{"fields":{"slug":"/2018-10-17-linux-Firewall/"},"frontmatter":{"title":"linux-Firewall 配置"}}},{"node":{"fields":{"slug":"/2018-10-17-linux-Keepalived/"},"frontmatter":{"title":"linux-Keepalived 使用"}}}]}},"pageContext":{"tag":"linux"}},
-    "staticQueryHashes": []}

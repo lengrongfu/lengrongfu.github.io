@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/概念/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2019-03-16-Prometheus-1/"},"frontmatter":{"title":"Prometheus 初探一"}}}]}},"pageContext":{"tag":"概念"}},
-    "staticQueryHashes": []}

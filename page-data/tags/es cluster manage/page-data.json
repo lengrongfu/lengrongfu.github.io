@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/es cluster manage/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2019-01-24-es-cluster-reroute/"},"frontmatter":{"title":"ES cluster reroute"}}}]}},"pageContext":{"tag":"es cluster manage"}},
-    "staticQueryHashes": []}

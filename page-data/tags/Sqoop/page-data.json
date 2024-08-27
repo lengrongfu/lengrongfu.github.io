@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/Sqoop/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2018-09-11-Sqoop/"},"frontmatter":{"title":"Sqoop User Guide(Sqoop使用指南)"}}}]}},"pageContext":{"tag":"Sqoop"}},
-    "staticQueryHashes": []}

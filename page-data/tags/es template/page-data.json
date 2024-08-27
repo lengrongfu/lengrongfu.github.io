@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/es template/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2018-10-17-es-dynamic-index-create/"},"frontmatter":{"title":"es 索引按时间自动创建"}}}]}},"pageContext":{"tag":"es template"}},
-    "staticQueryHashes": []}

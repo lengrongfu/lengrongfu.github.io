@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/machinelean/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2018-11-16-es-xpack-machinelean/"},"frontmatter":{"title":"es-xpack-machinelean"}}}]}},"pageContext":{"tag":"machinelean"}},
-    "staticQueryHashes": []}

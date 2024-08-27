@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/安装教程/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":2,"edges":[{"node":{"fields":{"slug":"/2018-09-06-cloudera/"},"frontmatter":{"title":"cloudera hadoop 安装"}}},{"node":{"fields":{"slug":"/2018-09-03-搭建一个自己的blog/"},"frontmatter":{"title":"搭建一个自己的blog"}}}]}},"pageContext":{"tag":"安装教程"}},
-    "staticQueryHashes": []}

@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/Serveless/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2022-03-01-serverless基础知识/"},"frontmatter":{"title":"Serverless 入门知识"}}}]}},"pageContext":{"tag":"Serveless"}},
-    "staticQueryHashes": []}

@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/生活/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2021-05-15-断更的这段时间我去哪了/"},"frontmatter":{"title":"断更的这段时间我去哪了？"}}}]}},"pageContext":{"tag":"生活"}},
-    "staticQueryHashes": []}

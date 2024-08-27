@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/spring boot validate/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2018-12-27-spring-validate-common-handler/"},"frontmatter":{"title":"spring boot validate 统一处理"}}}]}},"pageContext":{"tag":"spring boot validate"}},
-    "staticQueryHashes": []}

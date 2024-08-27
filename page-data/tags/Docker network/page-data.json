@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/Docker network/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2018-11-25-docker-network-concept/"},"frontmatter":{"title":"docker 网络概念"}}}]}},"pageContext":{"tag":"Docker network"}},
-    "staticQueryHashes": []}

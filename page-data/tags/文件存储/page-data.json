@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/文件存储/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2019-05-07-file-save/"},"frontmatter":{"title":"文件存储系统设计"}}}]}},"pageContext":{"tag":"文件存储"}},
-    "staticQueryHashes": []}

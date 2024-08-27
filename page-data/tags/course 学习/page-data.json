@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/course 学习/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":2,"edges":[{"node":{"fields":{"slug":"/2019-04-05-Introduction-to-Algorithms-lecture-2/"},"frontmatter":{"title":"渐进符号、替换、递归树、主方法"}}},{"node":{"fields":{"slug":"/2019-03-30-Introduction-to-Algorithms-lecture-1/"},"frontmatter":{"title":"算法分析、插入排序、归并排序"}}}]}},"pageContext":{"tag":"course 学习"}},
-    "staticQueryHashes": []}

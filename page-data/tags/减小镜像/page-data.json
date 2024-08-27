@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/减小镜像/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2018-11-27-docker-multi-stage-builds/"},"frontmatter":{"title":"docker 多阶段构建"}}}]}},"pageContext":{"tag":"减小镜像"}},
-    "staticQueryHashes": []}

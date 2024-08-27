@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/mysql/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2018-10-17-mysql-install/"},"frontmatter":{"title":"mysql-install"}}}]}},"pageContext":{"tag":"mysql"}},
-    "staticQueryHashes": []}

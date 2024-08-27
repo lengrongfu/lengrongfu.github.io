@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/spring boot stater/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2018-10-17-new-spring-boot-stater/"},"frontmatter":{"title":"自定义 spring-boot-stater"}}}]}},"pageContext":{"tag":"spring boot stater"}},
-    "staticQueryHashes": []}

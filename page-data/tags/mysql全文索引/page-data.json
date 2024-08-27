@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/mysql全文索引/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2019-03-25-Inverted-index/"},"frontmatter":{"title":"Inverted-index"}}}]}},"pageContext":{"tag":"mysql全文索引"}},
-    "staticQueryHashes": []}

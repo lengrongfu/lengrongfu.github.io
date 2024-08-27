@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/crond/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2018-10-17-linux-crond/"},"frontmatter":{"title":"linux-crond"}}}]}},"pageContext":{"tag":"crond"}},
-    "staticQueryHashes": []}

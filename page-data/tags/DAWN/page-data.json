@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/DAWN/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2018-10-31-DAWN-Group/"},"frontmatter":{"title":"DAWN Group"}}}]}},"pageContext":{"tag":"DAWN"}},
-    "staticQueryHashes": []}

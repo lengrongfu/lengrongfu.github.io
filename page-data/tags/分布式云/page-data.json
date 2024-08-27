@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/分布式云/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2021-05-19-分布式云/"},"frontmatter":{"title":"2020年十大战略技术趋势：分布式云"}}}]}},"pageContext":{"tag":"分布式云"}},
-    "staticQueryHashes": []}

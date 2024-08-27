@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/linux 命令/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2019-06-19-linux-sed/"},"frontmatter":{"title":"linux sed"}}}]}},"pageContext":{"tag":"linux 命令"}},
-    "staticQueryHashes": []}

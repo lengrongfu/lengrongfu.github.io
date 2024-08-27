@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/orange/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2019-05-21-orange-原理/"},"frontmatter":{"title":"orange原理以及使用"}}}]}},"pageContext":{"tag":"orange"}},
-    "staticQueryHashes": []}

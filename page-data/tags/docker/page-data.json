@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/docker/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":2,"edges":[{"node":{"fields":{"slug":"/2018-11-27-docker-multi-stage-builds/"},"frontmatter":{"title":"docker 多阶段构建"}}},{"node":{"fields":{"slug":"/2018-11-13-docker-network-beginner/"},"frontmatter":{"title":"docker network 入门"}}}]}},"pageContext":{"tag":"docker"}},
-    "staticQueryHashes": []}

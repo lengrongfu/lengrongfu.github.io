@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-tags-js",
-    "path": "/tags/tcp/",
-    "result": {"data":{"allMarkdownRemark":{"totalCount":1,"edges":[{"node":{"fields":{"slug":"/2019-06-08-Linux-Tcp-端口耗尽/"},"frontmatter":{"title":"Linux Tcp 端口耗尽"}}}]}},"pageContext":{"tag":"tcp"}},
-    "staticQueryHashes": []}
