@@ -12,9 +12,8 @@
         <id>https://lengrongfu.github.io/blog/kubelet-five-analyze</id>
         <link href="https://lengrongfu.github.io/blog/kubelet-five-analyze"/>
         <updated>2024-08-31T00:00:00.000Z</updated>
-        <summary type="html"><![CDATA[在 Kubelet 源码分析工作原理中介绍过, Kubelet 中有两个核心的数据结构字段, podManager 和 podWorkers ,现在我们来一探究竟。]]></summary>
-        <content type="html"><![CDATA[<p>在 <code>Kubelet</code> 源码分析工作原理中介绍过, <code>Kubelet</code> 中有两个核心的数据结构字段, <strong><code>podManager</code></strong> 和 **<code>podWorkers</code> ,**现在我们来一探究竟。</p>
-<p>在 <code>Kubelet</code> 源码分析工作原理中介绍过, <code>Kubelet</code> 中有两个核心的数据结构字段, <strong><code>podManager</code></strong> 和 **<code>podWorkers</code> ,**现在我们来一探究竟。</p>
+        <summary type="html"><![CDATA[在 Kubelet 源码分析工作原理中介绍过, Kubelet 中有两个核心的数据结构字段, podManager 和 podWorkers, 现在我们来一探究竟。]]></summary>
+        <content type="html"><![CDATA[<p>在 <code>Kubelet</code> 源码分析工作原理中介绍过, <code>Kubelet</code> 中有两个核心的数据结构字段, <strong><code>podManager</code></strong> 和 <strong><code>podWorkers</code></strong>, 现在我们来一探究竟。</p>
 <p><strong><code>podManager</code></strong> 和 <strong><code>podWorkers</code></strong> 里面保存的 <code>Pod</code> 内容可能不一样，比如：</p>
 <ul>
 <li>强制删除 <code>Pod</code> 时，会把 <strong><code>podManager</code></strong>  中的记录删除掉，但是**<code>podWorkers</code>**  中的 <code>Pod</code> 会执行正常的删除流程；此时就出现 <strong><code>podManager</code></strong> 不存在**，<code>podWorkers</code>** 存在的问题**。**</li>
@@ -91,7 +90,6 @@
         <updated>2024-08-30T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[在代码中是没有 probeCh 这个 chan 的，主要是由 livenessManager readinessManager startupManager 这三个探针的 chan 构成的。]]></summary>
         <content type="html"><![CDATA[<p>在代码中是没有 <code>probeCh</code> 这个 <code>chan</code> 的，主要是由 <code>livenessManager</code> <code>readinessManager</code> <code>startupManager</code> 这三个探针的 <code>chan</code> 构成的。</p>
-<p>在代码中是没有 <code>probeCh</code> 这个 <code>chan</code> 的，主要是由 <code>livenessManager</code> <code>readinessManager</code> <code>startupManager</code> 这三个探针的 <code>chan</code> 构成的。</p>
 <p>它们的核心实现在  <code>probeManager prober.Manager</code> 上。</p>
 <p><img decoding="async" loading="lazy" src="https://firebasestorage.googleapis.com/v0/b/notiondiagram.appspot.com/o/diagram%2Fm5smUNzLG7NDZmSPY82qhFvWnsu1%2Ff8dcda60-944c-4a62-8c8f-61fcd9f9dfcd.svg?alt=media&amp;token=c0378f71-cc9c-4c0a-b023-86555e7fbe37" alt="probch.png" class="img_ev3q"></p>
 <p><code>probeCh</code> 是分别代表三个  <code>chan</code> ,分别是 <code>livenessCh</code> <code>readinessCh</code> <code>startupCh</code> ,在图中进行了统一，但是 <code>code</code> 中是三个通道。</p>
@@ -120,7 +118,6 @@
         <updated>2024-08-29T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[PLEG 全称是 Pod Lifecycle Event Generator ，它主要通过读取 container 的 Event 来更新 Pod 的状态，目前提供了 GenericPLEG 和 EventedPLEG 两种模式，不同点 GenericPLEG 是定时去读取事件，EventedPLEG 时通过主动接受事件的推送。]]></summary>
         <content type="html"><![CDATA[<p><code>PLEG</code> 全称是 <code>Pod Lifecycle Event Generator</code> ，它主要通过读取 <code>container</code> 的 <code>Event</code> 来更新 <code>Pod</code> 的状态，目前提供了 <code>GenericPLEG</code> 和 <code>EventedPLEG</code> 两种模式，不同点 <code>GenericPLEG</code> 是定时去读取事件，<code>EventedPLEG</code> 时通过主动接受事件的推送。</p>
-<p><code>PLEG</code> 全称是 <code>Pod Lifecycle Event Generator</code> ，它主要通过读取 <code>container</code> 的 <code>Event</code> 来更新 <code>Pod</code> 的状态，目前提供了 <code>GenericPLEG</code> 和 <code>EventedPLEG</code> 两种模式，不同点 <code>GenericPLEG</code> 是定时去读取事件，<code>EventedPLEG</code> 时通过主动接受事件的推送。</p>
 <p><img decoding="async" loading="lazy" src="https://firebasestorage.googleapis.com/v0/b/notiondiagram.appspot.com/o/diagram%2Fm5smUNzLG7NDZmSPY82qhFvWnsu1%2F46bd1519-3feb-409c-96b3-98e02692f488.svg?alt=media&amp;token=0f26310c-2165-4755-80c0-d2acc8682ed7" alt="a" class="img_ev3q"></p>
 <h2 class="anchor anchorWithHideOnScrollNavbar_WYt5" id="genericpleg">GenericPLEG<a href="https://lengrongfu.github.io/blog/kubelet-three-analyze#genericpleg" class="hash-link" aria-label="Direct link to GenericPLEG" title="Direct link to GenericPLEG">​</a></h2>
 <p>通用 <code>PLEG</code> 配置的是每秒中读取一次。</p>
