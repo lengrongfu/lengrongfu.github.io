@@ -2,11 +2,60 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://lengrongfu.github.io/blog</id>
     <title>My Site Blog</title>
-    <updated>2024-09-03T00:00:00.000Z</updated>
+    <updated>2024-09-05T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://lengrongfu.github.io/blog"/>
     <subtitle>My Site Blog</subtitle>
     <icon>https://lengrongfu.github.io/img/favicon.ico</icon>
+    <entry>
+        <title type="html"><![CDATA[kubelet 源码分析 devicemanager]]></title>
+        <id>https://lengrongfu.github.io/blog/kubelet-devicemanage</id>
+        <link href="https://lengrongfu.github.io/blog/kubelet-devicemanage"/>
+        <updated>2024-09-05T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[device-plugin  是 Kubernetes 用来扩展除 CPU Memory  之外的硬件设备，比如常见的 Nvidia GPU .]]></summary>
+        <content type="html"><![CDATA[<p><code>device-plugin</code>  是 <code>Kubernetes</code> 用来扩展除 <code>CPU</code> <code>Memory</code>  之外的硬件设备，比如常见的 <code>Nvidia GPU</code> .</p>
+<p>下面主要来分析一下在 <code>Kubelet</code> 中是如何调用 <code>device-plugin</code> 的，以及如何生成 <code>OCI Spec</code> 内容。</p>
+<p><code>device-plugin</code> 也存在一些限制，因为它不感知 <code>Pod</code> 和 <code>Container</code> ，就导致没办法做一些动态的资源分配，比如根据用户设置选用某个 <code>GPU</code> 型号或者是指定使用某个设备的 <code>UUID</code> ；目前社区主要是在推进 <code>DRA</code> 来解决这些问题。</p>
+<h2 class="anchor anchorWithHideOnScrollNavbar_WYt5" id="kubelet-调用流程">kubelet 调用流程<a href="https://lengrongfu.github.io/blog/kubelet-devicemanage#kubelet-%E8%B0%83%E7%94%A8%E6%B5%81%E7%A8%8B" class="hash-link" aria-label="Direct link to kubelet 调用流程" title="Direct link to kubelet 调用流程">​</a></h2>
+<p><code>device plugin</code> 的工作原理其实不复杂。主要有以下步骤：</p>
+<ul>
+<li>首先 <code>device plugin</code> 可以通过 <code>daemonset</code> 部署到需要的节点上。</li>
+<li>为了让 <code>Kubernetes</code> 发现 <code>device plugin</code>，需要向 <code>kubelet</code> 的 <code>unix socket</code>。 进行注册，注册的信息包括 <code>device plugin</code> 的 <code>unix socket</code> <code>API Version</code> <code>ResourceName</code></li>
+<li><code>kubelet</code> 通过 <code>grpc</code> 向 <code>device plugin</code> 调用 <code>ListAndWatch</code>， 获取当前节点上的资源。</li>
+<li><code>kubelet</code> 向 <code>api server</code> 更新节点状态来通知资源变更。</li>
+<li>用户创建 <code>pod</code>，请求资源并调度到节点上后, <code>kubelet</code> 调用 <code>device plugin</code> 的 <code>Allocate</code> 进行资源分配。</li>
+</ul>
+<p>时序图如下:</p>
+<p><img decoding="async" loading="lazy" alt="image.png" src="https://lengrongfu.github.io/assets/images/image-e526919fba362e3d08f171b6b4fc3672.png" width="1442" height="578" class="img_ev3q"></p>
+<p><code>device-plugin</code> 源码模块在 <code>pkg/kubelet/cm/devicemanager</code> 目录下，是 <code>ContainerManager</code> 模块的一部分，主要是用来在创建 <code>Container</code> 过程中，生成 <code>OCI Spec</code> 内容的。</p>
+<p>下面按照两个流程来讲解源码，一个是注册流程和获取节点设备，还有一个是分配流程；</p>
+<p>注册和获取可用设备流程：</p>
+<p><img decoding="async" loading="lazy" src="https://firebasestorage.googleapis.com/v0/b/notiondiagram.appspot.com/o/diagram%2Fm5smUNzLG7NDZmSPY82qhFvWnsu1%2F0d36a640-61c1-4773-ab12-29c5ff176a94.svg?alt=media&amp;token=c5d24a2f-911c-4fc3-b73a-d11a700438fa" alt="" class="img_ev3q"></p>
+<p>资源分配流程</p>
+<p><img decoding="async" loading="lazy" src="https://firebasestorage.googleapis.com/v0/b/notiondiagram.appspot.com/o/diagram%2Fm5smUNzLG7NDZmSPY82qhFvWnsu1%2F411db6c6-133a-4029-a3f2-913498df5331.svg?alt=media&amp;token=7a942296-b51f-40e9-aa16-91b8cbe537e3" alt="" class="img_ev3q"></p>
+<p>从 <code>ContainerManager</code> 的 <code>GetResources</code> 方法进入 <code>devicemanager</code> 模块中，开始获取分配的设备，最后返回一个 <code>DeviceRunContainerOptions</code> 对象：</p>
+<div class="language-go codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-go codeBlock_bY9V thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#393A34"><span class="token keyword" style="color:#00009f">type</span><span class="token plain"> DeviceRunContainerOptions </span><span class="token keyword" style="color:#00009f">struct</span><span class="token plain"> </span><span class="token punctuation" style="color:#393A34">{</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">	</span><span class="token comment" style="color:#999988;font-style:italic">// The environment variables list.</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">	Envs </span><span class="token punctuation" style="color:#393A34">[</span><span class="token punctuation" style="color:#393A34">]</span><span class="token plain">kubecontainer</span><span class="token punctuation" style="color:#393A34">.</span><span class="token plain">EnvVar</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">	</span><span class="token comment" style="color:#999988;font-style:italic">// The mounts for the container.</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">	Mounts </span><span class="token punctuation" style="color:#393A34">[</span><span class="token punctuation" style="color:#393A34">]</span><span class="token plain">kubecontainer</span><span class="token punctuation" style="color:#393A34">.</span><span class="token plain">Mount</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">	</span><span class="token comment" style="color:#999988;font-style:italic">// The host devices mapped into the container.</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">	Devices </span><span class="token punctuation" style="color:#393A34">[</span><span class="token punctuation" style="color:#393A34">]</span><span class="token plain">kubecontainer</span><span class="token punctuation" style="color:#393A34">.</span><span class="token plain">DeviceInfo</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">	</span><span class="token comment" style="color:#999988;font-style:italic">// The Annotations for the container</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">	Annotations </span><span class="token punctuation" style="color:#393A34">[</span><span class="token punctuation" style="color:#393A34">]</span><span class="token plain">kubecontainer</span><span class="token punctuation" style="color:#393A34">.</span><span class="token plain">Annotation</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">	</span><span class="token comment" style="color:#999988;font-style:italic">// CDI Devices for the container</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">	CDIDevices </span><span class="token punctuation" style="color:#393A34">[</span><span class="token punctuation" style="color:#393A34">]</span><span class="token plain">kubecontainer</span><span class="token punctuation" style="color:#393A34">.</span><span class="token plain">CDIDevice</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"></span><span class="token punctuation" style="color:#393A34">}</span><br></span></code></pre><div class="buttonGroup__atx"><button type="button" aria-label="Copy code to clipboard" title="Copy" class="clean-btn"><span class="copyButtonIcons_eSgA" aria-hidden="true"><svg viewBox="0 0 24 24" class="copyButtonIcon_y97N"><path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"></path></svg><svg viewBox="0 0 24 24" class="copyButtonSuccessIcon_LjdS"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"></path></svg></span></button></div></div></div>
+<p>如果启用了 <code>CDI</code> 则 <code>CDIDevices</code> 这个字段非空，此时需要挂载哪些设备就需要等容器运行时解析 <code>CDI</code> 文件然后 <code>Merge</code> 到 <code>OCI Spec</code> 文件中了。</p>
+<p>下面主要讲一下几个函数的实现逻辑；</p>
+<h3 class="anchor anchorWithHideOnScrollNavbar_WYt5" id="listandwatch">ListAndWatch<a href="https://lengrongfu.github.io/blog/kubelet-devicemanage#listandwatch" class="hash-link" aria-label="Direct link to ListAndWatch" title="Direct link to ListAndWatch">​</a></h3>
+<p><code>ListAndWatch</code> 主要在启动的时候发送 <code>Send</code> 一次设备，之后进入监听本地设备的环节，如果出现设备不健康，则重新 <code>Send</code> 所有健康的设备。</p>
+<h3 class="anchor anchorWithHideOnScrollNavbar_WYt5" id="allocate">Allocate<a href="https://lengrongfu.github.io/blog/kubelet-devicemanage#allocate" class="hash-link" aria-label="Direct link to Allocate" title="Direct link to Allocate">​</a></h3>
+<p>在用户创建的 <code>Pod</code> 请求资源时，<code>Kubernetes</code> 的调度器会进行调度，并通过 <code>kubelet</code> 向 <code>device plugin</code> 发出 <code>Allocate</code> 调用，这一步的调用主要是为了让 <code>device plugin</code> 为容器调度资源。 在调度成功后向 <code>kubelet</code> 返回调度结果即可。</p>
+<h3 class="anchor anchorWithHideOnScrollNavbar_WYt5" id="getdevicepluginoption">GetDevicePluginOption<a href="https://lengrongfu.github.io/blog/kubelet-devicemanage#getdevicepluginoption" class="hash-link" aria-label="Direct link to GetDevicePluginOption" title="Direct link to GetDevicePluginOption">​</a></h3>
+<p>主要返回与 <code>Device Manager</code> 通信的一些可选参数设置，主要返回如下结构：</p>
+<div class="language-go codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-go codeBlock_bY9V thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#393A34"><span class="token keyword" style="color:#00009f">type</span><span class="token plain"> DevicePluginOptions </span><span class="token keyword" style="color:#00009f">struct</span><span class="token plain"> </span><span class="token punctuation" style="color:#393A34">{</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">    </span><span class="token comment" style="color:#999988;font-style:italic">// 每个容器启动前是否需要调用 PreStartContainer</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">    PreStartRequired </span><span class="token builtin">bool</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">    </span><span class="token comment" style="color:#999988;font-style:italic">// GetPreferredAllocationAvailable: 是否提供优选方法</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">    GetPreferredAllocationAvailable </span><span class="token builtin">bool</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"></span><span class="token punctuation" style="color:#393A34">}</span><br></span></code></pre><div class="buttonGroup__atx"><button type="button" aria-label="Copy code to clipboard" title="Copy" class="clean-btn"><span class="copyButtonIcons_eSgA" aria-hidden="true"><svg viewBox="0 0 24 24" class="copyButtonIcon_y97N"><path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"></path></svg><svg viewBox="0 0 24 24" class="copyButtonSuccessIcon_LjdS"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"></path></svg></span></button></div></div></div>
+<h3 class="anchor anchorWithHideOnScrollNavbar_WYt5" id="prestartcontainer">PreStartContainer<a href="https://lengrongfu.github.io/blog/kubelet-devicemanage#prestartcontainer" class="hash-link" aria-label="Direct link to PreStartContainer" title="Direct link to PreStartContainer">​</a></h3>
+<p>如果设备插件在注册阶段设置 <code>PreStartRequired=true</code> 了要调用，则在每个容器启动之前调用 <code>PreStartContainer</code>。 设备插件可以运行设备特定的操作，例如在使设备可供容器使用之前重置设备。</p>
+<h3 class="anchor anchorWithHideOnScrollNavbar_WYt5" id="getpreferredallocation">GetPreferredAllocation<a href="https://lengrongfu.github.io/blog/kubelet-devicemanage#getpreferredallocation" class="hash-link" aria-label="Direct link to GetPreferredAllocation" title="Direct link to GetPreferredAllocation">​</a></h3>
+<p>如果设备插件在注册阶段设置 <code>PreStartRequired=true</code> 了要调用，可以针对指定的设备列表做二次最优分配。</p>
+<p>官方的 <code>nvidia-device-plugin</code> 在 <code>GetPreferredAllocation</code> 内部实现了节点内多卡最优选择的逻辑，通过确定多卡之间的拓扑信息来决定通信量。</p>]]></content>
+        <author>
+            <name>Leng</name>
+            <uri>https://github.com/lengrongfu</uri>
+        </author>
+        <category label="Kubernetes" term="Kubernetes"/>
+        <category label="Kubelet" term="Kubelet"/>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Kubelet源码分析 Configmap/Secret volume]]></title>
         <id>https://lengrongfu.github.io/blog/kubelet-configmap</id>
@@ -1407,146 +1456,5 @@
             <uri>https://github.com/lengrongfu</uri>
         </author>
         <category label="golang" term="golang"/>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[技术写作 第二课]]></title>
-        <id>https://lengrongfu.github.io/blog/技术写作</id>
-        <link href="https://lengrongfu.github.io/blog/技术写作"/>
-        <updated>2021-05-25T00:00:00.000Z</updated>
-        <summary type="html"><![CDATA[技术写作 第二课]]></summary>
-        <content type="html"><![CDATA[<p>技术写作 第二课</p>
-<h3 class="anchor anchorWithHideOnScrollNavbar_WYt5" id="目标读者">目标读者<a href="https://lengrongfu.github.io/blog/%E6%8A%80%E6%9C%AF%E5%86%99%E4%BD%9C#%E7%9B%AE%E6%A0%87%E8%AF%BB%E8%80%85" class="hash-link" aria-label="Direct link to 目标读者" title="Direct link to 目标读者">​</a></h3>
-<p>​		本课程的目标读者为已完成<a href="https://lengrongfu.github.io/2021/05/21/%E6%8A%80%E6%9C%AF%E5%86%99%E4%BD%9C-%E7%AC%AC%E4%B8%80%E8%8A%82/" target="_blank" rel="noopener noreferrer">技术写作 第一课</a>，但是仍然渴望进行更多写作培训的人员。如果你没有接受过任何技术写作的培训，最好先看一下第一课能容。</p>
-<h3 class="anchor anchorWithHideOnScrollNavbar_WYt5" id="学习目标">学习目标<a href="https://lengrongfu.github.io/blog/%E6%8A%80%E6%9C%AF%E5%86%99%E4%BD%9C#%E5%AD%A6%E4%B9%A0%E7%9B%AE%E6%A0%87" class="hash-link" aria-label="Direct link to 学习目标" title="Direct link to 学习目标">​</a></h3>
-<p>​		这节课侧重于技术写作中的几个中间主题，学习完本课程之后，将收获如下的知识：</p>
-<ul>
-<li>从几种不同的策略中选择一种编写第一稿的策略，以及第二稿、第三稿的其他策略。</li>
-<li>使用多种技术来检测写作中的错误。</li>
-<li>学会组织大型的文档。</li>
-<li>介绍文档的范围和所有先决条件。</li>
-<li>写下清晰的图形标题。</li>
-<li>在技术插图中选择适当的信息密度。</li>
-<li>将读者的注意力集中在插图上。</li>
-<li>通过图片建立上下文。</li>
-<li>有效的修改技术插图。</li>
-<li>创建有用、准确、简洁，清晰，可重用和注释良好的代码，用来演示一系列的复杂性。</li>
-<li>标示不同的文档类型。</li>
-<li>描述所有的内容。</li>
-<li>体谅初学者，并为他们编写教程。</li>
-</ul>
-<p>​		成为一名优秀的工程师或者优秀的技术作家都需要花费多年的专注实践，这门课程能提高你的写作水平，但不会立即使你成为一个出色的作家。</p>
-<h3 class="anchor anchorWithHideOnScrollNavbar_WYt5" id="自我编辑">自我编辑<a href="https://lengrongfu.github.io/blog/%E6%8A%80%E6%9C%AF%E5%86%99%E4%BD%9C#%E8%87%AA%E6%88%91%E7%BC%96%E8%BE%91" class="hash-link" aria-label="Direct link to 自我编辑" title="Direct link to 自我编辑">​</a></h3>
-<p>参考《<a href="https://developers.google.com/style/highlights" target="_blank" rel="noopener noreferrer">Google开发分档风格指南</a>》</p>
-<p>换位思考：</p>
-<ul>
-<li>尝试从读者的角度阅读文档，确保文档目的是明确的；并考虑好不同的角色所拥有的知识储备。</li>
-<li>然后从作者的角度阅读文档，确保你做的假设有用，还可以提供资源的链接。</li>
-<li>最后请注意，过分依赖角色，会导致文档过于狭隘，而无法对大多数读者有用。</li>
-</ul>
-<p>大声读出来：</p>
-<ul>
-<li>自己大声的朗读或者使用屏幕阅读器朗读，来听取尴尬的措辞，冗长的句子或其他不自然的内容。</li>
-</ul>
-<p>编写每一搞的策略：</p>
-<ul>
-<li>编写完每一个版本之后，先放边上一个小时，然后再回来阅读一遍，总会发现有可以改进的地方，推荐做三遍。</li>
-</ul>
-<p>检查写作中的错误：</p>
-<ul>
-<li>邀请某人查看你的文档，并给你具体的，建设性意见。</li>
-<li>阅读的人不一定是同行，但是最好熟悉你遵循的文档风格。</li>
-</ul>
-<h3 class="anchor anchorWithHideOnScrollNavbar_WYt5" id="写一个大型文档">写一个大型文档<a href="https://lengrongfu.github.io/blog/%E6%8A%80%E6%9C%AF%E5%86%99%E4%BD%9C#%E5%86%99%E4%B8%80%E4%B8%AA%E5%A4%A7%E5%9E%8B%E6%96%87%E6%A1%A3" class="hash-link" aria-label="Direct link to 写一个大型文档" title="Direct link to 写一个大型文档">​</a></h3>
-<p>使用以下策略可以帮助你们撰写大型文档：</p>
-<ul>
-<li>选择编写单个大型文档或一组简短文档。</li>
-<li>把简短文档整理为一个大型文档。</li>
-<li>给大型文档添加导航。</li>
-<li>逐步暴露信息。</li>
-</ul>
-<p>什么时候写大文档：</p>
-<ul>
-<li>当你的阅读对象是刚入门的读者时，写操作指南、入门概述和概念性指南通常能以短文的形式提供更好的作用。</li>
-<li>当已经对工具和主题有一定经验的读者，写深入教程，最佳实践指南和命令行参考页可以作为更长的文档使用。</li>
-<li>好的教程能可以依靠叙述来引导读者完成较长文档中的一系列相关任务。</li>
-</ul>
-<p>写较长文档的方法：</p>
-<ul>
-<li>创建大纲和起草宣言。</li>
-<li>完成初稿之后，可以更具概述和简介对其进行复审。</li>
-</ul>
-<p>编写大纲的实用技巧：</p>
-<ul>
-<li>在要求读者执行任务前，先解释为什么要执行此任务。</li>
-<li>将大纲的每个步骤限制为描述概念或完成特定任务。</li>
-<li>构造轮廓，以便文档在与读者最相关时引入信息。</li>
-<li>在起草前，先与贡献者共享大纲内容。</li>
-</ul>
-<p>可以提供一个基本信息来介绍文档：</p>
-<ul>
-<li>说明文档涵盖的内容。</li>
-<li>希望读者具备哪些知识储备。</li>
-<li>说明文档没有涵盖那些内容。</li>
-</ul>
-<p>为文档添加目录，可确保读者能快速的找到所需要的内容，清晰的目录包括：</p>
-<ul>
-<li>简介和摘要</li>
-<li>主题清晰</li>
-<li>有助于用户理解的标题和子标题</li>
-<li>提示用户在目录中的位置</li>
-<li>可以通过目录能跳转到相关位置</li>
-<li>有下一步学习的链接</li>
-</ul>
-<p>在每个标题下都进行简短的介绍，避免在标题后面马上放入下一级标题。</p>
-<h3 class="anchor anchorWithHideOnScrollNavbar_WYt5" id="图片">图片<a href="https://lengrongfu.github.io/blog/%E6%8A%80%E6%9C%AF%E5%86%99%E4%BD%9C#%E5%9B%BE%E7%89%87" class="hash-link" aria-label="Direct link to 图片" title="Direct link to 图片">​</a></h3>
-<p>在插入图之前写标题会很有帮助，然后，插入能说明标题的图片</p>
-<p>图片中好的标题应该具有下面的特征：</p>
-<ul>
-<li>他们很简短，通常只是几句话。</li>
-<li>说明了重点。</li>
-<li>能吸引读者的注意力。</li>
-</ul>
-<p>考虑以下三个图形，每个图形使用相同的标题。</p>
-<p><img decoding="async" loading="lazy" src="https://gitee.com/lengrongfu/blog-static-file/raw/master/20210521214527.png" alt="" class="img_ev3q"></p>
-<p><strong>标题A。单链接列表包含内容和指向下一个节点的指针。</strong></p>
-<p><img decoding="async" loading="lazy" src="https://gitee.com/lengrongfu/blog-static-file/raw/master/20210521214546.png" alt="" class="img_ev3q"></p>
-<p><strong>标题B。单链接列表包含内容和指向下一个节点的指针。</strong></p>
-<p><img decoding="async" loading="lazy" src="https://gitee.com/lengrongfu/blog-static-file/raw/master/20210521214602.png" alt="" class="img_ev3q"></p>
-<p><strong>标题C。单链接列表包含内容和指向下一个节点的指针。</strong></p>
-<p>上述三个标题中<strong>标题C</strong>是最具启发性的，标题清晰的描述了图片的功能。</p>
-<p>如下图片中的信息量不要过大。</p>
-<p><img decoding="async" loading="lazy" src="https://gitee.com/lengrongfu/blog-static-file/raw/master/20210521214727.png" alt="" class="img_ev3q"></p>
-<p>如上图的复杂性就会让很多读者望而却步，就像避免过长的句子一样，请尽量避免较复杂的图片。</p>
-<p>将复杂的图片变为连贯且有用的诀窍是将复杂的系统组织成子系统。</p>
-<p><img decoding="async" loading="lazy" src="https://raw.githubusercontent.com/lengrongfu/images/master/img20210521215106.png" alt="" class="img_ev3q"></p>
-<p><strong>图4.分为三个子系统的复杂系统。</strong></p>
-<p>显示大图之后再分别提供每个子系统的图片。</p>
-<p><img decoding="async" loading="lazy" src="https://raw.githubusercontent.com/lengrongfu/images/master/img20210521215224.png" alt="" class="img_ev3q"></p>
-<p><strong>图5.复杂系统的一个子系统的扩展细节。</strong></p>
-<p>画图工具</p>
-<ul>
-<li><a href="https://drawings.google.com/" target="_blank" rel="noopener noreferrer">Google绘图</a></li>
-<li><a href="https://diagrams.net/" target="_blank" rel="noopener noreferrer">diagrams.net</a></li>
-<li><a href="https://www.lucidchart.com/pages/" target="_blank" rel="noopener noreferrer">lucidchart</a></li>
-</ul>
-<h3 class="anchor anchorWithHideOnScrollNavbar_WYt5" id="创建示例代码">创建示例代码<a href="https://lengrongfu.github.io/blog/%E6%8A%80%E6%9C%AF%E5%86%99%E4%BD%9C#%E5%88%9B%E5%BB%BA%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81" class="hash-link" aria-label="Direct link to 创建示例代码" title="Direct link to 创建示例代码">​</a></h3>
-<p>代码仍然是技术人最喜欢读的，好的代码通常是最好的文档。</p>
-<p>好的代码样本是正确、简洁，你的读者可以快速理解它们，并能以最小的代价重复使用它们。</p>
-<h4 class="anchor anchorWithHideOnScrollNavbar_WYt5" id="正确">正确<a href="https://lengrongfu.github.io/blog/%E6%8A%80%E6%9C%AF%E5%86%99%E4%BD%9C#%E6%AD%A3%E7%A1%AE" class="hash-link" aria-label="Direct link to 正确" title="Direct link to 正确">​</a></h4>
-<p>示例代码应该满足下面条件：</p>
-<ul>
-<li>代码构建没有错误。</li>
-<li>能按要求进行执行。</li>
-<li>要做好生产使用的准备，比如，代码不能有安全漏洞。</li>
-<li>遵循语言的约定。</li>
-</ul>
-<h4 class="anchor anchorWithHideOnScrollNavbar_WYt5" id="简洁">简洁<a href="https://lengrongfu.github.io/blog/%E6%8A%80%E6%9C%AF%E5%86%99%E4%BD%9C#%E7%AE%80%E6%B4%81" class="hash-link" aria-label="Direct link to 简洁" title="Direct link to 简洁">​</a></h4>
-<p>​	    示例代码应该简短，仅包括基本组件，不相关的代码可能会使你的读者分散注意力。但是，也不要用错误的做法来缩短你的代码，在正确和简短之间，我们更看重正确性。</p>]]></content>
-        <author>
-            <name>Leng</name>
-            <uri>https://github.com/lengrongfu</uri>
-        </author>
-        <category label="写作" term="写作"/>
-        <category label="软技能" term="软技能"/>
     </entry>
 </feed>
